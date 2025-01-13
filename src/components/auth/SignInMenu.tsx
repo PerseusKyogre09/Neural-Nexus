@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Github, Mail, Lock, X } from 'lucide-react';
+import { Github, Mail, Lock, X, AlertCircle, User } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 
@@ -8,30 +8,161 @@ interface SignInMenuProps {
   onClose: () => void;
 }
 
+interface AuthError {
+  type: 'email' | 'password' | 'firstName' | 'lastName' | 'general';
+  message: string;
+}
+
 export function SignInMenu({ isOpen, onClose }: SignInMenuProps) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [isSignIn, setIsSignIn] = useState(true);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<AuthError | null>(null);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear errors when user starts typing
+    if (error?.type === name || error?.type === 'general') {
+      setError(null);
+    }
+  };
+
+  const validateForm = () => {
+    if (!isSignIn) {
+      // Validate first name
+      if (!formData.firstName.trim()) {
+        setError({ type: 'firstName', message: 'First name is required' });
+        return false;
+      }
+      
+      // Validate last name
+      if (!formData.lastName.trim()) {
+        setError({ type: 'lastName', message: 'Last name is required' });
+        return false;
+      }
+    }
+
+    // Email validation
+    if (!formData.email) {
+      setError({ type: 'email', message: 'Email is required' });
+      return false;
+    }
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      setError({ type: 'email', message: 'Please enter a valid email address' });
+      return false;
+    }
+
+    // Password validation
+    if (!formData.password) {
+      setError({ type: 'password', message: 'Password is required' });
+      return false;
+    }
+    if (formData.password.length < 6) {
+      setError({ type: 'password', message: 'Password must be at least 6 characters' });
+      return false;
+    }
+
+    // Confirm password validation for sign up
+    if (!isSignIn && formData.password !== formData.confirmPassword) {
+      setError({ type: 'password', message: 'Passwords do not match' });
+      return false;
+    }
+
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
+    if (!validateForm()) return;
+
     setIsLoading(true);
-    
     try {
-      // Add your authentication logic here
-      console.log('Signing in with:', { email, password });
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      onClose();
-    } catch (error) {
-      console.error('Sign in failed:', error);
+      if (isSignIn) {
+        // Sign In logic
+        const response = await fetch('/api/auth/signin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // Handle successful sign in
+          console.log('Signed in successfully:', data);
+          onClose();
+        } else {
+          setError({
+            type: 'general',
+            message: 'Invalid email or password'
+          });
+        }
+      } else {
+        // Sign Up logic
+        const response = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            password: formData.password,
+            displayName: formData.firstName
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Account created successfully:', data);
+          onClose();
+        } else {
+          const errorData = await response.json();
+          setError({
+            type: 'general',
+            message: errorData.message || 'Failed to create account'
+          });
+        }
+      }
+    } catch (err) {
+      setError({
+        type: 'general',
+        message: 'An error occurred during authentication'
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSocialLogin = (provider: 'github' | 'google') => {
-    console.log(`Logging in with ${provider}`);
-    // Add social login logic here
+  const handleSocialLogin = async (provider: 'github' | 'google') => {
+    setError(null);
+    setIsLoading(true);
+    try {
+      // Implement social login logic here
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      console.log(`Logging in with ${provider}`);
+      onClose();
+    } catch (err) {
+      setError({
+        type: 'general',
+        message: `Failed to login with ${provider}`
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -54,47 +185,108 @@ export function SignInMenu({ isOpen, onClose }: SignInMenuProps) {
             </button>
             
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              Welcome back
+              {isSignIn ? 'Welcome back' : 'Create an account'}
             </h2>
             <p className="text-gray-500 dark:text-gray-400 mb-6">
-              Sign in to access your account
+              {isSignIn 
+                ? 'Sign in to access your account' 
+                : 'Join our community of AI enthusiasts'}
             </p>
 
+            {error?.type === 'general' && (
+              <div className="mb-4 p-3 rounded bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 flex items-center">
+                <AlertCircle className="h-4 w-4 mr-2" />
+                {error.message}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-4">
+              {!isSignIn && (
+                <>
+                  <Input
+                    label="First Name"
+                    type="text"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleInputChange}
+                    leftIcon={<User className="h-5 w-5" />}
+                    placeholder="Enter your first name"
+                    error={error?.type === 'firstName' ? error.message : undefined}
+                    required
+                  />
+                  
+                  <Input
+                    label="Last Name"
+                    type="text"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                    leftIcon={<User className="h-5 w-5" />}
+                    placeholder="Enter your last name"
+                    error={error?.type === 'lastName' ? error.message : undefined}
+                    required
+                  />
+                </>
+              )}
+
               <Input
                 label="Email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
                 leftIcon={<Mail className="h-5 w-5" />}
                 placeholder="Enter your email"
+                error={error?.type === 'email' ? error.message : undefined}
                 required
               />
               
               <Input
                 label="Password"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
                 leftIcon={<Lock className="h-5 w-5" />}
                 placeholder="Enter your password"
+                error={error?.type === 'password' ? error.message : undefined}
                 required
               />
 
-              <div className="flex items-center justify-between">
-                <label className="flex items-center">
-                  <input type="checkbox" className="rounded border-gray-300" />
-                  <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
-                    Remember me
-                  </span>
-                </label>
-                <a
-                  href="#"
-                  className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400"
-                >
-                  Forgot password?
-                </a>
-              </div>
+              {!isSignIn && (
+                <Input
+                  label="Confirm Password"
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  leftIcon={<Lock className="h-5 w-5" />}
+                  placeholder="Confirm your password"
+                  error={error?.type === 'password' ? error.message : undefined}
+                  required
+                />
+              )}
+
+              {isSignIn && (
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
+                      Remember me
+                    </span>
+                  </label>
+                  <button
+                    type="button"
+                    className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400"
+                    onClick={() => console.log('Reset password')}
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+              )}
 
               <Button
                 type="submit"
@@ -102,7 +294,7 @@ export function SignInMenu({ isOpen, onClose }: SignInMenuProps) {
                 className="w-full"
                 isLoading={isLoading}
               >
-                Sign in
+                {isSignIn ? 'Sign in' : 'Create account'}
               </Button>
             </form>
 
@@ -145,10 +337,14 @@ export function SignInMenu({ isOpen, onClose }: SignInMenuProps) {
             </div>
 
             <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
-              Don't have an account?{' '}
-              <a href="#" className="text-blue-600 hover:text-blue-500 dark:text-blue-400">
-                Sign up
-              </a>
+              {isSignIn ? "Don't have an account?" : 'Already have an account?'}{' '}
+              <button
+                type="button"
+                className="text-blue-600 hover:text-blue-500 dark:text-blue-400"
+                onClick={() => setIsSignIn(!isSignIn)}
+              >
+                {isSignIn ? 'Sign up' : 'Sign in'}
+              </button>
             </p>
           </div>
         </div>

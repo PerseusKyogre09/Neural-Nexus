@@ -1,4 +1,3 @@
- 
 /**
  * Main application component that serves as the root of the UI hierarchy.
  * Implements core functionality including navigation, authentication, and content rendering.
@@ -6,8 +5,8 @@
  * @module App
  */
 
-import { useState, useEffect } from 'react';
-import { Brain, Download, BarChart3, CreditCard, Grid, TrendingUp } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Brain, Download, BarChart3, CreditCard, Grid, TrendingUp, User } from 'lucide-react';
 import { Button } from './components/ui/Button';
 import { Card, CardContent } from './components/ui/Card';
 import { SearchInput } from './components/ui/Input';
@@ -18,6 +17,7 @@ import './styles/theme.css';
 import { SignInMenu } from './components/auth/SignInMenu';
 import { SecurityModal } from './components/ui/SecurityModal';
 import { fetchMarkdownContent } from './utils/markdown';
+import { ProfileSidebar } from './components/ui/ProfileSidebar';
 
 // Mock data for demonstration - replace with API calls in production
 const featuredModels = [
@@ -68,16 +68,39 @@ function App() {
   // State management for modals and UI interactions
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [isSecurityModalOpen, setIsSecurityModalOpen] = useState(false);
   const [securityContent, setSecurityContent] = useState('');
+
+  const profileMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isSecurityModalOpen && !securityContent) {
       fetchMarkdownContent('SECURITY.md').then(setSecurityContent);
     }
   }, [isSecurityModalOpen, securityContent]);
+
+  // Initialize theme based on user preference
+  useEffect(() => {
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   /**
    * Handles the download action for a specific model
@@ -89,9 +112,9 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       {/* Navigation */}
-      <nav className="bg-gray-900/50 backdrop-blur-lg border-b border-gray-800">
+      <nav className="bg-white/50 dark:bg-gray-900/50 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
@@ -113,6 +136,13 @@ function App() {
                 onClick={() => setIsUploadModalOpen(true)}
               >
                 Upload Model
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => setIsProfileOpen(true)}
+                className="p-2"
+              >
+                <User className="h-5 w-5" />
               </Button>
             </div>
           </div>
@@ -326,6 +356,14 @@ function App() {
         onClose={() => setIsSecurityModalOpen(false)}
         content={securityContent}
       />
+
+      {/* Add ProfileSidebar */}
+      <div className="relative" ref={profileMenuRef}>
+        <ProfileSidebar
+          isOpen={isProfileOpen}
+          onClose={() => setIsProfileOpen(false)}
+        />
+      </div>
     </div>
   );
 }

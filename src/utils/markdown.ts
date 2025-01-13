@@ -15,10 +15,13 @@
 export async function fetchMarkdownContent(filename: string): Promise<string> {
   try {
     const response = await fetch(`/${filename}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     const markdown = await response.text();
     return markdown;
   } catch (error) {
     console.error('Error fetching markdown:', error);
-    return 'Error loading content';
+    return 'Error loading content. Please try again later.';
   }
 }
