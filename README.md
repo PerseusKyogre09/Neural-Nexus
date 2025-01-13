@@ -5,12 +5,14 @@ A sophisticated platform for discovering, sharing, and monetizing AI models with
 ## 🌟 Features
 
 ### Modern Interface
+
 - **Professional Dark Theme** with gradient backgrounds and consistent typography
 - **Responsive Design** supporting all device sizes
 - **Interactive Elements** with smooth transitions and hover effects
 - **Search & Discovery** featuring category filters and intuitive navigation
 
 ### Core Components
+
 - **Featured Models Section** displaying model cards with:
   - Performance metrics and download statistics
   - Clear pricing information
@@ -18,6 +20,7 @@ A sophisticated platform for discovering, sharing, and monetizing AI models with
   - Detailed model specifications
 
 ### Dashboard Analytics
+
 - Real-time performance metrics
 - Download and usage statistics
 - Revenue tracking
@@ -26,6 +29,7 @@ A sophisticated platform for discovering, sharing, and monetizing AI models with
 ## 🛠 Technical Stack
 
 ### Frontend Components
+
 - **UI Framework**: React with TypeScript
 - **Styling**: Tailwind CSS
 - **Icons**: Lucide React
@@ -39,6 +43,7 @@ A sophisticated platform for discovering, sharing, and monetizing AI models with
   - Loading states
 
 ### Design System
+
 - Comprehensive color system with CSS variables
 - Typography hierarchy
 - Consistent spacing
@@ -49,12 +54,14 @@ A sophisticated platform for discovering, sharing, and monetizing AI models with
 ## 🔒 Security & Performance
 
 ### Security Features
+
 - Robust authentication system
 - Rate limiting
 - Data encryption
 - Secure file handling
 
 ### Performance Optimizations
+
 - Lazy loading
 - Image optimization
 - Caching strategies
@@ -63,12 +70,14 @@ A sophisticated platform for discovering, sharing, and monetizing AI models with
 ## 💻 Getting Started
 
 ### Prerequisites
+
 ```bash
 node >= 18.0.0
 npm >= 8.0.0
-```
+````
 
 ### Installation
+
 ```bash
 # Clone the repository
 git clone https://github.com/Drago-03/AI-Model-Hub.git
@@ -82,8 +91,10 @@ npm run dev
 ```
 
 ### Environment Configuration
+
 Create a `.env` file in the root directory:
-```
+
+```bash
 DATABASE_URL=your_database_url
 API_KEY=your_api_key
 STRIPE_SECRET_KEY=your_stripe_key
@@ -92,9 +103,11 @@ STRIPE_SECRET_KEY=your_stripe_key
 ## 📚 Documentation
 
 ### API Documentation
+
 Full API documentation is available at `/docs/api`
 
 ### Component Library
+
 Component documentation and examples available at `/docs/components`
 
 ## 🤝 Contributing
@@ -112,6 +125,7 @@ This project is licensed under the MIT License - see the LICENSE.md file for det
 ## 📊 System Architecture
 
 ### Database Schema
+
 - Models
 - Users
 - Transactions
@@ -119,6 +133,7 @@ This project is licensed under the MIT License - see the LICENSE.md file for det
 - Reviews
 
 ### API Endpoints
+
 - `/api/v1/models`
 - `/api/v1/users`
 - `/api/v1/transactions`
@@ -127,12 +142,14 @@ This project is licensed under the MIT License - see the LICENSE.md file for det
 ## 🚀 Deployment
 
 ### Production Build
+
 ```bash
 npm run build
 npm run start
 ```
 
 ### Docker Support
+
 ```bash
 # Build Docker image
 docker build -t ai-marketplace .
@@ -143,4 +160,4 @@ docker run -p 3000:3000 ai-marketplace
 
 ## 📞 Support
 
-For support, email mantejarora@gmail.com or join our Slack channel.
+For support, email <mantejarora@gmail.com> or join our Slack channel.

@@ -1,14 +1,41 @@
+/**
+ * Button component providing consistent styling and behavior across the application.
+ * Supports multiple variants, sizes, and states including loading.
+ * 
+ * @module components/ui/Button
+ */
+
 import React from 'react';
 import { Loader2 } from 'lucide-react';
 
+/**
+ * Props interface for the Button component
+ * @interface ButtonProps
+ * @extends {React.ButtonHTMLAttributes<HTMLButtonElement>}
+ */
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  /** Visual style variant of the button */
   variant?: 'primary' | 'secondary' | 'ghost' | 'destructive';
+  /** Size variant of the button */
   size?: 'sm' | 'md' | 'lg';
+  /** Whether the button is in a loading state */
   isLoading?: boolean;
+  /** Icon to display before the button text */
   leftIcon?: React.ReactNode;
+  /** Icon to display after the button text */
   rightIcon?: React.ReactNode;
 }
 
+/**
+ * Reusable button component with multiple variants and states
+ * @component
+ * @example
+ * ```tsx
+ * <Button variant="primary" size="md" isLoading={false}>
+ *   Click me
+ * </Button>
+ * ```
+ */
 export function Button({
   variant = 'primary',
   size = 'md',

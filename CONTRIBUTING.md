@@ -1,14 +1,17 @@
 # Contributing Guidelines
 
-## Welcome!
+## Welcome
+
 Thank you for considering contributing to the AI Model Marketplace. This document outlines the process and guidelines for contributing to our project.
 
 ## Code of Conduct
 
 ### Our Pledge
+
 We pledge to make participation in our project a harassment-free experience for everyone, regardless of age, body size, disability, ethnicity, gender identity and expression, level of experience, nationality, personal appearance, race, religion, or sexual identity and orientation.
 
 ### Our Standards
+
 - Use welcoming and inclusive language
 - Be respectful of differing viewpoints
 - Accept constructive criticism gracefully
@@ -18,12 +21,14 @@ We pledge to make participation in our project a harassment-free experience for 
 ## How to Contribute
 
 ### Getting Started
+
 1. Fork the repository
 2. Create a new branch
 3. Make your changes
 4. Submit a pull request
 
 ### Development Process
+
 1. **Pick an Issue**
    - Check existing issues
    - Create new issues for bugs or features
@@ -42,6 +47,7 @@ We pledge to make participation in our project a harassment-free experience for 
    - Get approval
 
 ### Pull Request Process
+
 ```markdown
 ## Description
 [Describe your changes here]
@@ -59,26 +65,31 @@ We pledge to make participation in our project a harassment-free experience for 
 
 ## Related Issues
 Fixes #[issue number]
-```
+```markdown
 
 ## Style Guide
 
 ### Code Formatting
+
 - Use TypeScript
 - Follow ESLint configuration
 - Use Prettier for formatting
 - Follow component structure
 
 ### Commit Messages
-```
+
+```typescript
+
 type(scope): description
 
 [optional body]
 
 [optional footer]
+
 ```
 
 Types:
+
 - feat: New feature
 - fix: Bug fix
 - docs: Documentation
@@ -90,6 +101,7 @@ Types:
 ## Testing Guidelines
 
 ### Unit Testing
+
 ```typescript
 describe('ModelCard Component', () => {
     it('should render model information correctly', () => {
@@ -103,6 +115,7 @@ describe('ModelCard Component', () => {
 ```
 
 ### Integration Testing
+
 - Test component integration
 - Test API integration
 - Test third-party services
@@ -111,12 +124,14 @@ describe('ModelCard Component', () => {
 ## Documentation
 
 ### Code Documentation
+
 - Use JSDoc comments
 - Document complex logic
 - Update README when needed
 - Keep API documentation current
 
 ### Component Documentation
+
 - Create/update component stories
 - Document props and usage
 - Include examples

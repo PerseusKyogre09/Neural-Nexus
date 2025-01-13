@@ -1,11 +1,13 @@
 # Security Documentation
 
 ## Overview
+
 This document outlines the security measures and best practices implemented in the AI Model Marketplace platform.
 
 ## Security Measures
 
 ### Authentication & Authorization
+
 1. **Multi-factor Authentication (MFA)**
    - SMS-based verification
    - Authenticator app support
@@ -54,6 +56,7 @@ This document outlines the security measures and best practices implemented in t
 ## Security Protocols
 
 ### Incident Response
+
 1. **Detection**
    - Automated monitoring
    - Alert systems
@@ -83,6 +86,7 @@ This document outlines the security measures and best practices implemented in t
 ## Security Guidelines for Developers
 
 ### Code Security
+
 ```typescript
 // Example of secure input validation
 function validateInput(input: unknown): string {
@@ -103,6 +107,7 @@ async function handleFileUpload(file: File): Promise<void> {
 ```
 
 ### Deployment Security
+
 - Use secure environment variables
 - Implement proper secrets management
 - Regular security updates

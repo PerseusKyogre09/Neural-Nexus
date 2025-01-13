@@ -44,6 +44,7 @@ export function Modal({
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+              title="Close"
             >
               <X className="h-5 w-5" />
             </button>

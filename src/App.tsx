@@ -1,16 +1,25 @@
-import React, { useState } from 'react';
-import { Search, Brain, Download, BarChart3, CreditCard, Grid, Star, TrendingUp } from 'lucide-react';
+ 
+/**
+ * Main application component that serves as the root of the UI hierarchy.
+ * Implements core functionality including navigation, authentication, and content rendering.
+ * 
+ * @module App
+ */
+
+import { useState, useEffect } from 'react';
+import { Brain, Download, BarChart3, CreditCard, Grid, TrendingUp } from 'lucide-react';
 import { Button } from './components/ui/Button';
-import { Card, CardHeader, CardContent, CardFooter } from './components/ui/Card';
+import { Card, CardContent } from './components/ui/Card';
 import { SearchInput } from './components/ui/Input';
 import { Badge } from './components/ui/Badge';
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from './components/ui/Table';
 import { Modal } from './components/ui/Modal';
-import { Skeleton, SkeletonCard } from './components/ui/Skeleton';
 import './styles/animations.css';
 import './styles/theme.css';
+import { SignInMenu } from './components/auth/SignInMenu';
+import { SecurityModal } from './components/ui/SecurityModal';
+import { fetchMarkdownContent } from './utils/markdown';
 
-// Mock data for demonstration
+// Mock data for demonstration - replace with API calls in production
 const featuredModels = [
   {
     id: 1,
@@ -44,12 +53,40 @@ const featuredModels = [
   }
 ];
 
+/**
+ * Categories available for model filtering
+ * @constant {string[]}
+ */
 const categories = ["All", "Language", "Vision", "Audio", "Reinforcement", "Generative"];
 
+/**
+ * Root application component
+ * @component
+ * @returns {JSX.Element} The rendered application
+ */
 function App() {
+  // State management for modals and UI interactions
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSecurityModalOpen, setIsSecurityModalOpen] = useState(false);
+  const [securityContent, setSecurityContent] = useState('');
+
+  useEffect(() => {
+    if (isSecurityModalOpen && !securityContent) {
+      fetchMarkdownContent('SECURITY.md').then(setSecurityContent);
+    }
+  }, [isSecurityModalOpen, securityContent]);
+
+  /**
+   * Handles the download action for a specific model
+   * @param {number} modelId - The ID of the model to download
+   */
+  const handleDownloadClick = (modelId: number) => {
+    // Add download logic here
+    console.log(`Downloading model ${modelId}`);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
@@ -65,9 +102,15 @@ function App() {
               <Button variant="ghost" className="text-gray-300">Dashboard</Button>
               <Button variant="ghost" className="text-gray-300">Models</Button>
               <Button
+                variant="secondary"
+                onClick={() => setIsSignInOpen(true)}
+              >
+                Sign In
+              </Button>
+              <Button
                 variant="primary"
                 leftIcon={<Grid className="w-4 h-4" />}
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => setIsUploadModalOpen(true)}
               >
                 Upload Model
               </Button>
@@ -75,6 +118,12 @@ function App() {
           </div>
         </div>
       </nav>
+
+      {/* Add SignInMenu component */}
+      <SignInMenu
+        isOpen={isSignInOpen}
+        onClose={() => setIsSignInOpen(false)}
+      />
 
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -141,6 +190,7 @@ function App() {
                   variant="primary"
                   className="w-full"
                   leftIcon={<Download className="w-4 h-4" />}
+                  onClick={() => handleDownloadClick(model.id)}
                 >
                   Download Model
                 </Button>
@@ -189,8 +239,8 @@ function App() {
 
       {/* Upload Model Modal */}
       <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
         title="Upload New Model"
       >
         <div className="space-y-4">
@@ -198,7 +248,17 @@ function App() {
             Share your AI model with the community. Fill in the details below to get started.
           </p>
           <form className="space-y-4">
-            {/* Form content would go here */}
+            {/* Add your form fields here */}
+            <Button 
+              variant="primary" 
+              className="w-full"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsUploadModalOpen(false);
+              }}
+            >
+              Upload Model
+            </Button>
           </form>
         </div>
       </Modal>
@@ -234,9 +294,20 @@ function App() {
             <div>
               <h4 className="text-white font-medium mb-4">Legal</h4>
               <ul className="space-y-2">
+                <li>
+                  <a 
+                    href="#" 
+                    className="text-gray-400 hover:text-white"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsSecurityModalOpen(true);
+                    }}
+                  >
+                    Security
+                  </a>
+                </li>
                 <li><a href="#" className="text-gray-400 hover:text-white">Privacy</a></li>
                 <li><a href="#" className="text-gray-400 hover:text-white">Terms</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white">Security</a></li>
               </ul>
             </div>
           </div>
@@ -249,6 +320,12 @@ function App() {
           </div>
         </div>
       </footer>
+
+      <SecurityModal 
+        isOpen={isSecurityModalOpen}
+        onClose={() => setIsSecurityModalOpen(false)}
+        content={securityContent}
+      />
     </div>
   );
 }
