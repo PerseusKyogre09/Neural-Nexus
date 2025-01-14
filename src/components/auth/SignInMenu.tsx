@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Github, Mail, Lock, X, AlertCircle, User } from 'lucide-react';
+import { Github, Mail, Lock, X, AlertCircle, User, Wallet } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
+import { connectTonkeeper } from '../../utils/ton';
 
 interface SignInMenuProps {
   isOpen: boolean;
@@ -159,6 +160,35 @@ export function SignInMenu({ isOpen, onClose }: SignInMenuProps) {
       setError({
         type: 'general',
         message: `Failed to login with ${provider}`
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleTonkeeperLogin = async () => {
+    setError(null);
+    setIsLoading(true);
+    try {
+      const walletData = await connectTonkeeper();
+      if (walletData) {
+        // Handle successful connection
+        console.log('Connected wallet:', walletData);
+        // Here you would typically:
+        // 1. Send the wallet data to your backend
+        // 2. Get a JWT or session token
+        // 3. Update the app state
+        onClose();
+      } else {
+        setError({
+          type: 'general',
+          message: 'Failed to connect to Tonkeeper'
+        });
+      }
+    } catch (err) {
+      setError({
+        type: 'general',
+        message: 'Failed to connect to Tonkeeper'
       });
     } finally {
       setIsLoading(false);
@@ -333,6 +363,15 @@ export function SignInMenu({ isOpen, onClose }: SignInMenuProps) {
                 }
               >
                 Gmail
+              </Button>
+
+              <Button
+                variant="secondary"
+                className="w-full"
+                onClick={handleTonkeeperLogin}
+                leftIcon={<Wallet className="h-5 w-5" />}
+              >
+                Tonkeeper
               </Button>
             </div>
 
