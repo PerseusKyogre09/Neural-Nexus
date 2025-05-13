@@ -1,71 +1,70 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-// Don't directly import TonConnect - we'll do it dynamically
+import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import dynamic from 'next/dynamic';
 
-// Check if code is running on the client side
-const isBrowser = typeof window !== 'undefined';
-
+// Define the context type
 type TonConnectContextType = {
   isInitialized: boolean;
   connector: any; // Type for the TonConnect instance
 };
 
+// Create the context with default values
 const TonConnectContext = createContext<TonConnectContextType>({
   isInitialized: false,
-  connector: null
+  connector: null,
 });
 
+// Hook to use the context
 export const useTonConnect = () => useContext(TonConnectContext);
 
+// Provider component
 export function TonConnectProvider({ children }: { children: ReactNode }) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [connector, setConnector] = useState<any>(null);
 
   useEffect(() => {
-    // Only initialize TonConnect on the client side
-    if (isBrowser) {
-      const setupTonConnect = async () => {
-        try {
-          // Dynamic import to avoid SSR issues
-          const TonConnectModule = await import('@tonconnect/sdk');
-          
-          // Create connector instance
-          const tonConnector = new TonConnectModule.TonConnect({
-            manifestUrl: process.env.NEXT_PUBLIC_TON_MANIFEST_URL || ''
-          });
-          
-          setConnector(tonConnector);
-          setIsInitialized(true);
-          
-          console.log('TON Connect initialized successfully');
-        } catch (error) {
-          console.error('Failed to initialize TonConnect:', error);
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
+    const setupTonConnect = async () => {
+      try {
+        // Dynamically import TonConnect to avoid SSR issues
+        const { TonConnectUI } = await import('@tonconnect/ui-react');
+        
+        // Check if TonConnect is enabled in env vars
+        if (process.env.NEXT_PUBLIC_ENABLE_TONCONNECT !== 'true') {
+          console.log('TON Connect is disabled by environment variable');
+          return;
         }
-      };
-      
-      setupTonConnect();
-    }
+        
+        // Create a new TonConnect instance
+        const tonConnectUI = new TonConnectUI({
+          manifestUrl: process.env.NEXT_PUBLIC_TON_MANIFEST_URL || 'https://your-domain.com/tonconnect-manifest.json',
+        });
+        
+        // Store the connector instance
+        setConnector(tonConnectUI);
+        setIsInitialized(true);
+        
+        console.log('TON Connect SDK initialized');
+      } catch (error) {
+        console.error('Failed to initialize TON Connect:', error);
+      }
+    };
+
+    setupTonConnect();
     
     // Cleanup
     return () => {
       if (connector && typeof connector.disconnect === 'function') {
-        try {
-          connector.disconnect();
-        } catch (error) {
-          console.error('Error disconnecting TON connector:', error);
-        }
+        connector.disconnect();
       }
     };
   }, []);
 
-  const contextValue = {
-    isInitialized,
-    connector
-  };
-
   return (
-    <TonConnectContext.Provider value={contextValue}>
+    <TonConnectContext.Provider value={{ isInitialized, connector }}>
       {children}
     </TonConnectContext.Provider>
   );

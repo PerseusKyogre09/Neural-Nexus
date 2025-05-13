@@ -1,6 +1,6 @@
-import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import './globals.css';
 import { Providers } from '../providers';
 import { Toaster } from 'react-hot-toast';
 
@@ -20,7 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" suppressHydrationWarning>
+      <head />
       <body className={inter.className}>
         <Providers>
           {children}

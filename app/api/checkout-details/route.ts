@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-// Force this route to be dynamic, not statically generated
+// Mark as dynamic to avoid static rendering
 export const dynamic = 'force-dynamic';
 
 // Initialize Stripe with your secret key
