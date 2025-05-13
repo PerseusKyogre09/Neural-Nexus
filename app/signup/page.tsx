@@ -8,6 +8,9 @@ import { SignInMenu } from '@/src/components/auth/SignInMenu';
 import Link from 'next/link';
 import { ArrowRight } from "lucide-react";
 
+// Force dynamic rendering to avoid TON Connect errors
+export const dynamic = 'force-dynamic';
+
 export default function SignupPage() {
   // State to control if the SignInMenu is open
   const [showSignInMenu, setShowSignInMenu] = useState(false);

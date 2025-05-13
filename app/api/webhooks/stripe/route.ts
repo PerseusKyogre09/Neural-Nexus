@@ -9,8 +9,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 });
 
 // Define webhook signing secrets for both payload styles
-const SNAPSHOT_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_UJNTsEOy6mJJCFScwJwO9AC7trkMJ0aR';
-const THIN_WEBHOOK_SECRET = process.env.STRIPE_THIN_WEBHOOK_SECRET || 'whsec_OeN75T1qFCuSouRRWtTu4fN5xHe3PZT5';
+const SNAPSHOT_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET 
+const THIN_WEBHOOK_SECRET = process.env.STRIPE_THIN_WEBHOOK_SECRET
 
 // Helper to read request body as buffer
 async function readBodyAsBuffer(req: NextRequest) {

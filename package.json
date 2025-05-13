@@ -18,6 +18,7 @@
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/typography": "^0.5.10",
     "@tonconnect/sdk": "^3.0.0",
+    "@tonconnect/ui-react": "^2.1.0",
     "@types/js-cookie": "^3.0.6",
     "@web3-react/core": "^8.2.3",
     "@web3-react/injected-connector": "^6.0.7",

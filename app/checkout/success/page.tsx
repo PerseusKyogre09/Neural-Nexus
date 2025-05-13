@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle, Package, ArrowLeft, Home } from 'lucide-react';
@@ -9,7 +9,34 @@ import Footer from '@/components/Footer';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 
-export default function CheckoutSuccessPage() {
+// Loading component for Suspense fallback
+function SuccessPageLoading() {
+  return (
+    <main className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
+      <Navbar />
+      
+      <section className="pt-32 pb-20 px-4">
+        <div className="container mx-auto max-w-3xl">
+          <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 p-8 md:p-12">
+            <div className="flex flex-col items-center py-8">
+              <div className="loader mb-4">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+              <p className="text-xl font-medium">Loading payment details...</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <Footer />
+    </main>
+  );
+}
+
+function CheckoutSuccessContent() {
   const [loading, setLoading] = useState(true);
   const [checkoutDetails, setCheckoutDetails] = useState<any>(null);
   const router = useRouter();
@@ -158,5 +185,13 @@ export default function CheckoutSuccessPage() {
       
       <Footer />
     </main>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={<SuccessPageLoading />}>
+      <CheckoutSuccessContent />
+    </Suspense>
   );
 } 
