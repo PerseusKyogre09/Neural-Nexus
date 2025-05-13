@@ -22,6 +22,8 @@ const Navbar = () => {
   const navLinks = [
     { href: '/hosting', label: 'Hosting' },
     { href: '/community', label: 'Community' },
+    { href: '/research', label: 'Research' },
+    { href: '/open-source', label: 'Open Source' },
     { href: '/pricing', label: 'Pricing' },
     { href: '/api-docs', label: 'API' },
     { href: '/about', label: 'About' }

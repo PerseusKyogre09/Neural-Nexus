@@ -1,0 +1,74 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Base rules
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    
+    // User profiles
+    match /users/{userId} {
+      // Public profile data can be read by anyone
+      allow read;
+      // Users can only write to their own profile
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+      
+      // User's private collections
+      match /private/{document=**} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+      
+      // User's payment information
+      match /payments/{document=**} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow write: if isAdmin();
+      }
+    }
+    
+    // Models
+    match /models/{modelId} {
+      // Public models can be read by anyone
+      allow read: if resource.data.isPublic == true || 
+                   (isSignedIn() && (request.auth.uid == resource.data.userId || isAdmin()));
+      
+      // Only authenticated users can create models
+      allow create: if isSignedIn() && 
+                    request.resource.data.userId == request.auth.uid &&
+                    request.resource.data.createdAt is timestamp;
+      
+      // Only the model owner or admin can update and delete
+      allow update: if (isOwner(resource.data.userId) && 
+                       request.resource.data.userId == resource.data.userId) || isAdmin();
+      allow delete: if isOwner(resource.data.userId) || isAdmin();
+    }
+    
+    // Ratings for models
+    match /ratings/{ratingId} {
+      allow read;
+      allow create: if isSignedIn() && 
+                     request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isOwner(resource.data.userId) || isAdmin();
+    }
+    
+    // Global app configuration
+    match /config/{document} {
+      allow read;
+      allow write: if isAdmin();
+    }
+    
+    // Admin collection is protected
+    match /admins/{document=**} {
+      allow read, write: if isAdmin();
+    }
+  }
+} 

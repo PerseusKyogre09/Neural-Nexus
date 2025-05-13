@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import SplashScreen from "@/components/SplashScreen";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 
 export default function ClientLayout({
   children,
@@ -26,7 +25,6 @@ export default function ClientLayout({
       {isLoading && <SplashScreen />}
       <Navbar />
       <main className="min-h-screen">{children}</main>
-      <Footer />
     </>
   );
 } 

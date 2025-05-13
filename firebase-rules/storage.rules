@@ -1,0 +1,93 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Base rules
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && 
+             firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid));
+    }
+    
+    function isValidContentType(contentType) {
+      // Allow specific file types only
+      return contentType.matches('application/octet-stream') || 
+             contentType.matches('application/x-protobuf') ||
+             contentType.matches('application/onnx') ||
+             contentType.matches('application/x-binary') ||
+             contentType.matches('application/zip') ||
+             contentType.matches('application/x-tar') ||
+             contentType.matches('application/gzip') ||
+             contentType.matches('application/x-gzip') ||
+             contentType.matches('application/json') ||
+             contentType.matches('text/plain') ||
+             contentType.matches('image/.*');
+    }
+    
+    function isValidFileSize() {
+      // Limit file size to 1GB
+      return request.resource.size < 1024 * 1024 * 1024;
+    }
+    
+    // Default deny
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+    
+    // Model files
+    match /models/{userId}/{fileName} {
+      // Anyone can read models
+      allow read;
+      
+      // Only the owner can write and the file must meet requirements
+      allow write: if isOwner(userId) && 
+                   isValidContentType(request.resource.contentType) &&
+                   isValidFileSize();
+                   
+      // Only owner or admin can delete
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+    
+    // Profile pictures
+    match /profile/{userId}/{fileName} {
+      // Anyone can read profile pictures
+      allow read;
+      
+      // Only the owner can write and it must be an image
+      allow write: if isOwner(userId) && 
+                   request.resource.contentType.matches('image/.*') &&
+                   request.resource.size < 5 * 1024 * 1024; // 5MB limit
+                   
+      // Only owner or admin can delete
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+    
+    // Public assets
+    match /public/{fileName} {
+      // Anyone can read public assets
+      allow read;
+      
+      // Only admins can write to public folder
+      allow write, delete: if isAdmin();
+    }
+    
+    // Temporary uploads
+    match /temp/{userId}/{fileName} {
+      // Only owner can read their temp files
+      allow read: if isOwner(userId);
+      
+      // Anyone signed in can write to their temp folder
+      // Files are validated before being moved to permanent storage
+      allow write: if isOwner(userId) && 
+                   isValidFileSize();
+                   
+      // Files auto-expire after 24 hours using Cloud Functions
+    }
+  }
+} 

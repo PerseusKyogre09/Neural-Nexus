@@ -6,7 +6,15 @@ import {
   signOut, 
   onAuthStateChanged,
   User as FirebaseUser,
-  Auth
+  Auth,
+  setPersistence,
+  browserLocalPersistence,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  updateProfile,
+  EmailAuthProvider,
+  reauthenticateWithCredential
 } from 'firebase/auth';
 import { 
   getFirestore, 
@@ -22,15 +30,46 @@ import {
   limit as firestoreLimit,
   CollectionReference,
   DocumentData,
-  Firestore
+  Firestore,
+  enableMultiTabIndexedDbPersistence,
+  enableIndexedDbPersistence,
+  CACHE_SIZE_UNLIMITED,
+  initializeFirestore,
+  connectFirestoreEmulator,
+  Timestamp,
+  deleteDoc,
+  increment,
+  arrayUnion,
+  serverTimestamp
 } from 'firebase/firestore';
 import { 
   getStorage, 
   ref, 
   uploadBytesResumable, 
   getDownloadURL,
-  FirebaseStorage
+  FirebaseStorage,
+  deleteObject
 } from 'firebase/storage';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { getAnalytics, logEvent, isSupported as isAnalyticsSupported } from 'firebase/analytics';
+import { getPerformance, trace } from 'firebase/performance';
+
+// Error reporting
+type ErrorWithMessage = {
+  message: string;
+  [key: string]: any;
+};
+
+const logError = (error: unknown) => {
+  // Improve error object for logging
+  const errorWithMessage = error as ErrorWithMessage;
+  console.error("Firebase Error:", {
+    message: errorWithMessage.message || "Unknown error",
+    code: errorWithMessage.code,
+    stack: errorWithMessage.stack,
+    timestamp: new Date().toISOString(),
+  });
+};
 
 // Configure Firebase
 const firebaseConfig: FirebaseOptions = {
@@ -49,6 +88,14 @@ let auth: Auth;
 let db: Firestore;
 let storage: FirebaseStorage;
 let googleProvider: GoogleAuthProvider;
+let functions: any;
+let analytics: any = null;
+let performance: any = null;
+
+// Environment detection
+const isProduction = process.env.NODE_ENV === 'production';
+const isDevelopment = process.env.NODE_ENV === 'development';
+const isClient = typeof window !== 'undefined';
 
 // Only initialize Firebase if we have valid config
 const hasValidConfig = firebaseConfig.apiKey && 
@@ -61,15 +108,69 @@ if (hasValidConfig) {
     // Initialize Firebase
     app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
     
-    // Initialize services
+    // Initialize auth with persistence
     auth = getAuth(app);
-    db = getFirestore(app);
+    
+    // Set auth persistence on client side only
+    if (isClient) {
+      setPersistence(auth, browserLocalPersistence).catch(logError);
+    }
+    
+    // Initialize Firestore with settings for better performance
+    if (!getApps().length) {
+      db = initializeFirestore(app, {
+        cacheSizeBytes: CACHE_SIZE_UNLIMITED,
+      });
+      
+      // Enable offline persistence when supported
+      if (isClient) {
+        enableIndexedDbPersistence(db).catch((err) => {
+          if (err.code === 'failed-precondition') {
+            // Multiple tabs open, persistence can only be enabled in one tab
+            console.warn('Firebase persistence unavailable - multiple tabs open');
+          } else if (err.code === 'unimplemented') {
+            // Current browser doesn't support persistence
+            console.warn('Firebase persistence not supported in this browser');
+          }
+        });
+      }
+    } else {
+      db = getFirestore(app);
+    }
+    
+    // Initialize other services
     storage = getStorage(app);
     googleProvider = new GoogleAuthProvider();
+    functions = getFunctions(app);
+    
+    // Only initialize analytics and performance on client in production
+    if (isClient) {
+      // Initialize analytics if supported by the browser
+      isAnalyticsSupported().then((supported) => {
+        if (supported && isProduction) {
+          analytics = getAnalytics(app);
+          performance = getPerformance(app);
+          
+          // Log app initialization
+          logEvent(analytics, 'app_initialized');
+        }
+      }).catch(logError);
+    }
+    
+    // Use emulators in development
+    if (isDevelopment && process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATORS === 'true') {
+      // Connect to emulators if available
+      if (isClient) {
+        const host = 'localhost';
+        connectFirestoreEmulator(db, host, 8080);
+        // Add other emulators as needed
+        console.log('Using Firebase emulators for development');
+      }
+    }
     
     console.log("Firebase initialized successfully");
   } catch (error) {
-    console.error("Firebase initialization error:", error);
+    logError(error);
     // Create minimal placeholders to prevent app crashes
     createPlaceholders();
   }
@@ -92,6 +193,9 @@ function createPlaceholders() {
     },
     signInWithPopup: noopPromise,
     signOut: noopPromise,
+    createUserWithEmailAndPassword: noopPromise,
+    signInWithEmailAndPassword: noopPromise,
+    sendPasswordResetEmail: noopPromise,
   } as unknown as Auth;
   
   // Mock Firestore
@@ -114,7 +218,47 @@ function createPlaceholders() {
   
   // Mock provider
   googleProvider = {} as GoogleAuthProvider;
+  
+  // Mock functions
+  functions = {
+    httpsCallable: () => noopPromise,
+  };
+  
+  // Mock analytics
+  analytics = {
+    logEvent: noop,
+  };
+  
+  // Mock performance
+  performance = {
+    trace: () => ({ start: noop, stop: noop }),
+  };
 }
+
+// Analytics helper
+export const trackEvent = (eventName: string, eventParams?: any) => {
+  try {
+    if (analytics && isProduction) {
+      logEvent(analytics, eventName, eventParams);
+    }
+  } catch (error) {
+    logError(error);
+  }
+};
+
+// Performance monitoring helper
+export const startTrace = (traceName: string) => {
+  try {
+    if (performance && isProduction) {
+      const newTrace = trace(performance, traceName);
+      newTrace.start();
+      return newTrace;
+    }
+  } catch (error) {
+    logError(error);
+  }
+  return null;
+};
 
 // Authentication functions
 export const signInWithGoogle = async () => {
@@ -129,6 +273,7 @@ export const signInWithGoogle = async () => {
   }
   
   try {
+    const traceObj = startTrace('auth_sign_in_google');
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
     
@@ -142,15 +287,105 @@ export const signInWithGoogle = async () => {
         displayName: user.displayName,
         email: user.email,
         photoURL: user.photoURL,
-        createdAt: new Date(),
+        createdAt: serverTimestamp(),
+        lastLoginAt: serverTimestamp(),
         walletConnected: false,
         ownedModels: [],
       });
+      
+      trackEvent('new_user_signup', { method: 'google' });
+    } else {
+      // Update last login
+      await updateDoc(userRef, {
+        lastLoginAt: serverTimestamp(),
+      });
     }
+    
+    trackEvent('user_login', { method: 'google' });
+    traceObj?.stop();
     
     return user;
   } catch (error) {
-    console.error('Error signing in with Google', error);
+    logError(error);
+    throw error;
+  }
+};
+
+export const signUpWithEmail = async (email: string, password: string, displayName: string) => {
+  if (!hasValidConfig) {
+    console.warn("Firebase auth not available - using demo mode");
+    return null;
+  }
+  
+  try {
+    const traceObj = startTrace('auth_sign_up_email');
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    
+    // Update profile with display name
+    await updateProfile(user, { displayName });
+    
+    // Store user in Firestore
+    const userRef = doc(db, 'users', user.uid);
+    await setDoc(userRef, {
+      uid: user.uid,
+      displayName,
+      email: user.email,
+      createdAt: serverTimestamp(),
+      lastLoginAt: serverTimestamp(),
+      walletConnected: false,
+      ownedModels: [],
+    });
+    
+    trackEvent('new_user_signup', { method: 'email' });
+    traceObj?.stop();
+    
+    return user;
+  } catch (error) {
+    logError(error);
+    throw error;
+  }
+};
+
+export const signInWithEmail = async (email: string, password: string) => {
+  if (!hasValidConfig) {
+    console.warn("Firebase auth not available - using demo mode");
+    return null;
+  }
+  
+  try {
+    const traceObj = startTrace('auth_sign_in_email');
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    
+    // Update last login in Firestore
+    const userRef = doc(db, 'users', user.uid);
+    await updateDoc(userRef, {
+      lastLoginAt: serverTimestamp(),
+    });
+    
+    trackEvent('user_login', { method: 'email' });
+    traceObj?.stop();
+    
+    return user;
+  } catch (error) {
+    logError(error);
+    throw error;
+  }
+};
+
+export const resetPassword = async (email: string) => {
+  if (!hasValidConfig) {
+    console.warn("Firebase auth not available - using demo mode");
+    return false;
+  }
+  
+  try {
+    await sendPasswordResetEmail(auth, email);
+    trackEvent('password_reset_requested');
+    return true;
+  } catch (error) {
+    logError(error);
     throw error;
   }
 };
@@ -163,8 +398,9 @@ export const logOut = async () => {
   
   try {
     await signOut(auth);
+    trackEvent('user_logout');
   } catch (error) {
-    console.error('Error signing out', error);
+    logError(error);
     throw error;
   }
 };
@@ -184,7 +420,6 @@ export const getCurrentUser = () => {
   });
 };
 
-// Include simple versions of other functions that work in demo mode
 export const updateUserProfile = async (userId: string, data: any) => {
   if (!hasValidConfig) {
     console.warn("Firebase Firestore not available - using demo mode");
@@ -192,10 +427,26 @@ export const updateUserProfile = async (userId: string, data: any) => {
   }
   
   try {
+    const traceObj = startTrace('update_user_profile');
     const userRef = doc(db, 'users', userId);
-    await updateDoc(userRef, data);
+    
+    // Add update timestamp
+    const updateData = {
+      ...data,
+      updatedAt: serverTimestamp(),
+    };
+    
+    await updateDoc(userRef, updateData);
+    
+    // Also update displayName in Firebase Auth if included
+    if (data.displayName && auth.currentUser) {
+      await updateProfile(auth.currentUser, { displayName: data.displayName });
+    }
+    
+    traceObj?.stop();
+    return true;
   } catch (error) {
-    console.error('Error updating user profile', error);
+    logError(error);
     throw error;
   }
 };
@@ -208,6 +459,7 @@ export const uploadModel = async (
   onProgress?: (progress: number) => void
 ) => {
   try {
+    const traceObj = startTrace('upload_model');
     const timestamp = new Date().getTime();
     const fileExtension = modelFile.name.split('.').pop();
     const fileName = `${userId}_${timestamp}.${fileExtension}`;
@@ -225,46 +477,71 @@ export const uploadModel = async (
           if (onProgress) onProgress(progress);
         },
         (error) => {
-          console.error('Error uploading model', error);
+          logError(error);
+          traceObj?.stop();
           reject(error);
         },
         async () => {
-          // Get download URL
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          
-          // Create model in Firestore
-          const modelRef = doc(collection(db, 'models'));
-          const modelData = {
-            id: modelRef.id,
-            userId,
-            name: metadata.title,
-            description: metadata.description,
-            price: parseFloat(metadata.price),
-            category: metadata.category,
-            tags: metadata.tags,
-            fileUrl: downloadURL,
-            filePath,
-            fileSize: modelFile.size,
-            fileType: modelFile.type,
-            createdAt: new Date(),
-            downloads: 0,
-            rating: 0,
-            ratings: [],
-          };
-          
-          await setDoc(modelRef, modelData);
-          resolve(modelData);
+          try {
+            // Get download URL
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            
+            // Create model in Firestore
+            const modelRef = doc(collection(db, 'models'));
+            const modelData = {
+              id: modelRef.id,
+              userId,
+              name: metadata.title,
+              description: metadata.description,
+              price: parseFloat(metadata.price),
+              category: metadata.category,
+              tags: metadata.tags,
+              fileUrl: downloadURL,
+              filePath,
+              fileSize: modelFile.size,
+              fileType: modelFile.type,
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+              downloads: 0,
+              rating: 0,
+              ratings: [],
+              isPublic: metadata.isPublic || true,
+              status: 'active',
+            };
+            
+            await setDoc(modelRef, modelData);
+            
+            // Add model to user's owned models
+            const userRef = doc(db, 'users', userId);
+            await updateDoc(userRef, {
+              ownedModels: arrayUnion(modelRef.id),
+            });
+            
+            trackEvent('model_uploaded', {
+              model_id: modelRef.id,
+              category: metadata.category,
+              file_size: modelFile.size,
+            });
+            
+            traceObj?.stop();
+            resolve(modelData);
+          } catch (error) {
+            logError(error);
+            traceObj?.stop();
+            reject(error);
+          }
         }
       );
     });
   } catch (error) {
-    console.error('Error in upload process', error);
+    logError(error);
     throw error;
   }
 };
 
 export const getModels = async (categoryFilter?: string, limitCount: number = 50) => {
   try {
+    const traceObj = startTrace('get_models');
     const modelsCollection = collection(db, 'models');
     let modelsQuery;
     
@@ -272,27 +549,35 @@ export const getModels = async (categoryFilter?: string, limitCount: number = 50
       modelsQuery = query(
         modelsCollection, 
         where('category', '==', categoryFilter),
+        where('status', '==', 'active'),
+        where('isPublic', '==', true),
         orderBy('createdAt', 'desc'),
         firestoreLimit(limitCount)
       );
     } else {
       modelsQuery = query(
         modelsCollection,
+        where('status', '==', 'active'),
+        where('isPublic', '==', true),
         orderBy('createdAt', 'desc'),
         firestoreLimit(limitCount)
       );
     }
     
     const modelsSnapshot = await getDocs(modelsQuery);
-    return modelsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const result = modelsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    traceObj?.stop();
+    return result;
   } catch (error) {
-    console.error('Error getting models', error);
+    logError(error);
     throw error;
   }
 };
 
 export const getUserModels = async (userId: string) => {
   try {
+    const traceObj = startTrace('get_user_models');
     const modelsCollection = collection(db, 'models');
     const modelsQuery = query(
       modelsCollection,
@@ -301,12 +586,76 @@ export const getUserModels = async (userId: string) => {
     );
     
     const modelsSnapshot = await getDocs(modelsQuery);
-    return modelsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const result = modelsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    
+    traceObj?.stop();
+    return result;
   } catch (error) {
-    console.error('Error getting user models', error);
+    logError(error);
     throw error;
   }
 };
 
+export const deleteModel = async (modelId: string, userId: string) => {
+  try {
+    // Check if the user owns the model
+    const modelRef = doc(db, 'models', modelId);
+    const modelSnap = await getDoc(modelRef);
+    
+    if (!modelSnap.exists()) {
+      throw new Error('Model not found');
+    }
+    
+    const modelData = modelSnap.data();
+    if (modelData.userId !== userId) {
+      throw new Error('Unauthorized - you do not own this model');
+    }
+    
+    // Delete the file from storage if it exists
+    if (modelData.filePath) {
+      const storageRef = ref(storage, modelData.filePath);
+      await deleteObject(storageRef);
+    }
+    
+    // Delete model document
+    await deleteDoc(modelRef);
+    
+    // Remove from user's owned models
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userRef);
+    
+    if (userSnap.exists()) {
+      const userData = userSnap.data();
+      const ownedModels = userData.ownedModels || [];
+      const updatedModels = ownedModels.filter((id: string) => id !== modelId);
+      
+      await updateDoc(userRef, {
+        ownedModels: updatedModels,
+      });
+    }
+    
+    trackEvent('model_deleted', { model_id: modelId });
+    return true;
+  } catch (error) {
+    logError(error);
+    throw error;
+  }
+};
+
+export const incrementModelDownloads = async (modelId: string) => {
+  try {
+    const modelRef = doc(db, 'models', modelId);
+    await updateDoc(modelRef, {
+      downloads: increment(1),
+    });
+    
+    trackEvent('model_downloaded', { model_id: modelId });
+    return true;
+  } catch (error) {
+    logError(error);
+    return false;
+  }
+};
+
 // Export the services (which may be real or placeholders)
-export { auth, db, storage }; 
+export { auth, db, storage, functions, analytics, performance }; 

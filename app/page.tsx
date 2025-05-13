@@ -431,6 +431,41 @@ export default function HomePage() {
         ))}
       </section>
 
+      {/* Newsletter Section */}
+      <section className="py-16 px-4 bg-gradient-to-r from-blue-900/30 to-purple-900/30">
+        <div className="container mx-auto max-w-4xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-8 md:p-10"
+          >
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold mb-4">Stay In The Neural Loop</h2>
+              <p className="text-gray-300 max-w-2xl mx-auto">
+                Subscribe to our newsletter for the freshest updates on AI advancements, new models, and exclusive Neural Nexus content
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
+              <input 
+                type="email" 
+                placeholder="Your email address" 
+                className="flex-1 bg-gray-900/70 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+                aria-label="Email for newsletter"
+              />
+              <button className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-lg px-6 py-3 font-medium transition-colors whitespace-nowrap">
+                Subscribe
+              </button>
+            </div>
+            <p className="text-gray-400 text-sm text-center mt-4">
+              No spam, just AI vibes. Unsubscribe anytime.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Upload Modal */}
       <AnimatePresence>
         {showUpload && (

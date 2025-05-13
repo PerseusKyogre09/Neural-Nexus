@@ -13,8 +13,8 @@ import {
   Sparkles,
   ArrowRight,
   Github,
-  Twitter,
-  Linkedin
+  Linkedin,
+  Mail
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -23,69 +23,33 @@ export default function AboutPage() {
   // Team members data
   const teamMembers = [
     {
-      name: "Alex Chen",
-      role: "Founder & CEO",
-      image: "/team/alex.jpg",
-      bio: "Former AI researcher at Google Brain with a passion for democratizing AI. PhD in Machine Learning.",
+      name: "Mantej Singh",
+      role: "Founder",
+      image: "/team/mantej.jpg",
+      bio: "Visionary founder with a passion for democratizing AI. Leading Neural Nexus to transform how AI models are shared and monetized.",
       social: {
-        twitter: "https://twitter.com/alexchen",
-        linkedin: "https://linkedin.com/in/alexchen",
-        github: "https://github.com/alexchen"
+        linkedin: "https://linkedin.com/in/mantejsingh",
+        github: "https://github.com/mantejsingh"
       }
     },
     {
-      name: "Jamie Singh",
+      name: "Avya Giri",
       role: "CTO",
-      image: "/team/jamie.jpg",
-      bio: "Experienced ML engineer who previously led infrastructure at OpenAI. Loves optimizing model performance.",
+      image: "/team/avya.jpg",
+      bio: "Experienced ML engineer leading our technical infrastructure. Expert in optimizing model performance and scalability.",
       social: {
-        twitter: "https://twitter.com/jamiesingh",
-        linkedin: "https://linkedin.com/in/jamiesingh",
-        github: "https://github.com/jamiesingh"
+        linkedin: "https://linkedin.com/in/avyagiri",
+        github: "https://github.com/avyagiri"
       }
     },
     {
-      name: "Taylor Rodriguez",
-      role: "Head of Product",
-      image: "/team/taylor.jpg",
-      bio: "Product leader with experience at Anthropic and Meta. Focused on creating intuitive AI tools.",
+      name: "Fatima K",
+      role: "CEO",
+      image: "/team/fatima.jpg",
+      bio: "Strategic leader driving business growth and partnerships. Passionate about the intersection of AI and business innovation.",
       social: {
-        twitter: "https://twitter.com/taylorr",
-        linkedin: "https://linkedin.com/in/taylorr",
-        github: "https://github.com/taylorr"
-      }
-    },
-    {
-      name: "Jordan Lee",
-      role: "Lead ML Engineer",
-      image: "/team/jordan.jpg",
-      bio: "Specializes in model optimization and fine-tuning. Previously at Stability AI and Hugging Face.",
-      social: {
-        twitter: "https://twitter.com/jordanlee",
-        linkedin: "https://linkedin.com/in/jordanlee",
-        github: "https://github.com/jordanlee"
-      }
-    },
-    {
-      name: "Mia Wong",
-      role: "Head of Design",
-      image: "/team/mia.jpg",
-      bio: "Award-winning UX designer with a focus on creating accessible and beautiful AI interfaces.",
-      social: {
-        twitter: "https://twitter.com/miawong",
-        linkedin: "https://linkedin.com/in/miawong",
-        github: "https://github.com/miawong"
-      }
-    },
-    {
-      name: "Sam Johnson",
-      role: "Head of Community",
-      image: "/team/sam.jpg",
-      bio: "Community builder who loves connecting people with technology. Previously at Discord and GitHub.",
-      social: {
-        twitter: "https://twitter.com/samjohnson",
-        linkedin: "https://linkedin.com/in/samjohnson",
-        github: "https://github.com/samjohnson"
+        linkedin: "https://linkedin.com/in/fatimak",
+        github: "https://github.com/fatimak"
       }
     }
   ];
@@ -378,9 +342,30 @@ export default function AboutPage() {
                 transition={{ duration: 0.4, delay: index * 0.1 }}
               >
                 <div className="aspect-square bg-gray-900 relative overflow-hidden">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-3xl">{member.name.charAt(0)}</div>
-                  </div>
+                  {member.image ? (
+                    <Image 
+                      src={member.image}
+                      alt={member.name}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover object-center"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const container = target.parentElement;
+                        if (container) {
+                          const fallback = document.createElement('div');
+                          fallback.className = 'absolute inset-0 flex items-center justify-center';
+                          fallback.innerHTML = `<div class="text-3xl">${member.name.charAt(0)}</div>`;
+                          container.appendChild(fallback);
+                        }
+                      }}
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-3xl">{member.name.charAt(0)}</div>
+                    </div>
+                  )}
                   <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black to-transparent"></div>
                 </div>
                 
@@ -389,48 +374,29 @@ export default function AboutPage() {
                   <div className="text-purple-400 mb-4">{member.role}</div>
                   <p className="text-gray-300 text-sm mb-4">{member.bio}</p>
                   
-                  <div className="flex gap-3">
+                  <div className="flex space-x-2 mt-4">
                     <a 
-                      href={member.social.twitter} 
+                      href={member.social.github} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="p-2 text-gray-400 hover:text-blue-400 hover:bg-gray-700/50 rounded-full transition-colors"
-                      aria-label={`${member.name}'s Twitter`}
+                      className="p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors"
+                      aria-label={`${member.name}'s GitHub`}
                     >
-                      <Twitter size={18} />
+                      <Github size={18} />
                     </a>
                     <a 
                       href={member.social.linkedin} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="p-2 text-gray-400 hover:text-blue-600 hover:bg-gray-700/50 rounded-full transition-colors"
+                      className="p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition-colors"
                       aria-label={`${member.name}'s LinkedIn`}
                     >
                       <Linkedin size={18} />
-                    </a>
-                    <a 
-                      href={member.social.github} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="p-2 text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-full transition-colors"
-                      aria-label={`${member.name}'s GitHub`}
-                    >
-                      <Github size={18} />
                     </a>
                   </div>
                 </div>
               </motion.div>
             ))}
-          </div>
-          
-          <div className="text-center mt-12">
-            <Link 
-              href="/team" 
-              className="inline-flex items-center text-purple-400 hover:text-purple-300"
-            >
-              View Full Team
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
           </div>
         </div>
       </section>

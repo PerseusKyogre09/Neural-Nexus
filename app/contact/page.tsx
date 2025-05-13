@@ -9,7 +9,6 @@ import {
   MapPin, 
   Send, 
   Github, 
-  Twitter, 
   Linkedin, 
   Instagram,
   CheckCircle,
@@ -82,9 +81,8 @@ const ContactPage = () => {
   
   const socialLinks = [
     { icon: <Github className="w-6 h-6" />, name: "GitHub", url: "https://github.com/aimodelhub", color: "hover:text-white" },
-    { icon: <Twitter className="w-6 h-6" />, name: "Twitter", url: "https://twitter.com/aimodelhub", color: "hover:text-blue-400" },
     { icon: <Linkedin className="w-6 h-6" />, name: "LinkedIn", url: "https://linkedin.com/company/aimodelhub", color: "hover:text-blue-600" },
-    { icon: <Instagram className="w-6 h-6" />, name: "Instagram", url: "https://instagram.com/aimodelhub", color: "hover:text-pink-500" }
+    { icon: <Instagram className="w-6 h-6" />, name: "Instagram", url: "https://instagram.com/aimodelhub", color: "hover:text-pink-600" }
   ];
   
   const contactInfo = [

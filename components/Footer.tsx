@@ -3,8 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Github, Twitter, Linkedin, Mail } from 'lucide-react';
 import Brand from './Brand';
+import { Github, Linkedin, Mail } from 'lucide-react';
 
 const Footer = () => {
   const footerLinks = {
@@ -13,7 +13,9 @@ const Footer = () => {
       { label: 'Pricing', href: '/pricing' },
       { label: 'Documentation', href: '/docs' },
       { label: 'API Reference', href: '/api-docs' },
-      { label: 'Model Hosting', href: '/hosting' }
+      { label: 'Model Hosting', href: '/hosting' },
+      { label: 'Research', href: '/research' },
+      { label: 'Open Source', href: '/open-source' }
     ],
     community: [
       { label: 'Showcase', href: '/community' },
@@ -33,7 +35,6 @@ const Footer = () => {
 
   const socialLinks = [
     { icon: <Github className="w-5 h-5" />, href: 'https://github.com/neuralnexus', label: 'GitHub' },
-    { icon: <Twitter className="w-5 h-5" />, href: 'https://twitter.com/neuralnexus', label: 'Twitter' },
     { icon: <Linkedin className="w-5 h-5" />, href: 'https://linkedin.com/company/neuralnexus', label: 'LinkedIn' },
     { icon: <Mail className="w-5 h-5" />, href: 'mailto:contact@neuralnexus.ai', label: 'Email' }
   ];

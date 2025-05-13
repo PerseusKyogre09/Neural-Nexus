@@ -8,7 +8,8 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { 
   BookOpen, Download, FileText, Star, Users, 
-  ExternalLink, Search, ChevronRight, Link as LinkIcon
+  ExternalLink, Search, ChevronRight, Link as LinkIcon,
+  Shield, Layers, Beaker, Bot
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -35,7 +36,7 @@ export default function ResearchPage() {
     {
       id: "paper1",
       title: "NeuroEvolution: Self-Optimizing Neural Networks Through Genetic Algorithms",
-      authors: ["Alex Johnson", "Mia Wong", "Daniel Lee"],
+      authors: ["Alex Johnson", "Daniel Lee"],
       abstract: "This paper introduces a novel approach to neural network optimization using genetic algorithms that dynamically evolve network architectures. Our method demonstrates significant improvements in both training speed and model performance across multiple domains.",
       publishDate: "2023-08-15",
       tags: ["Neural Networks", "Genetic Algorithms", "Optimization"],
@@ -75,6 +76,50 @@ export default function ResearchPage() {
       imageUrl: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb",
       pdfUrl: "#",
       citations: 62
+    },
+    {
+      id: "paper5",
+      title: "Hierarchical Reinforcement Learning for Robotic Control",
+      authors: ["Marcus Zhang", "Priya Patel", "David Chen"],
+      abstract: "This paper presents a hierarchical approach to reinforcement learning that enables robots to learn complex, multi-stage tasks more efficiently. Our method shows 35% faster learning and 42% better performance on manipulation tasks.",
+      publishDate: "2024-01-15",
+      tags: ["Robotics", "Reinforcement Learning", "Control Systems"],
+      imageUrl: "https://images.unsplash.com/photo-1589254065878-42c9da997008",
+      pdfUrl: "#",
+      citations: 53
+    },
+    {
+      id: "paper6",
+      title: "Foundation Models for Scientific Discovery: Protein Structure Prediction",
+      authors: ["Elena Rodriguez", "Samantha Kim", "Oliver Brown"],
+      abstract: "We introduce a new foundation model architecture specifically designed for scientific discovery, focusing on protein structure prediction. Our approach leverages both evolutionary and physical constraints to achieve state-of-the-art accuracy.",
+      publishDate: "2024-02-28",
+      tags: ["Foundation Models", "Protein Structure", "Scientific AI"],
+      imageUrl: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69",
+      pdfUrl: "#",
+      citations: 75
+    },
+    {
+      id: "paper7",
+      title: "Federated Learning With Privacy Guarantees for Healthcare Applications",
+      authors: ["Jordan Lee", "Aisha Hassan", "Ryan Mitchell"],
+      abstract: "This paper presents a novel federated learning approach with formal privacy guarantees suitable for sensitive healthcare data. We demonstrate how multi-party computation can be combined with differential privacy to enable collaborative model training without data sharing.",
+      publishDate: "2024-03-10",
+      tags: ["Federated Learning", "Privacy", "Healthcare AI"],
+      imageUrl: "https://images.unsplash.com/photo-1576091160550-2173dba999ef",
+      pdfUrl: "#",
+      citations: 42
+    },
+    {
+      id: "paper8",
+      title: "Emergent Abilities in Large Language Models: Analysis and Prediction",
+      authors: ["Nadia Williams", "Kojo Asante", "Wei Zhang"],
+      abstract: "Our research provides a framework for understanding and predicting emergent abilities in large language models. By analyzing the correlation between model size, training data, and task performance, we identify key threshold points where new capabilities emerge.",
+      publishDate: "2024-04-05",
+      tags: ["Large Language Models", "Emergent Abilities", "Scaling Laws"],
+      imageUrl: "https://images.unsplash.com/photo-1655720035881-7d60f99c3ebe",
+      pdfUrl: "#",
+      citations: 81
     }
   ];
   
@@ -100,6 +145,27 @@ export default function ResearchPage() {
       status: "Recruiting",
       contributors: 12,
       imageUrl: "https://images.unsplash.com/photo-1554475901-4538ddfbccc2"
+    },
+    {
+      title: "Multimodal Foundation Models",
+      description: "Building the next generation of foundation models that seamlessly integrate multiple modalities (text, image, audio, video) for more natural AI interactions.",
+      status: "Active",
+      contributors: 32,
+      imageUrl: "https://images.unsplash.com/photo-1642232454436-97787331eb5d"
+    },
+    {
+      title: "AI for Scientific Discovery",
+      description: "Using AI to accelerate scientific discovery in chemistry, biology, and materials science through simulation and hypothesis generation.",
+      status: "Recruiting",
+      contributors: 23,
+      imageUrl: "https://images.unsplash.com/photo-1507413245164-6160d8298b31"
+    },
+    {
+      title: "Human-AI Collaboration Systems",
+      description: "Exploring new paradigms for humans and AI working together to solve problems more effectively than either could alone.",
+      status: "Active",
+      contributors: 19,
+      imageUrl: "https://images.unsplash.com/photo-1551434678-e076c223a692"
     }
   ];
   
@@ -125,6 +191,67 @@ export default function ResearchPage() {
       samples: "250,000",
       size: "31.7 GB",
       tags: ["Robotics", "Navigation", "Simulation"]
+    },
+    {
+      name: "MedicalMultimodal-5K",
+      description: "Curated dataset of 5,000 medical cases with text reports, imaging data, and structured clinical information with full privacy compliance.",
+      samples: "5,000",
+      size: "78.2 GB",
+      tags: ["Healthcare", "MultiModal", "Privacy-Preserving"]
+    },
+    {
+      name: "IndustryProcesses-HD",
+      description: "High-fidelity sensor data from industrial processes with annotations for anomaly detection and predictive maintenance.",
+      samples: "1,200,000",
+      size: "53.8 GB",
+      tags: ["Industrial", "Time-Series", "IoT"]
+    },
+    {
+      name: "CodeReasoningBench",
+      description: "Comprehensive benchmark for evaluating code understanding, reasoning, and generation abilities of AI models across 12 programming languages.",
+      samples: "850,000",
+      size: "15.3 GB",
+      tags: ["Code", "Reasoning", "Benchmarking"]
+    }
+  ];
+  
+  // Research areas
+  const researchAreas = [
+    {
+      title: "Foundational Model Research",
+      description: "Advancing the core capabilities of large-scale AI models through innovations in architecture, training methodologies, and optimization techniques.",
+      icon: <BookOpen className="h-8 w-8 text-blue-400" />,
+      topics: ["Scaling Laws", "Attention Mechanisms", "Training Efficiency", "Knowledge Representation"]
+    },
+    {
+      title: "Trustworthy AI",
+      description: "Developing methods to make AI systems more reliable, safe, fair, and aligned with human values and intentions.",
+      icon: <Shield className="h-8 w-8 text-green-400" />,
+      topics: ["Alignment", "Safety", "Explainability", "Bias Mitigation"]
+    },
+    {
+      title: "Multimodal Intelligence",
+      description: "Creating AI systems that can seamlessly understand and generate content across multiple modalities including text, images, audio, and video.",
+      icon: <Layers className="h-8 w-8 text-purple-400" />,
+      topics: ["Cross-Modal Learning", "Unified Representations", "Modal Translation", "Sensory Integration"]
+    },
+    {
+      title: "AI for Scientific Discovery",
+      description: "Applying AI to accelerate breakthroughs in science and medicine through hypothesis generation, experiment design, and data analysis.",
+      icon: <Beaker className="h-8 w-8 text-yellow-400" />,
+      topics: ["Drug Discovery", "Materials Science", "Protein Engineering", "Climate Modeling"]
+    },
+    {
+      title: "Human-AI Collaboration",
+      description: "Exploring new paradigms for humans and AI systems to work together, enhancing human capabilities while addressing AI limitations.",
+      icon: <Users className="h-8 w-8 text-pink-400" />,
+      topics: ["Interactive Systems", "Cognitive Augmentation", "Adaptive Interfaces", "Feedback Loops"]
+    },
+    {
+      title: "Embodied Intelligence",
+      description: "Building AI systems that can perceive, reason about, and act in the physical world through robotics and simulation.",
+      icon: <Bot className="h-8 w-8 text-orange-400" />,
+      topics: ["Robotic Learning", "Simulation-to-Reality", "Dexterous Manipulation", "Navigation"]
     }
   ];
   
@@ -535,6 +662,49 @@ export default function ResearchPage() {
               </div>
             )}
           </motion.div>
+        </div>
+      </section>
+      
+      {/* Research Areas Section */}
+      <section className="py-16 px-4 bg-gradient-to-r from-gray-900 to-gray-900/50">
+        <div className="container mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl font-bold mb-4">Key Research Areas</h2>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              Our teams are focused on pushing boundaries in these critical domains
+            </p>
+          </motion.div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {researchAreas.map((area, index) => (
+              <motion.div
+                key={area.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-6 hover:border-purple-500/30 transition-all"
+              >
+                <div className="mb-4">{area.icon}</div>
+                <h3 className="text-xl font-bold mb-2">{area.title}</h3>
+                <p className="text-gray-300 mb-4">{area.description}</p>
+                <div className="flex flex-wrap gap-2">
+                  {area.topics.map(topic => (
+                    <span 
+                      key={topic} 
+                      className="text-xs bg-gray-700/50 text-gray-300 px-2 py-1 rounded"
+                    >
+                      {topic}
+                    </span>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
       
