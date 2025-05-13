@@ -11,7 +11,7 @@ import {
   Zap, 
   HardDrive, 
   Cloud, 
-  CircleCheck, 
+  CheckCircle, 
   Copy, 
   Terminal,
   ChevronDown
@@ -239,7 +239,7 @@ fetch("https://api.aimodelhub.com/v1/webhooks", {
             >
               {copiedSnippet === "sdk-install" ? (
                 <>
-                  <CircleCheck className="w-5 h-5" />
+                  <CheckCircle className="w-5 h-5" />
                   Copied!
                 </>
               ) : (
@@ -431,7 +431,7 @@ fetch("https://api.aimodelhub.com/v1/webhooks", {
                       aria-label="Copy code"
                     >
                       {copiedSnippet === `snippet-${endpoint.id}` ? (
-                        <CircleCheck className="w-5 h-5 text-green-400" />
+                        <CheckCircle className="w-5 h-5 text-green-400" />
                       ) : (
                         <Copy className="w-5 h-5" />
                       )}
@@ -451,7 +451,7 @@ fetch("https://api.aimodelhub.com/v1/webhooks", {
                       aria-label="Copy code"
                     >
                       {copiedSnippet === `response-${endpoint.id}` ? (
-                        <CircleCheck className="w-5 h-5 text-green-400" />
+                        <CheckCircle className="w-5 h-5 text-green-400" />
                       ) : (
                         <Copy className="w-5 h-5" />
                       )}

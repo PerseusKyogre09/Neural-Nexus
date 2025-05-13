@@ -14,7 +14,7 @@ import {
   Filter,
   Crown,
   Trophy,
-  Fire,
+  Flame,
   Star,
   Clock
 } from "lucide-react";
@@ -318,7 +318,7 @@ export default function CommunityPage() {
               <FilterButton 
                 active={activeFilter === 'trending'} 
                 onClick={() => setActiveFilter('trending')}
-                icon={<Fire size={16} />}
+                icon={<Flame size={16} />}
                 label="Trending"
               />
               <FilterButton 
@@ -441,7 +441,7 @@ function ModelCard({ model }: { model: any }) {
         <div className="absolute top-2 left-2 flex gap-2">
           {model.trending && (
             <div className="bg-orange-500/90 text-white text-xs px-2 py-1 rounded-md flex items-center">
-              <Fire size={12} className="mr-1" />
+              <Flame size={12} className="mr-1" />
               Trending
             </div>
           )}
