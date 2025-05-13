@@ -2,5 +2,5 @@
   "framework": "nextjs",
   "buildCommand": "npm install && npm run build",
   "outputDirectory": ".next",
-  "nodeVersion": "16.x"
+  "nodeVersion": "18.x"
 } 
