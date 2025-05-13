@@ -1,7 +1,6 @@
 "use client";
 
-import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import dynamic from 'next/dynamic';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
 // Define the context type
 type TonConnectContextType = {
@@ -10,62 +9,49 @@ type TonConnectContextType = {
 };
 
 // Create the context with default values
-const TonConnectContext = createContext<TonConnectContextType>({
-  isInitialized: false,
-  connector: null,
-});
+const TonConnectContext = createContext<null | any>(null);
 
 // Hook to use the context
 export const useTonConnect = () => useContext(TonConnectContext);
 
+interface TonConnectProviderProps {
+  children: ReactNode;
+}
+
 // Provider component
-export function TonConnectProvider({ children }: { children: ReactNode }) {
+export const TonConnectProvider = ({ children }: TonConnectProviderProps) => {
+  const [tonConnectUI, setTonConnectUI] = useState<null | any>(null);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [connector, setConnector] = useState<any>(null);
 
   useEffect(() => {
-    // Only run on client side
-    if (typeof window === 'undefined') return;
-    
-    const setupTonConnect = async () => {
+    // Only initialize if we're on the client side and TON Connect is enabled
+    if (typeof window === 'undefined' || process.env.NEXT_PUBLIC_ENABLE_TONCONNECT !== 'true') {
+      setIsInitialized(true);
+      return;
+    }
+
+    const initTonConnect = async () => {
       try {
-        // Dynamically import TonConnect to avoid SSR issues
         const { TonConnectUI } = await import('@tonconnect/ui-react');
-        
-        // Check if TonConnect is enabled in env vars
-        if (process.env.NEXT_PUBLIC_ENABLE_TONCONNECT !== 'true') {
-          console.log('TON Connect is disabled by environment variable');
-          return;
-        }
-        
-        // Create a new TonConnect instance
-        const tonConnectUI = new TonConnectUI({
+        const ui = new TonConnectUI({
           manifestUrl: process.env.NEXT_PUBLIC_TON_MANIFEST_URL || 'https://your-domain.com/tonconnect-manifest.json',
+          // Removed hideInAppNotifications as it might not be supported in the current version
         });
-        
-        // Store the connector instance
-        setConnector(tonConnectUI);
-        setIsInitialized(true);
-        
-        console.log('TON Connect SDK initialized');
+        setTonConnectUI(ui);
+        console.log('TonConnect initialized, fam!');
       } catch (error) {
-        console.error('Failed to initialize TON Connect:', error);
+        console.error('Error initializing TonConnect, no cap:', error);
+      } finally {
+        setIsInitialized(true);
       }
     };
 
-    setupTonConnect();
-    
-    // Cleanup
-    return () => {
-      if (connector && typeof connector.disconnect === 'function') {
-        connector.disconnect();
-      }
-    };
+    initTonConnect();
   }, []);
 
   return (
-    <TonConnectContext.Provider value={{ isInitialized, connector }}>
-      {children}
+    <TonConnectContext.Provider value={tonConnectUI}>
+      {isInitialized ? children : <div>Loading TON Connect, hold up...</div>}
     </TonConnectContext.Provider>
   );
-} 
+}; 
