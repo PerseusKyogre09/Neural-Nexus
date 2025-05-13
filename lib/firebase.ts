@@ -2,6 +2,7 @@ import { initializeApp, getApps, getApp, FirebaseOptions, FirebaseApp } from 'fi
 import { 
   getAuth, 
   GoogleAuthProvider, 
+  GithubAuthProvider,
   signInWithPopup, 
   signOut, 
   onAuthStateChanged,
@@ -88,6 +89,7 @@ let auth: Auth;
 let db: Firestore;
 let storage: FirebaseStorage;
 let googleProvider: GoogleAuthProvider;
+let githubProvider: GithubAuthProvider;
 let functions: any;
 let analytics: any = null;
 let performance: any = null;
@@ -141,6 +143,7 @@ if (hasValidConfig) {
     // Initialize other services
     storage = getStorage(app);
     googleProvider = new GoogleAuthProvider();
+    githubProvider = new GithubAuthProvider();
     functions = getFunctions(app);
     
     // Only initialize analytics and performance on client in production
@@ -218,6 +221,7 @@ function createPlaceholders() {
   
   // Mock provider
   googleProvider = {} as GoogleAuthProvider;
+  githubProvider = {} as GithubAuthProvider;
   
   // Mock functions
   functions = {
@@ -277,31 +281,29 @@ export const signInWithGoogle = async () => {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
     
-    // Store user in Firestore if they don't exist
+    // Create or update user in Firestore
     const userRef = doc(db, 'users', user.uid);
     const userSnap = await getDoc(userRef);
     
     if (!userSnap.exists()) {
+      // Create new user document
       await setDoc(userRef, {
-        uid: user.uid,
-        displayName: user.displayName,
+        id: user.uid,
+        name: user.displayName,
         email: user.email,
         photoURL: user.photoURL,
         createdAt: serverTimestamp(),
-        lastLoginAt: serverTimestamp(),
         walletConnected: false,
-        ownedModels: [],
+        ownedModels: []
       });
-      
-      trackEvent('new_user_signup', { method: 'google' });
     } else {
-      // Update last login
+      // Update login timestamp
       await updateDoc(userRef, {
-        lastLoginAt: serverTimestamp(),
+        lastLoginAt: serverTimestamp()
       });
     }
     
-    trackEvent('user_login', { method: 'google' });
+    trackEvent('login', { method: 'google' });
     traceObj?.stop();
     
     return user;
@@ -312,35 +314,28 @@ export const signInWithGoogle = async () => {
 };
 
 export const signUpWithEmail = async (email: string, password: string, displayName: string) => {
-  if (!hasValidConfig) {
-    console.warn("Firebase auth not available - using demo mode");
-    return null;
-  }
-  
   try {
-    const traceObj = startTrace('auth_sign_up_email');
+    // Create user account
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     
     // Update profile with display name
     await updateProfile(user, { displayName });
     
-    // Store user in Firestore
+    // Create user document in Firestore
     const userRef = doc(db, 'users', user.uid);
     await setDoc(userRef, {
-      uid: user.uid,
-      displayName,
+      id: user.uid,
+      name: displayName,
       email: user.email,
+      photoURL: user.photoURL,
       createdAt: serverTimestamp(),
-      lastLoginAt: serverTimestamp(),
       walletConnected: false,
-      ownedModels: [],
+      ownedModels: []
     });
     
-    trackEvent('new_user_signup', { method: 'email' });
-    traceObj?.stop();
-    
-    return user;
+    trackEvent('sign_up', { method: 'email' });
+    return { user };
   } catch (error) {
     logError(error);
     throw error;
@@ -654,6 +649,42 @@ export const incrementModelDownloads = async (modelId: string) => {
   } catch (error) {
     logError(error);
     return false;
+  }
+};
+
+// Add GitHub sign-in function
+export const signInWithGithub = async () => {
+  try {
+    const result = await signInWithPopup(auth, githubProvider);
+    const user = result.user;
+    
+    // Create or update user in Firestore
+    const userRef = doc(db, 'users', user.uid);
+    const userSnap = await getDoc(userRef);
+    
+    if (!userSnap.exists()) {
+      // Create new user document
+      await setDoc(userRef, {
+        id: user.uid,
+        name: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+        createdAt: serverTimestamp(),
+        walletConnected: false,
+        ownedModels: []
+      });
+    } else {
+      // Update login timestamp
+      await updateDoc(userRef, {
+        lastLoginAt: serverTimestamp()
+      });
+    }
+    
+    trackEvent('login', { method: 'github' });
+    return { user };
+  } catch (error) {
+    logError(error);
+    throw error;
   }
 };
 

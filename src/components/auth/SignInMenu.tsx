@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Github, Mail, Lock, X, AlertCircle, User, Wallet } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { connectTonkeeper } from '../../utils/ton';
+import { signIn } from 'next-auth/react';
+import { signInWithGoogle, signInWithGithub, signInWithEmail, signUpWithEmail } from '@/lib/firebase';
 
 interface SignInMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  initialMode?: 'signin' | 'signup';
 }
 
 interface AuthError {
@@ -14,8 +17,8 @@ interface AuthError {
   message: string;
 }
 
-export function SignInMenu({ isOpen, onClose }: SignInMenuProps) {
-  const [isSignIn, setIsSignIn] = useState(true);
+export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMenuProps) {
+  const [isSignIn, setIsSignIn] = useState(initialMode === 'signin');
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -92,74 +95,64 @@ export function SignInMenu({ isOpen, onClose }: SignInMenuProps) {
     try {
       if (isSignIn) {
         // Sign In logic
-        const response = await fetch('/api/auth/signin', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-          }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          // Handle successful sign in
-          console.log('Signed in successfully:', data);
+        const result = await signInWithEmail(formData.email, formData.password);
+        if (result.user) {
+          console.log('Signed in successfully:', result.user);
           onClose();
-        } else {
-          setError({
-            type: 'general',
-            message: 'Invalid email or password'
-          });
         }
       } else {
         // Sign Up logic
-        const response = await fetch('/api/auth/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            password: formData.password,
-            displayName: formData.firstName
-          }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Account created successfully:', data);
+        const result = await signUpWithEmail(
+          formData.email, 
+          formData.password, 
+          `${formData.firstName} ${formData.lastName}`
+        );
+        
+        if (result.user) {
+          console.log('Account created successfully:', result.user);
           onClose();
-        } else {
-          const errorData = await response.json();
-          setError({
-            type: 'general',
-            message: errorData.message || 'Failed to create account'
-          });
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       setError({
         type: 'general',
-        message: 'An error occurred during authentication'
+        message: err.message || 'An error occurred during authentication'
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSocialLogin = async (provider: 'github' | 'google') => {
-    setError(null);
+  const handleGithubLogin = async () => {
     setIsLoading(true);
     try {
-      // Implement social login logic here
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      console.log(`Logging in with ${provider}`);
-      onClose();
-    } catch (err) {
+      const result = await signInWithGithub();
+      if (result.user) {
+        console.log('GitHub login successful:', result.user);
+        onClose();
+      }
+    } catch (error: any) {
       setError({
         type: 'general',
-        message: `Failed to login with ${provider}`
+        message: error.message || 'Failed to login with GitHub'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    try {
+      const result = await signInWithGoogle();
+      if (result.user) {
+        console.log('Google login successful:', result.user);
+        onClose();
+      }
+    } catch (error: any) {
+      setError({
+        type: 'general',
+        message: error.message || 'Failed to login with Google'
       });
     } finally {
       setIsLoading(false);
@@ -344,15 +337,15 @@ export function SignInMenu({ isOpen, onClose }: SignInMenuProps) {
                 variant="secondary"
                 className="w-full"
                 leftIcon={<Github className="h-5 w-5" />}
-                onClick={() => handleSocialLogin('github')}
+                onClick={handleGithubLogin}
               >
-                GitHub
+                Continue with GitHub
               </Button>
               
               <Button
                 variant="secondary"
                 className="w-full"
-                onClick={() => handleSocialLogin('google')}
+                onClick={handleGoogleLogin}
                 leftIcon={
                   <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -362,7 +355,7 @@ export function SignInMenu({ isOpen, onClose }: SignInMenuProps) {
                   </svg>
                 }
               >
-                Gmail
+                Continue with Google
               </Button>
 
               <Button
@@ -371,7 +364,7 @@ export function SignInMenu({ isOpen, onClose }: SignInMenuProps) {
                 onClick={handleTonkeeperLogin}
                 leftIcon={<Wallet className="h-5 w-5" />}
               >
-                Tonkeeper
+                Connect Tonkeeper
               </Button>
             </div>
 

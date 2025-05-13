@@ -25,7 +25,7 @@ export default function AboutPage() {
     {
       name: "Mantej Singh",
       role: "Founder",
-      image: "/team/mantej.jpg",
+      image: "/team/Mantej.png",
       bio: "Visionary founder with a passion for democratizing AI. Leading Neural Nexus to transform how AI models are shared and monetized.",
       social: {
         linkedin: "https://linkedin.com/in/mantejsingh",
@@ -35,7 +35,7 @@ export default function AboutPage() {
     {
       name: "Avya Giri",
       role: "CTO",
-      image: "/team/avya.jpg",
+      image: "/team/Avya.png",
       bio: "Experienced ML engineer leading our technical infrastructure. Expert in optimizing model performance and scalability.",
       social: {
         linkedin: "https://linkedin.com/in/avyagiri",
@@ -45,7 +45,7 @@ export default function AboutPage() {
     {
       name: "Fatima K",
       role: "CEO",
-      image: "/team/fatima.jpg",
+      image: "/team/Fatima.png",
       bio: "Strategic leader driving business growth and partnerships. Passionate about the intersection of AI and business innovation.",
       social: {
         linkedin: "https://linkedin.com/in/fatimak",
