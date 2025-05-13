@@ -1,163 +1,61 @@
-# AI Model Marketplace
+# Neural Nexus - AI Model Hub
 
-A sophisticated platform for discovering, sharing, and monetizing AI models with a modern, accessible interface and robust technical infrastructure.
+Yo, welcome to **Neural Nexus**, the dopest AI model hub where you can upload, sell, and transfer ownership of your AI creations with crypto, UPI, PayPal, or net banking. Built for the future of AI creators, fam! 🔥
 
-## 🌟 Features
+## Features
 
-### Modern Interface
+- **Upload AI Models**: Drop your models and flex your skills.
+- **Secure Payments**: Pay with Stripe, Razorpay (UPI), or Crypto (MetaMask).
+- **Google Auth**: Sign in with Google, no cap.
+- **Ownership Transfer**: Permanently transfer model ownership.
+- **Lit UI**: Animated logo, background particles, and Gen-Z vibes.
 
-- **Professional Dark Theme** with gradient backgrounds and consistent typography
-- **Responsive Design** supporting all device sizes
-- **Interactive Elements** with smooth transitions and hover effects
-- **Search & Discovery** featuring category filters and intuitive navigation
+## Tech Stack
 
-### Core Components
+- **Next.js**: Framework for React.
+- **Tailwind CSS**: Styling with modern utility classes.
+- **Framer Motion**: Sick animations.
+- **Firebase**: Auth and backend setup.
+- **Stripe & Razorpay**: Payment processing.
 
-- **Featured Models Section** displaying model cards with:
-  - Performance metrics and download statistics
-  - Clear pricing information
-  - Interactive preview capabilities
-  - Detailed model specifications
+## Setup
 
-### Dashboard Analytics
+1. **Clone the Repo**:
+   ```bash
+   git clone https://github.com/your-username/neural-nexus.git
+   cd neural-nexus
+   ```
 
-- Real-time performance metrics
-- Download and usage statistics
-- Revenue tracking
-- User engagement analytics
+2. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
 
-## 🛠 Technical Stack
+3. **Set Environment Variables**:
+   Create a `.env.local` file in the root directory and add your Firebase credentials:
+   ```bash
+   NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-auth-domain
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+   ```
 
-### Frontend Components
+4. **Run Locally**:
+   ```bash
+   npm run dev
+   ```
+   Open `http://localhost:3000` to see the app in action.
 
-- **UI Framework**: React with TypeScript
-- **Styling**: Tailwind CSS
-- **Icons**: Lucide React
-- **Components**:
-  - Button (multiple variants)
-  - Card layouts
-  - Input fields
-  - Badges
-  - Responsive tables
-  - Modal dialogs
-  - Loading states
+## Deployment on Vercel
 
-### Design System
+1. Push your code to a GitHub repo.
+2. Go to [Vercel](https://vercel.com) and create a new project.
+3. Connect your GitHub repo and set the environment variables in the Vercel dashboard.
+4. Deploy, and you're live, fam!
 
-- Comprehensive color system with CSS variables
-- Typography hierarchy
-- Consistent spacing
-- Shadow elevation system
-- Dark mode support
-- ARIA-compliant accessibility features
+## Contributing
 
-## 🔒 Security & Performance
+Got ideas to make this even more lit? Drop a PR or issue. Let's build this together!
 
-### Security Features
+## License
 
-- Robust authentication system
-- Rate limiting
-- Data encryption
-- Secure file handling
-
-### Performance Optimizations
-
-- Lazy loading
-- Image optimization
-- Caching strategies
-- CDN integration
-
-## 💻 Getting Started
-
-### Prerequisites
-
-```bash
-node >= 18.0.0
-npm >= 8.0.0
-````
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/Drago-03/AI-Model-Hub.git
-
-# Install dependencies
-cd ai-marketplace
-npm install
-
-# Start development server
-npm run dev
-```
-
-### Environment Configuration
-
-Create a `.env` file in the root directory:
-
-```bash
-DATABASE_URL=your_database_url
-API_KEY=your_api_key
-STRIPE_SECRET_KEY=your_stripe_key
-```
-
-## 📚 Documentation
-
-### API Documentation
-
-Full API documentation is available at `/docs/api`
-
-### Component Library
-
-Component documentation and examples available at `/docs/components`
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE.md file for details.
-
-## 📊 System Architecture
-
-### Database Schema
-
-- Models
-- Users
-- Transactions
-- Analytics
-- Reviews
-
-### API Endpoints
-
-- `/api/v1/models`
-- `/api/v1/users`
-- `/api/v1/transactions`
-- `/api/v1/analytics`
-
-## 🚀 Deployment
-
-### Production Build
-
-```bash
-npm run build
-npm run start
-```
-
-### Docker Support
-
-```bash
-# Build Docker image
-docker build -t ai-marketplace .
-
-# Run container
-docker run -p 3000:3000 ai-marketplace
-```
-
-## 📞 Support
-
-For support, email <mantejarora@gmail.com> or join our Slack channel.
+© 2025 Indie Hub. All rights reserved.

@@ -1,47 +1,17 @@
 import { TonConnect } from '@tonconnect/sdk';
 
+// Placeholder for Tonkeeper connection
 const connector = new TonConnect({
   manifestUrl: 'https://your-domain.com/tonconnect-manifest.json'
 });
 
-export interface TonWalletData {
-  address: string;
-  network: string;
-  publicKey: string;
-}
-
-export const connectTonkeeper = async (): Promise<TonWalletData | null> => {
+export async function connectTonkeeper(): Promise<boolean> {
   try {
-    // Request wallet connection
-    const walletConnectionSource = {
-      universalLink: 'https://app.tonkeeper.com/ton-connect',
-      bridgeUrl: 'https://bridge.tonapi.io/bridge'
-    };
-
-    await connector.connect(walletConnectionSource);
-
-    // Get wallet info once connected
-    const walletInfo = connector.account;
-    
-    if (!walletInfo) {
-      throw new Error('Failed to get wallet info');
-    }
-
-    return {
-      address: walletInfo.address,
-      network: walletInfo.chain,
-      publicKey: walletInfo.publicKey || ''
-    };
+    await connector.connect({ jsBridgeKey: 'tonkeeper' });
+    console.log('Tonkeeper connected, fam!');
+    return true;
   } catch (error) {
-    console.error('Tonkeeper connection error:', error);
-    return null;
+    console.error('Error connecting Tonkeeper:', error);
+    throw new Error('Failed to connect Tonkeeper, no cap.');
   }
-};
-
-export const disconnectTonkeeper = async (): Promise<void> => {
-  try {
-    await connector.disconnect();
-  } catch (error) {
-    console.error('Tonkeeper disconnection error:', error);
-  }
-};
+} 
