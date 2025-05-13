@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <rect width="1200" height="800" fill="#0F1729" />
+  <g opacity="0.1">
+    <!-- Stars -->
+    <circle cx="100" cy="150" r="2" fill="white" />
+    <circle cx="300" cy="250" r="3" fill="white" />
+    <circle cx="500" cy="120" r="2" fill="white" />
+    <circle cx="800" cy="350" r="4" fill="white" />
+    <circle cx="950" cy="450" r="2" fill="white" />
+    <circle cx="1100" cy="150" r="3" fill="white" />
+    <circle cx="200" cy="550" r="3" fill="white" />
+    <circle cx="400" cy="650" r="2" fill="white" />
+    <circle cx="600" cy="720" r="4" fill="white" />
+    <circle cx="800" cy="650" r="3" fill="white" />
+    <circle cx="1000" cy="550" r="2" fill="white" />
+    <circle cx="1150" cy="700" r="3" fill="white" />
+    
+    <!-- Neural connections -->
+    <line x1="100" y1="150" x2="300" y2="250" stroke="cyan" stroke-width="1" opacity="0.3" />
+    <line x1="300" y1="250" x2="500" y2="120" stroke="cyan" stroke-width="1" opacity="0.3" />
+    <line x1="500" y1="120" x2="800" y2="350" stroke="cyan" stroke-width="1" opacity="0.3" />
+    <line x1="800" y1="350" x2="950" y2="450" stroke="cyan" stroke-width="1" opacity="0.3" />
+    <line x1="950" y1="450" x2="1100" y2="150" stroke="cyan" stroke-width="1" opacity="0.3" />
+    <line x1="200" y1="550" x2="400" y2="650" stroke="cyan" stroke-width="1" opacity="0.3" />
+    <line x1="400" y1="650" x2="600" y2="720" stroke="cyan" stroke-width="1" opacity="0.3" />
+    <line x1="600" y1="720" x2="800" y2="650" stroke="cyan" stroke-width="1" opacity="0.3" />
+    <line x1="800" y1="650" x2="1000" y2="550" stroke="cyan" stroke-width="1" opacity="0.3" />
+    <line x1="1000" y1="550" x2="1150" y2="700" stroke="cyan" stroke-width="1" opacity="0.3" />
+    
+    <!-- Cross connections -->
+    <line x1="300" y1="250" x2="200" y2="550" stroke="cyan" stroke-width="1" opacity="0.2" />
+    <line x1="500" y1="120" x2="400" y2="650" stroke="cyan" stroke-width="1" opacity="0.2" />
+    <line x1="950" y1="450" x2="800" y2="650" stroke="cyan" stroke-width="1" opacity="0.2" />
+    <line x1="1100" y1="150" x2="1000" y2="550" stroke="cyan" stroke-width="1" opacity="0.2" />
+    
+    <!-- Brighter nodes -->
+    <circle cx="300" cy="250" r="6" fill="cyan" opacity="0.4" />
+    <circle cx="800" cy="350" r="8" fill="cyan" opacity="0.4" />
+    <circle cx="400" cy="650" r="7" fill="cyan" opacity="0.4" />
+    <circle cx="1000" cy="550" r="9" fill="cyan" opacity="0.4" />
+  </g>
+</svg> 

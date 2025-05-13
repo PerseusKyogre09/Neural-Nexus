@@ -235,7 +235,7 @@ export default function CommunityPage() {
       <section className="pb-16 px-4">
         <div className="container mx-auto">
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-900/30 to-blue-900/30 border border-purple-700/30">
-            <div className="absolute inset-0 bg-[url('/featured-bg.jpg')] opacity-10 bg-cover bg-center"></div>
+            <div className="absolute inset-0 bg-[url('/featured-bg.svg')] opacity-10 bg-cover bg-center"></div>
             <div className="p-6 md:p-10 flex flex-col md:flex-row gap-8 relative z-10">
               <div className="md:w-1/2">
                 <div className="aspect-video overflow-hidden rounded-xl bg-black/50 mb-4 relative">

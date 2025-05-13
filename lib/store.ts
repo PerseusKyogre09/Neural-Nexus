@@ -23,6 +23,15 @@ export interface AppUser {
   walletConnected: boolean;
   walletAddress?: string;
   ownedModels: string[];
+  purchasedModels?: string[];
+  stripeCustomerId?: string;
+  subscription?: {
+    id: string;
+    status: string;
+    planId?: string;
+    currentPeriodEnd?: Date;
+    cancelAtPeriodEnd?: boolean;
+  };
 }
 
 interface UIState {

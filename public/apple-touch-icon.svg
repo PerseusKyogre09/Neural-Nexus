@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
+  <rect width="180" height="180" fill="#000" />
+  <path d="M50 30 L130 30 L130 150 L50 150 Z" fill="#0099ff" />
+  <circle cx="90" cy="90" r="40" fill="#00ffff" opacity="0.6" />
+  <path d="M60 60 L120 120 M60 120 L120 60" stroke="white" stroke-width="8" />
+  <text x="90" y="170" text-anchor="middle" fill="white" font-family="Arial" font-size="12">Neural Nexus</text>
+</svg> 
