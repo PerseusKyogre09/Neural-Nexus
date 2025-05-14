@@ -3,8 +3,12 @@ import { Github, Mail, Lock, X, AlertCircle, User, Wallet } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { connectTonkeeper } from '../../utils/ton';
-import { signIn } from 'next-auth/react';
-import { signInWithGoogle, signInWithGithub, signInWithEmail, signUpWithEmail } from '@/lib/firebase';
+// Remove Firebase imports and use only Supabase
+// import { signIn } from 'next-auth/react';
+// import { signInWithGoogle, signInWithGithub, signInWithEmail } from '@/lib/firebase';
+// Import Supabase auth functions
+import { signUpWithSupabase, signInWithSupabase } from '@/lib/supabase';
+import supabase from '@/lib/supabase';
 
 interface SignInMenuProps {
   isOpen: boolean;
@@ -28,6 +32,11 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<AuthError | null>(null);
+
+  // Update when initialMode changes from parent
+  useEffect(() => {
+    setIsSignIn(initialMode === 'signin');
+  }, [initialMode]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -94,23 +103,31 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
     setIsLoading(true);
     try {
       if (isSignIn) {
-        // Sign In logic
-        const result = await signInWithEmail(formData.email, formData.password);
-        if (result.user) {
+        // Sign In logic - use Supabase
+        const result = await signInWithSupabase(formData.email, formData.password);
+        if (result.success) {
           console.log('Signed in successfully:', result.user);
           onClose();
+        } else {
+          throw new Error(result.error || 'Failed to sign in');
         }
       } else {
-        // Sign Up logic
-        const result = await signUpWithEmail(
+        // Sign Up logic with Supabase
+        const result = await signUpWithSupabase(
           formData.email, 
-          formData.password, 
-          `${formData.firstName} ${formData.lastName}`
+          formData.password,
+          {
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            display_name: `${formData.firstName} ${formData.lastName}`
+          }
         );
         
-        if (result.user) {
+        if (result.success) {
           console.log('Account created successfully:', result.user);
           onClose();
+        } else {
+          throw new Error(result.error || 'Failed to create account');
         }
       }
     } catch (err: any) {
@@ -126,17 +143,22 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
   const handleGithubLogin = async () => {
     setIsLoading(true);
     try {
-      const result = await signInWithGithub();
-      if (result.user) {
-        console.log('GitHub login successful:', result.user);
-        onClose();
+      // Use OAuth with Supabase instead
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+      });
+      
+      if (error) throw error;
+      
+      if (data) {
+        console.log('GitHub login initiated');
+        // Will redirect to GitHub
       }
     } catch (error: any) {
       setError({
         type: 'general',
         message: error.message || 'Failed to login with GitHub'
       });
-    } finally {
       setIsLoading(false);
     }
   };
@@ -144,17 +166,22 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     try {
-      const result = await signInWithGoogle();
-      if (result.user) {
-        console.log('Google login successful:', result.user);
-        onClose();
+      // Use OAuth with Supabase instead
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+      });
+      
+      if (error) throw error;
+      
+      if (data) {
+        console.log('Google login initiated');
+        // Will redirect to Google
       }
     } catch (error: any) {
       setError({
         type: 'general',
         message: error.message || 'Failed to login with Google'
       });
-    } finally {
       setIsLoading(false);
     }
   };

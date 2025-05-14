@@ -8,8 +8,8 @@ import { SignInMenu } from '@/src/components/auth/SignInMenu';
 import Link from 'next/link';
 import { ArrowRight, LogIn, UserPlus } from "lucide-react";
 
-// Force dynamic rendering for this page
-export const runtime = 'edge';
+// Remove edge runtime to avoid size limits
+// export const runtime = 'edge';
 
 export default function SignupPage() {
   // State to control if the SignInMenu is open

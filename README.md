@@ -6,7 +6,7 @@ Yo, welcome to **Neural Nexus**, the dopest AI model hub where you can upload, s
 
 - **Upload AI Models**: Drop your models and flex your skills.
 - **Secure Payments**: Pay with Stripe, Razorpay (UPI), or Crypto (MetaMask).
-- **Google Auth**: Sign in with Google, no cap.
+- **Modern Auth**: Sign in with Google, GitHub, email, or crypto wallets.
 - **Ownership Transfer**: Permanently transfer model ownership.
 - **Lit UI**: Animated logo, background particles, and Gen-Z vibes.
 
@@ -15,8 +15,9 @@ Yo, welcome to **Neural Nexus**, the dopest AI model hub where you can upload, s
 - **Next.js**: Framework for React.
 - **Tailwind CSS**: Styling with modern utility classes.
 - **Framer Motion**: Sick animations.
-- **Firebase**: Auth and backend setup.
+- **Supabase**: Open-source Firebase alternative for auth and database.
 - **Stripe & Razorpay**: Payment processing.
+- **Edge Functions**: Lightweight serverless functions for better performance.
 
 ## Setup
 
@@ -38,7 +39,38 @@ Yo, welcome to **Neural Nexus**, the dopest AI model hub where you can upload, s
    ```
    Then edit the file to add your actual credentials.
 
-4. **Firebase Setup (Production Ready)**:
+4. **Supabase Setup (Main Database & Auth)**:
+   
+   a. Create a Supabase project at [Supabase](https://supabase.com/) (free tier available)
+   
+   b. Get your API credentials:
+      - Go to Project Settings > API
+      - Copy the URL, public anon key, and service role key
+      - Add them to your `.env.local` file
+   
+   c. Initialize the database:
+      - After setting up your project and environment variables, run:
+      ```bash
+      # Start your Next.js dev server
+      npm run dev
+      
+      # In a new terminal, initialize the database (one-time setup)
+      curl "http://localhost:3000/api/supabase-setup?setup_key=YOUR_SETUP_KEY_FROM_ENV"
+      ```
+      
+   d. Enable authentication providers:
+      - Go to Authentication > Providers
+      - Enable Email, Google, GitHub, etc. as needed
+      - Configure OAuth credentials for third-party providers
+   
+   e. Set up storage buckets:
+      - Go to Storage
+      - Create buckets for: `models`, `avatars`, `thumbnails`
+      - Set RLS policies for each bucket
+
+5. **Firebase Setup (Legacy/Optional)**:
+   
+   The app is transitioning from Firebase to Supabase, but can still use Firebase for some features.
    
    a. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
    
@@ -59,81 +91,6 @@ Yo, welcome to **Neural Nexus**, the dopest AI model hub where you can upload, s
       - Go to Project settings > General
       - Scroll down to "Your apps" and select your web app
       - Copy the Firebase config values to your `.env.local` file
-   
-   f. Set up Firebase Admin SDK (for server operations):
-      - Go to Project settings > Service accounts
-      - Click "Generate new private key"
-      - Save the JSON file securely
-      - Add the relevant values to your environment variables
-   
-   g. Set up security rules:
-      - Create proper Firestore rules:
-        ```
-        rules_version = '2';
-        service cloud.firestore {
-          match /databases/{database}/documents {
-            // User profiles are readable by anyone but writable only by the owner
-            match /users/{userId} {
-              allow read;
-              allow write: if request.auth != null && request.auth.uid == userId;
-            }
-            
-            // Models are readable by anyone but writable only by the owner
-            match /models/{modelId} {
-              allow read;
-              allow create: if request.auth != null;
-              allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
-            }
-          }
-        }
-        ```
-      - Create proper Storage rules:
-        ```
-        rules_version = '2';
-        service firebase.storage {
-          match /b/{bucket}/o {
-            match /models/{userId}/{fileName} {
-              allow read;
-              allow write: if request.auth != null && request.auth.uid == userId;
-            }
-            
-            match /profile/{userId}/{fileName} {
-              allow read;
-              allow write: if request.auth != null && request.auth.uid == userId;
-            }
-          }
-        }
-        ```
-
-5. **Firebase Emulators (Development)**:
-   
-   For local development, you can use Firebase emulators:
-   
-   a. Install Firebase CLI:
-   ```bash
-   npm install -g firebase-tools
-   ```
-   
-   b. Login to Firebase:
-   ```bash
-   firebase login
-   ```
-   
-   c. Initialize emulators:
-   ```bash
-   firebase init emulators
-   ```
-   Select Authentication, Firestore, Storage, and Functions emulators.
-   
-   d. Start emulators:
-   ```bash
-   firebase emulators:start
-   ```
-   
-   e. Update your `.env.local` to use emulators:
-   ```
-   NEXT_PUBLIC_USE_FIREBASE_EMULATORS=true
-   ```
 
 6. **Run Locally**:
    ```bash
@@ -141,44 +98,50 @@ Yo, welcome to **Neural Nexus**, the dopest AI model hub where you can upload, s
    ```
    Open `http://localhost:3000` to see the app in action.
 
-## Firebase Data Structure
+## Supabase Data Model
 
-Our app uses the following Firestore collections:
+The app uses the following Supabase tables:
 
-### Users Collection
-```
-users/{userId}
-  - uid: string
-  - displayName: string
-  - email: string
-  - photoURL: string (optional)
-  - createdAt: timestamp
-  - lastLoginAt: timestamp
-  - walletConnected: boolean
-  - ownedModels: array of modelIds
+### user_profiles
+```sql
+CREATE TABLE user_profiles (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  first_name TEXT,
+  last_name TEXT,
+  display_name TEXT,
+  email TEXT,
+  bio TEXT,
+  avatar_url TEXT,
+  website TEXT,
+  social_links JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
 ```
 
-### Models Collection
-```
-models/{modelId}
-  - id: string
-  - userId: string (owner's userId)
-  - name: string
-  - description: string
-  - price: number
-  - category: string
-  - tags: array of strings
-  - fileUrl: string (download URL)
-  - filePath: string (storage path)
-  - fileSize: number
-  - fileType: string
-  - createdAt: timestamp
-  - updatedAt: timestamp
-  - downloads: number
-  - rating: number
-  - ratings: array of objects
-  - isPublic: boolean
-  - status: string (active, archived, etc.)
+### models
+```sql
+CREATE TABLE models (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  description TEXT,
+  price DECIMAL(10, 2) DEFAULT 0,
+  category TEXT,
+  tags TEXT[],
+  file_url TEXT,
+  file_path TEXT,
+  file_size BIGINT,
+  file_type TEXT,
+  thumbnail_url TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  downloads INTEGER DEFAULT 0,
+  rating DECIMAL(3, 2) DEFAULT 0,
+  is_public BOOLEAN DEFAULT true,
+  status TEXT DEFAULT 'active'
+);
 ```
 
 ## Deployment on Vercel
@@ -198,13 +161,18 @@ models/{modelId}
 
 ## Monitoring and Analytics
 
-Firebase provides several tools to monitor your application:
+Both Supabase and Firebase provide tools to monitor your application:
 
-1. **Firebase Analytics**: Track user engagement and app usage
-2. **Firebase Performance**: Monitor app performance
-3. **Firebase Crashlytics**: Track and fix crashes
+1. **Supabase Dashboard**: Track database usage, API calls, and authentication
+2. **Firebase Analytics** (if using): Track user engagement and app usage
+3. **Vercel Analytics**: Monitor page performance and user metrics
 
-Access these through the Firebase Console.
+## Edge Functions vs. Serverless Functions
+
+This app uses both Edge Functions (for lightweight operations) and standard serverless functions (for heavier processing):
+
+- **Edge Functions**: Fast, lightweight API routes that run globally close to users
+- **Serverless Functions**: More powerful Node.js environments for database operations and complex processing
 
 ## Contributing
 

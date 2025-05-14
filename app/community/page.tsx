@@ -289,7 +289,7 @@ export default function CommunityPage() {
                   <div className={`h-full bg-gradient-to-br ${feature.color} backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 hover:border-gray-600/50 transition-all`}>
                     <div className={`w-14 h-14 mb-6 rounded-xl bg-gradient-to-br ${feature.iconBg} flex items-center justify-center`}>
                       {feature.icon}
-                    </div>
+                  </div>
                     <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
                     <p className="text-gray-300">{feature.description}</p>
                     <Link 
@@ -301,9 +301,9 @@ export default function CommunityPage() {
                   </div>
                 </motion.div>
               ))}
-            </div>
-          </div>
-
+                </div>
+              </div>
+              
           {/* Action Buttons */}
           <div className="flex justify-center gap-4 mt-12">
             <Link
@@ -379,8 +379,8 @@ export default function CommunityPage() {
             <Link href="/models" className="text-purple-400 hover:text-purple-300 flex items-center">
               Explore all models <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
-          </div>
-
+                </div>
+                
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {trendingModels.map((model, index) => (
               <motion.div
@@ -409,14 +409,14 @@ export default function CommunityPage() {
                     <span className="flex items-center">
                       <TrendingUp className="h-4 w-4 mr-1" /> {model.downloads}
                     </span>
-                  </div>
-                </div>
+              </div>
+            </div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
-
+      
       {/* Upcoming Events */}
       <section className="py-16 px-4">
         <div className="container mx-auto">
@@ -425,8 +425,8 @@ export default function CommunityPage() {
             <Link href="/events" className="text-purple-400 hover:text-purple-300 flex items-center">
               View all events <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
-          </div>
-
+            </div>
+            
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {upcomingEvents.map((event, index) => (
               <motion.div
@@ -451,14 +451,14 @@ export default function CommunityPage() {
                   <div className="flex items-center text-sm text-gray-400">
                     <Users className="h-4 w-4 mr-2" />
                     {event.attendees}+ attending
-                  </div>
-                </div>
+            </div>
+          </div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
-
+      
       {/* Discussions */}
       <section className="py-16 px-4 bg-gradient-to-r from-blue-900/20 to-purple-900/20">
         <div className="container mx-auto">
@@ -500,9 +500,9 @@ export default function CommunityPage() {
                   </div>
                 </div>
               </motion.div>
-            ))}
-          </div>
-        </div>
+              ))}
+            </div>
+            </div>
       </section>
 
       {/* CTA Section */}
