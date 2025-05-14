@@ -253,6 +253,7 @@ Got ideas to make this even more lit? Drop a PR or issue. Let's build this toget
 
 ### **Contributors**
 - **Mantej Singh** - Project Lead & Developer 🚀
+- **Fatima Kachhi** - Project Developer 🚀
 
 ## License
 
