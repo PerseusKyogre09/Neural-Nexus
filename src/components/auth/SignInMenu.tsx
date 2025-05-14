@@ -2,10 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Github, Mail, Lock, X, AlertCircle, User, Wallet } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
-import { connectTonkeeper } from '../../utils/ton';
-// Remove Firebase imports and use only Supabase
-// import { signIn } from 'next-auth/react';
-// import { signInWithGoogle, signInWithGithub, signInWithEmail } from '@/lib/firebase';
 // Import Supabase auth functions
 import { signUpWithSupabase, signInWithSupabase } from '@/lib/supabase';
 import supabase from '@/lib/supabase';
@@ -190,25 +186,15 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
     setError(null);
     setIsLoading(true);
     try {
-      const walletData = await connectTonkeeper();
-      if (walletData) {
-        // Handle successful connection
-        console.log('Connected wallet:', walletData);
-        // Here you would typically:
-        // 1. Send the wallet data to your backend
-        // 2. Get a JWT or session token
-        // 3. Update the app state
-        onClose();
-      } else {
-        setError({
-          type: 'general',
-          message: 'Failed to connect to Tonkeeper'
-        });
-      }
+      // Using SimpleCryptoProvider instead of TonConnect
+      setError({
+        type: 'general',
+        message: 'Wallet connection is now available through the navbar using SimpleCryptoProvider'
+      });
     } catch (err) {
       setError({
         type: 'general',
-        message: 'Failed to connect to Tonkeeper'
+        message: 'Wallet connection failed'
       });
     } finally {
       setIsLoading(false);
