@@ -10,7 +10,7 @@ import Footer from '@/components/Footer';
 import SearchAndFilter, { FilterOptions } from '@/components/SearchAndFilter';
 import {
   Sliders, SlidersHorizontal, Grid3X3, List, TrendingUp, 
-  PlusCircle, HelpCircle, ArrowUpDown
+  PlusCircle, HelpCircle, ArrowUpDown, Search, Sparkles
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -170,6 +170,126 @@ export default function MarketplacePage() {
       downloads: 1200,
       tags: ["Quantum", "Reinforcement", "Experimental"],
       category: "Reinforcement Learning"
+    }
+  ];
+  
+  // New: Featured Models
+  const featuredModels = [
+    {
+      id: "featured-1",
+      name: "SuperVision Pro",
+      description: "Multi-modal transformer model trained on 2B+ images. Perfect for complex image understanding and generation tasks.",
+      author: "VisualAI Labs",
+      price: 0.8,
+      rating: 4.9,
+      downloads: 32600,
+      tags: ["Vision", "Multi-modal", "Premium"],
+      imageUrl: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485",
+      category: "Computer Vision",
+      isFeatured: true
+    },
+    {
+      id: "featured-2",
+      name: "EmoText 3.0",
+      description: "Advanced emotion analysis model that can detect subtle nuances in text across 27 emotional dimensions.",
+      author: "SentimentTech",
+      price: 0.45,
+      rating: 4.7,
+      downloads: 18700,
+      tags: ["Sentiment", "Emotional", "Analytics"],
+      imageUrl: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf",
+      category: "Natural Language Processing",
+      isFeatured: true
+    },
+    {
+      id: "featured-3",
+      name: "AudioSynthetic X",
+      description: "Real-time voice cloning and audio generation model with multilingual support across 40+ languages.",
+      author: "WaveForm AI",
+      price: 0.65,
+      rating: 4.8,
+      downloads: 14300,
+      tags: ["Audio", "Voice", "Multilingual"],
+      imageUrl: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618",
+      category: "Audio",
+      isFeatured: true
+    }
+  ];
+  
+  // New: Recent Models
+  const recentModels = [
+    {
+      id: "recent-1",
+      name: "NeuroTrader",
+      description: "Financial prediction model trained on 15 years of market data with specialized portfolio optimization capabilities.",
+      author: "FinancialAI",
+      price: 1.2,
+      rating: 4.5,
+      downloads: 3200,
+      tags: ["Finance", "Prediction", "Trading"],
+      imageUrl: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3",
+      category: "Prediction",
+      isNew: true
+    },
+    {
+      id: "recent-2",
+      name: "BioSequence",
+      description: "Protein folding prediction and molecular design model specialized for pharmaceutical research applications.",
+      author: "MedResearch",
+      price: 0.95,
+      rating: 4.6,
+      downloads: 2700,
+      tags: ["Biology", "Protein", "Research"],
+      imageUrl: "https://images.unsplash.com/photo-1530210124550-912dc1381cb8",
+      category: "Specialized",
+      isNew: true
+    },
+    {
+      id: "recent-3",
+      name: "EcoPredictor",
+      description: "Climate modeling and environmental impact prediction model with specialized focus on sustainability metrics.",
+      author: "GreenTech",
+      price: 0.55,
+      rating: 4.4,
+      downloads: 1900,
+      tags: ["Climate", "Environmental", "Predictive"],
+      imageUrl: "https://images.unsplash.com/photo-1619266465172-02a857c3556d",
+      category: "Specialized",
+      isNew: true
+    }
+  ];
+  
+  // New: Model collections
+  const collections = [
+    {
+      id: "collection-1",
+      name: "Text-to-Everything Bundle",
+      description: "A complete suite of models for converting text to various formats including images, video, code, and 3D objects.",
+      imageUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe",
+      modelCount: 5,
+      totalDownloads: 42000,
+      author: "AIConverter",
+      trending: true
+    },
+    {
+      id: "collection-2",
+      name: "Creative Suite Pro",
+      description: "Professional-grade generative models for art, design, music composition and creative storytelling.",
+      imageUrl: "https://images.unsplash.com/photo-1513364776144-60967b0f800f",
+      modelCount: 8,
+      totalDownloads: 36500,
+      author: "CreativeLabs",
+      trending: true
+    },
+    {
+      id: "collection-3",
+      name: "Enterprise Intelligence Package",
+      description: "Specialized models for business intelligence, market analysis, customer insights and decision optimization.",
+      imageUrl: "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3",
+      modelCount: 6,
+      totalDownloads: 28900,
+      author: "BusinessAI",
+      trending: true
     }
   ];
   
@@ -385,6 +505,77 @@ export default function MarketplacePage() {
         </div>
       </section>
       
+      {/* Trending Collections */}
+      <section className="py-16 px-4 bg-gradient-to-b from-black to-gray-900 relative overflow-hidden">
+        <div className="container mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="mb-10 flex justify-between items-end"
+          >
+            <div>
+              <h2 className="text-3xl font-bold text-white">
+                <span className="flex items-center">
+                  <TrendingUp className="mr-2 h-6 w-6 text-pink-400" />
+                  Trending Collections
+                </span>
+              </h2>
+              <p className="text-gray-400 mt-2">Curated bundles of models that work great together</p>
+            </div>
+            <Link href="/collections" className="text-cyan-400 hover:text-cyan-300 flex items-center text-sm font-medium">
+              View all collections <ArrowRight className="ml-1 h-4 w-4" />
+            </Link>
+          </motion.div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {collections.map((collection, index) => (
+              <motion.div
+                key={collection.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <AnimatedCard variant="glass" hoverEffect="lift" className="h-full overflow-hidden">
+                  <div className="h-36 overflow-hidden relative">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10" />
+                    <img 
+                      src={collection.imageUrl} 
+                      alt={collection.name} 
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute bottom-3 left-3 z-20 flex flex-wrap gap-2">
+                      <span className="bg-pink-600/80 text-xs px-2 py-1 rounded-full text-white font-medium flex items-center">
+                        <TrendingUp className="mr-1 h-3 w-3" /> Trending
+                      </span>
+                      <span className="bg-blue-600/80 text-xs px-2 py-1 rounded-full text-white font-medium">
+                        {collection.modelCount} Models
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <h3 className="text-lg font-bold text-white mb-1">{collection.name}</h3>
+                    <p className="text-sm text-gray-400 mb-2">by {collection.author}</p>
+                    <p className="text-sm text-gray-300 mb-3 line-clamp-2">{collection.description}</p>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-400">{formatNumber(collection.totalDownloads)} downloads</span>
+                      <AnimatedButton
+                        variant="outline"
+                        size="xs"
+                      >
+                        View Collection
+                      </AnimatedButton>
+                    </div>
+                  </div>
+                </AnimatedCard>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+      
       {/* Main Content */}
       <main ref={containerRef} className="container mx-auto px-4 py-12 relative z-10">
         {/* Stats Bar */}
@@ -415,17 +606,175 @@ export default function MarketplacePage() {
           ))}
         </motion.div>
         
-        {/* Search and Filters */}
+        {/* Featured Models */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isContainerInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="mb-16"
+        >
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-2xl font-bold">
+              <span className="flex items-center">
+                <Sparkles className="mr-2 h-5 w-5 text-yellow-400" />
+                Featured Models
+              </span>
+            </h2>
+            <Link href="/featured" className="text-cyan-400 hover:text-cyan-300 flex items-center text-sm font-medium">
+              See all featured <ArrowRight className="ml-1 h-4 w-4" />
+            </Link>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {featuredModels.map((model, index) => (
+              <motion.div
+                key={model.id}
+                custom={index}
+                variants={cardVariants}
+                initial="hidden"
+                animate="visible"
+                className="transform transition-all duration-300 hover:-translate-y-1"
+              >
+                <ModelCard
+                  id={model.id}
+                  name={model.name}
+                  description={model.description}
+                  author={model.author}
+                  price={model.price}
+                  currency="ETH"
+                  rating={model.rating}
+                  downloads={model.downloads}
+                  imageUrl={model.imageUrl}
+                  tags={model.tags}
+                  onView={handleViewModel}
+                  onPurchase={handlePurchaseModel}
+                />
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+        
+        {/* Recently Added */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isContainerInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.2 }}
+          className="mb-16"
         >
-          <SearchAndFilter 
-            onSearch={handleSearch} 
-            onFilterChange={handleFilterChange} 
-            categories={categories}
-          />
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-2xl font-bold">
+              <span className="flex items-center">
+                <PlusCircle className="mr-2 h-5 w-5 text-green-400" />
+                Recently Added
+              </span>
+            </h2>
+            <Link href="/recent" className="text-cyan-400 hover:text-cyan-300 flex items-center text-sm font-medium">
+              View all new models <ArrowRight className="ml-1 h-4 w-4" />
+            </Link>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {recentModels.map((model, index) => (
+              <motion.div
+                key={model.id}
+                custom={index}
+                variants={cardVariants}
+                initial="hidden"
+                animate="visible"
+                className="transform transition-all duration-300 hover:-translate-y-1"
+              >
+                <ModelCard
+                  id={model.id}
+                  name={model.name}
+                  description={model.description}
+                  author={model.author}
+                  price={model.price}
+                  currency="ETH"
+                  rating={model.rating}
+                  downloads={model.downloads}
+                  imageUrl={model.imageUrl}
+                  tags={model.tags}
+                  onView={handleViewModel}
+                  onPurchase={handlePurchaseModel}
+                />
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+        
+        {/* Enhanced Search and Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={isContainerInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mb-16"
+        >
+          <div className="bg-gray-800/30 backdrop-blur-sm border border-gray-700/30 rounded-xl p-6">
+            <h2 className="text-2xl font-bold mb-6">
+              <span className="flex items-center">
+                <Search className="mr-2 h-5 w-5 text-blue-400" />
+                Explore All Models
+              </span>
+            </h2>
+            
+            <SearchAndFilter 
+              onSearch={handleSearch} 
+              onFilterChange={handleFilterChange} 
+              categories={categories}
+            />
+            
+            {/* Advanced Filter Tags */}
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${
+                  filters.category === 'All' ? 'bg-purple-500 text-white' : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700'
+                }`}
+                onClick={() => handleFilterChange({...filters, category: 'All'})}
+              >
+                All Models
+              </button>
+              <button
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${
+                  filters.sortBy === 'free' ? 'bg-green-500 text-white' : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700'
+                }`}
+                onClick={() => handleFilterChange({...filters, minPrice: 0, maxPrice: 0, sortBy: 'free'})}
+              >
+                Free Only
+              </button>
+              <button
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${
+                  filters.sortBy === 'newest' ? 'bg-blue-500 text-white' : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700'
+                }`}
+                onClick={() => handleFilterChange({...filters, sortBy: 'newest'})}
+              >
+                Newest First
+              </button>
+              <button
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${
+                  filters.sortBy === 'popular' ? 'bg-pink-500 text-white' : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700'
+                }`}
+                onClick={() => handleFilterChange({...filters, sortBy: 'popular'})}
+              >
+                Most Popular
+              </button>
+              <button
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${
+                  filters.sortBy === 'price_asc' ? 'bg-amber-500 text-white' : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700'
+                }`}
+                onClick={() => handleFilterChange({...filters, sortBy: 'price_asc'})}
+              >
+                Price: Low to High
+              </button>
+              <button
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${
+                  filters.sortBy === 'price_desc' ? 'bg-amber-500 text-white' : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700'
+                }`}
+                onClick={() => handleFilterChange({...filters, sortBy: 'price_desc'})}
+              >
+                Price: High to Low
+              </button>
+            </div>
+          </div>
         </motion.div>
         
         {/* View Toggles and Results Count */}

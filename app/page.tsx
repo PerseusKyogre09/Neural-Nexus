@@ -13,6 +13,7 @@ import { AnimatedCard } from "@/components/ui/animated-card";
 import Footer from "@/components/Footer";
 import NewsletterDialog from "@/components/NewsletterDialog";
 import QuoteDisplay from "@/components/QuoteDisplay";
+import UploadModal from "@/components/UploadModal";
 import { 
   Upload, Download, CreditCard, Wallet, Repeat, DollarSign, Gift, 
   CheckCircle, ArrowRight, Zap, ChevronRight, Code, Search, Shield, Mail
@@ -102,6 +103,11 @@ export default function HomePage() {
 
       {/* Newsletter Dialog */}
       <NewsletterDialog isOpen={showNewsletter} onClose={() => setShowNewsletter(false)} />
+
+      {/* Upload Modal */}
+      <AnimatePresence>
+        {showUpload && <UploadModal onClose={() => setShowUpload(false)} />}
+      </AnimatePresence>
 
       {/* Animated Background */}
       <SpaceBackground />
@@ -618,6 +624,7 @@ export default function HomePage() {
                   Upload a Model
                 </span>
               </AnimatedButton>
+              <Link href="/marketplace">
               <AnimatedButton 
                 variant="outline" 
                 size="lg"
@@ -627,6 +634,7 @@ export default function HomePage() {
                   Explore Trending Models
                 </span>
               </AnimatedButton>
+              </Link>
             </div>
             
             <button 

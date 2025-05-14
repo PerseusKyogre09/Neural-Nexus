@@ -27,10 +27,11 @@ const nextConfig = {
     optimizeCss: false,
     // Server Actions are available by default now
   },
-  // Create a static fallback for signup page to prevent SSR issues
+  // Create a static fallback for client-only pages to prevent SSR issues
   async rewrites() {
     return {
       beforeFiles: [
+        // Handle signup page
         {
           source: '/signup',
           destination: '/signup-static.html',
@@ -41,8 +42,44 @@ const nextConfig = {
             },
           ],
         },
+        // Handle marketplace page
+        {
+          source: '/marketplace',
+          destination: '/marketplace.html',
+          has: [
+            {
+              type: 'header',
+              key: 'x-client-route',
+            },
+          ],
+        },
+        // Handle upload page
+        {
+          source: '/upload',
+          destination: '/upload.html',
+          has: [
+            {
+              type: 'header',
+              key: 'x-client-route',
+            },
+          ],
+        },
       ],
     };
+  },
+  // Prevent multiple header setting issues
+  headers: async () => {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
+          },
+        ],
+      },
+    ];
   },
 };
 
