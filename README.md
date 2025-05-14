@@ -1,46 +1,38 @@
 # Neural Nexus - AI Model Hub
 
 <div align="center">
-  <img src="public/images/Logo.png" alt="Neural Nexus Logo" width="200" style="animation: pulse 3s infinite ease-in-out;" />
-  <p style="font-size: 1.2em; color: #00BFFF; font-weight: bold;">The Ultimate Hub for AI Innovators!</p>
+  <img src="public/images/Logo.png" alt="Neural Nexus Logo" width="200" />
+  <p style="font-size: 1.2em; color: #00BFFF; font-weight: bold;">The Ultimate Hub for AI Innovators</p>
 </div>
 
-<style>
-@keyframes pulse {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.05); opacity: 0.8; }
-  100% { transform: scale(1); opacity: 1; }
-}
-</style>
+## Welcome to Neural Nexus
 
-## 🌟 Welcome to Neural Nexus! 🌟
+Welcome to **Neural Nexus**, a comprehensive AI model hub where you can upload, sell, and transfer ownership of your AI creations using various payment methods including cryptocurrency, UPI, PayPal, and net banking. We focus on building a vibrant community of creators and innovators shaping the future of AI, emphasizing innovation and collaboration.
 
-Hey there, AI fam! Welcome to **Neural Nexus**, the most lit AI model hub on the internet! 🚀 Here, you can upload, sell, and transfer ownership of your AI creations using crypto, UPI, PayPal, or net banking. We're all about building a vibrant community of creators and innovators shaping the future of AI. No direct revenue pressure, just pure innovation and collaboration vibes! 💥
+We're inspired by the 'Radio on the Internet' concept for AI—powered by strategic partnerships and a commitment to open access. Our mission is to democratize AI by providing free models and data, inspired by the Transformers library from Hugging Face, while also offering premium content for advanced users.
 
-We're like the 'Radio on the Internet' for AI—powered by strategic partnerships and a passion for open access to tech. Our mission? Democratize AI by giving away tons of free models and data, inspired by the Transformers library from Hugging Face, while still offering premium content for those who want to level up. Let's build the future together! 🤝
+## Features
 
-## 🎉 Features That Slap 🎉
+- **Upload AI Models**: Share your models with the world
+- **Secure Payments**: Process payments via Stripe, Razorpay (UPI), or Cryptocurrency (MetaMask)
+- **Modern Authentication**: Sign in with Google, GitHub, email, or cryptocurrency wallets
+- **Ownership Transfer**: Transfer model ownership with blockchain security
+- **Open Source Models**: Access a comprehensive library of free models inspired by Transformers
+- **Premium Marketplace**: Buy and sell premium models and datasets for advanced projects
+- **Modern UI**: Responsive design with smooth animations and contemporary aesthetics
 
-- **Upload AI Models**: Drop your models and flex your skills to the world! 📤
-- **Secure Payments**: Cash out with Stripe, Razorpay (UPI), or Crypto (MetaMask). 💰
-- **Modern Auth**: Sign in with Google, GitHub, email, or crypto wallets. 🔐
-- **Ownership Transfer**: Permanently transfer model ownership with blockchain security. 🔄
-- **Open Source Models**: Access a huge library of free models inspired by Transformers. 🆓
-- **Premium Marketplace**: Buy and sell premium models and datasets for next-level projects. 🛒
-- **Lit UI**: Animated logo, background particles, and Gen-Z vibes all day! ✨
+## Technology Stack
 
-## 🛠 Tech Stack (Straight Fire) 🛠
+- **Next.js**: React framework for high-performance applications
+- **Tailwind CSS**: Utility-first CSS framework for modern styling
+- **Framer Motion**: Animation library for enhanced user experience
+- **Supabase**: Open-source Firebase alternative for authentication and database management
+- **Stripe & Razorpay**: Payment processing solutions
+- **Edge Functions**: Lightweight serverless functions for optimal performance
 
-- **Next.js**: Framework for React, delivering blazing-fast performance. ⚛️
-- **Tailwind CSS**: Styling with modern utility classes for a sleek look. 🎨
-- **Framer Motion**: Sick animations to keep the UX poppin'. 💃
-- **Supabase**: Open-source Firebase alternative for auth and database. 🗄️
-- **Stripe & Razorpay**: Payment processing for all your transactions. 💳
-- **Edge Functions**: Lightweight serverless functions for better performance. 🌐
+## Setup Guide
 
-## 🚀 Setup (Get Started in a Snap!) 🚀
-
-1. **Clone the Repo**:
+1. **Clone the Repository**:
    ```bash
    git clone https://github.com/Drago-03/Neural-Nexus.git
    cd Neural-Nexus
@@ -56,7 +48,7 @@ We're like the 'Radio on the Internet' for AI—powered by strategic partnership
    ```bash
    cp .env.local.example .env.local
    ```
-   Then edit the file to add your actual credentials. Check out the detailed guide below for Supabase setup! 🛠️
+   Then edit the file to add your actual credentials.
 
 4. **Supabase Setup (Main Database & Auth)**:
    
@@ -115,11 +107,11 @@ We're like the 'Radio on the Internet' for AI—powered by strategic partnership
    ```bash
    npm run dev
    ```
-   Open `http://localhost:3000` to see the app in action. Let's goooo! 🚀
+   Open `http://localhost:3000` to view the application.
 
-## 💾 Supabase Data Model (The Backbone) 💾
+## Supabase Data Model
 
-The app uses the following Supabase tables to keep things running smooth:
+The application uses the following Supabase tables:
 
 ### **user_profiles**
 ```sql
@@ -163,13 +155,13 @@ CREATE TABLE models (
 );
 ```
 
-## 🌍 Deployment on Vercel (Go Live!) 🌍
+## Deployment on Vercel
 
-1. Push your code to a GitHub repo.
-2. Go to [Vercel](https://vercel.com) and create a new project.
-3. Connect your GitHub repo.
-4. Set all the environment variables from your `.env.local` file in the Vercel dashboard.
-5. Deploy, and you're live, fam! 🎉
+1. Push your code to a GitHub repository
+2. Go to [Vercel](https://vercel.com) and create a new project
+3. Connect your GitHub repository
+4. Set all the environment variables from your `.env.local` file in the Vercel dashboard
+5. Deploy your application
 
 ### **Setting Up Environment Variables on Vercel**
 - Go to your project settings in Vercel
@@ -178,22 +170,22 @@ CREATE TABLE models (
 - Make sure to set `NEXT_PUBLIC_APP_ENV=production`
 - Redeploy your application to apply the changes
 
-## 📊 Monitoring and Analytics (Keep Tabs on the Vibes) 📊
+## Monitoring and Analytics
 
 Both Supabase and Firebase provide tools to monitor your application:
 
-1. **Supabase Dashboard**: Track database usage, API calls, and authentication 📈
-2. **Firebase Analytics** (if using): Track user engagement and app usage 📉
-3. **Vercel Analytics**: Monitor page performance and user metrics 🚀
+1. **Supabase Dashboard**: Track database usage, API calls, and authentication
+2. **Firebase Analytics** (if using): Track user engagement and app usage
+3. **Vercel Analytics**: Monitor page performance and user metrics
 
-## ⚡ Edge Functions vs. Serverless Functions (Tech Talk) ⚡
+## Edge Functions vs. Serverless Functions
 
 This app uses both Edge Functions (for lightweight operations) and standard serverless functions (for heavier processing):
 
-- **Edge Functions**: Fast, lightweight API routes that run globally close to users 🌎
-- **Serverless Functions**: More powerful Node.js environments for database operations and complex processing 💪
+- **Edge Functions**: Fast, lightweight API routes that run globally close to users
+- **Serverless Functions**: More powerful Node.js environments for database operations and complex processing
 
-## 🔐 Web3 Wallet Integration (Crypto Vibes) 🔐
+## Web3 Wallet Integration
 
 Neural Nexus includes a lightweight wallet connection system through the `SimpleCryptoProvider`. This replaces the previous TonConnect implementation.
 
@@ -243,25 +235,25 @@ function MyComponent() {
 }
 ```
 
-## 📜 Policies & Documentation (Keepin' It Legit!) 📜
+## Policies & Documentation
 
-We've got all the deets on how we handle your data, models, and content. Check out our policies below to stay in the know. Transparency is key, fam! 🔍
+We maintain comprehensive documentation on how we handle data, models, and content. Please review our policies for complete transparency:
 
-- **Privacy Policy** 🔒: We respect your privacy like it's our own. Learn how we protect your data and keep your info safe. [Read More](docs/PRIVACY_POLICY.md)
-- **Content Policy** 📝: Keep the vibes positive! Understand what content is cool to share on Neural Nexus. [Read More](docs/CONTENT_POLICY.md)
-- **Model Policies** 🤖: Rules for uploading and sharing AI models. Let's keep the AI game fair and innovative. [Read More](docs/MODEL_POLICIES.md)
-- **Cookie Policy** 🍪: We use cookies to make your experience smoother than butter. Find out how. [Read More](docs/COOKIE_POLICY.md)
-- **Updates & Changelog** 📰: Stay updated with the latest changes and features. We're always leveling up! [Read More](docs/UPDATES.md)
+- **Privacy Policy**: Learn how we protect your data and maintain information security. [Read More](docs/PRIVACY_POLICY.md)
+- **Content Policy**: Keep the vibes positive! Understand what content is cool to share on Neural Nexus. [Read More](docs/CONTENT_POLICY.md)
+- **Model Policies**: Rules for uploading and sharing AI models. Let's keep the AI game fair and innovative. [Read More](docs/MODEL_POLICIES.md)
+- **Cookie Policy**: We use cookies to make your experience smoother than butter. Find out how. [Read More](docs/COOKIE_POLICY.md)
+- **Updates & Changelog**: Stay updated with the latest changes and features. We're always leveling up! [Read More](docs/UPDATES.md)
 
 These docs are here to ensure we're all on the same page, building a safe and creative space for AI innovation. Got questions? Hit us up! 💬
 
-## 🤝 Contributing (Join the Squad!) 🤝
+## Contributing
 
 Got ideas to make this even more lit? Drop a PR or issue. Let's build this together! 💡
 
 ### **Contributors**
 - **Mantej Singh** - Project Lead & Developer 🚀
 
-## 📜 License
+## License
 
 © 2025 Indie Hub. All rights reserved. Keep it real, fam! ✌️

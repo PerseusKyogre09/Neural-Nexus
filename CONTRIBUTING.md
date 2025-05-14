@@ -2,7 +2,7 @@
 
 ## Welcome
 
-Thank you for considering contributing to the AI Model Marketplace. This document outlines the process and guidelines for contributing to our project.
+Thank you for considering contributing to the Neural Nexus AI Model Marketplace. This document outlines the process and guidelines for contributing to our project.
 
 ## Code of Conduct
 
@@ -65,7 +65,7 @@ We pledge to make participation in our project a harassment-free experience for 
 
 ## Related Issues
 Fixes #[issue number]
-```markdown
+```
 
 ## Style Guide
 
@@ -78,14 +78,12 @@ Fixes #[issue number]
 
 ### Commit Messages
 
-```typescript
-
+```
 type(scope): description
 
 [optional body]
 
 [optional footer]
-
 ```
 
 Types:
