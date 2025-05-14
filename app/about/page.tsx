@@ -91,32 +91,32 @@ export default function AboutPage() {
   // Company timeline
   const timeline = [
     {
-      year: "2021",
+      year: "2024 Dec",
       title: "The Beginning",
       description: "Neural Nexus founded with a mission to democratize AI model sharing and deployment."
     },
     {
-      year: "2022",
+      year: "2025 Feb",
       title: "Alpha Launch",
       description: "First version of the platform launched with basic model hosting capabilities."
     },
     {
-      year: "2022",
+      year: "2025 Mar",
       title: "Seed Funding",
       description: "$5M seed round from leading AI-focused investors to accelerate development."
     },
     {
-      year: "2023",
+      year: "2025 Apr",
       title: "Beta Platform",
       description: "Comprehensive beta platform with full model marketplace, API, and community features."
     },
     {
-      year: "2023",
+      year: "2025 Apr",
       title: "Series A",
       description: "$25M Series A funding to scale infrastructure and expand the team."
     },
     {
-      year: "2024",
+      year: "2025 May",
       title: "Official Launch",
       description: "Public launch of Neural Nexus with thousands of models and growing community."
     }
@@ -421,6 +421,36 @@ export default function AboutPage() {
             >
               Join Our Community
             </Link>
+          </div>
+          <div className="mt-8 text-center">
+            <h3 className="text-xl font-bold mb-4">Contact Us</h3>
+            <p className="mb-2"><span className="text-purple-400">Email:</span> mantejarora@gmail.com</p>
+            <p className="mb-2"><span className="text-purple-400">Phone:</span> +91-9805763104</p>
+            <p className="mb-4"><span className="text-purple-400">Location:</span> Indie Hub office, Chandigarh, India</p>
+            <div className="flex justify-center gap-4">
+              <a
+                href="https://github.com/Drago-03/AI-Model-Hub.git"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <Github className="h-6 w-6" />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/mantej-singh-arora/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <Linkedin className="h-6 w-6" />
+              </a>
+              <a
+                href="mailto:mantejarora@gmail.com"
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <Mail className="h-6 w-6" />
+              </a>
+            </div>
           </div>
         </div>
       </section>

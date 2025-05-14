@@ -76,6 +76,10 @@ const wagmiConfig = createConfig({
 
 // Create the Web3 provider component
 export function Web3Provider({ children }: { children: ReactNode }) {
+  // Browser detection - MUST be first hook
+  const [isBrowser, setIsBrowser] = useState(false);
+  
+  // All state variables declared upfront
   const [account, setAccount] = useState<string | null>(null);
   const [chainId, setChainId] = useState<number | null>(null);
   const [balance, setBalance] = useState<string | null>(null);
@@ -90,33 +94,37 @@ export function Web3Provider({ children }: { children: ReactNode }) {
   const [showCryptoEarnings, setShowCryptoEarnings] = useState(false);
   const [web3Modal, setWeb3Modal] = useState<Web3Modal | null>(null);
   
+  // Check if we're in browser - must be first effect
+  useEffect(() => {
+    setIsBrowser(true);
+  }, []);
+  
   // Initialize Web3Modal on client-side only
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const providerOptions = {
-        coinbasewallet: {
-          package: CoinbaseWalletSDK,
-          options: {
-            appName: "Neural Nexus",
-            infuraId: process.env.NEXT_PUBLIC_INFURA_ID || "demo-infura-id"
-          }
+    if (!isBrowser) return;
+    const providerOptions = {
+      coinbasewallet: {
+        package: CoinbaseWalletSDK,
+        options: {
+          appName: "Neural Nexus",
+          infuraId: process.env.NEXT_PUBLIC_INFURA_ID || "demo-infura-id"
         }
-      };
-      
-      const modal = new Web3Modal({
-        cacheProvider: true,
-        providerOptions,
-        theme: "dark"
-      });
-      
-      setWeb3Modal(modal);
-      
-      // Check if previously connected
-      if (modal.cachedProvider) {
-        connectWallet();
       }
+    };
+    
+    const modal = new Web3Modal({
+      cacheProvider: true,
+      providerOptions,
+      theme: "dark"
+    });
+    
+    setWeb3Modal(modal);
+    
+    // Check if previously connected
+    if (modal.cachedProvider) {
+      connectWallet();
     }
-  }, []);
+  }, [isBrowser]);
   
   // Example user badges data - in a real app, fetch from backend
   useEffect(() => {
@@ -253,7 +261,6 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     }
   };
   
-  // Create context value
   const contextValue: Web3ContextType = {
     isConnected,
     account,
@@ -276,6 +283,11 @@ export function Web3Provider({ children }: { children: ReactNode }) {
     showCryptoEarnings,
     toggleCryptoEarnings
   };
+  
+  // Early return for server-side rendering to maintain hook consistency
+  if (!isBrowser) {
+    return <>{children}</>;
+  }
   
   return (
     <Web3Context.Provider value={contextValue}>

@@ -89,21 +89,21 @@ const ContactPage = () => {
     { 
       icon: <Mail className="w-6 h-6 text-blue-400" />, 
       title: "Email Us", 
-      details: "contact@aimodelhub.com", 
+      details: "mantejarora@gmail.com", 
       action: "Email now", 
-      link: "mailto:contact@aimodelhub.com" 
+      link: "mailto:mantejarora@gmail.com" 
     },
     { 
       icon: <Phone className="w-6 h-6 text-green-400" />, 
       title: "Call Us", 
-      details: "+1 (888) 123-4567", 
+      details: "+91-9805763104", 
       action: "Call now", 
-      link: "tel:+18881234567" 
+      link: "tel:+919805763104" 
     },
     { 
       icon: <MapPin className="w-6 h-6 text-red-400" />, 
       title: "Visit Us", 
-      details: "123 AI Plaza, San Francisco, CA 94105", 
+      details: "Indie Hub office, Chandigarh, India", 
       action: "Get directions", 
       link: "https://maps.google.com" 
     },
@@ -373,7 +373,7 @@ const ContactPage = () => {
             <div className="text-center">
               <MapPin className="w-12 h-12 text-red-400 mx-auto mb-4" />
               <h3 className="text-2xl font-bold mb-2">Our Headquarters</h3>
-              <p className="text-gray-300">123 AI Plaza, San Francisco, CA 94105</p>
+              <p className="text-gray-300">Indie Hub office, Chandigarh, India</p>
               <a 
                 href="https://maps.google.com" 
                 target="_blank" 

@@ -1,7 +1,7 @@
 {
-  "url": "https://your-domain.com",
-  "name": "AI Model Hub",
-  "iconUrl": "https://your-domain.com/logo.png",
-  "termsOfUseUrl": "https://your-domain.com/terms",
-  "privacyPolicyUrl": "https://your-domain.com/privacy"
+  "url": "https://ai-model-hub-beryl.vercel.app",
+  "name": "Neural Nexus",
+  "iconUrl": "https://ai-model-hub-beryl.vercel.app/animated-logo.gif",
+  "termsOfUseUrl": "https://ai-model-hub-beryl.vercel.app/terms",
+  "privacyPolicyUrl": "https://ai-model-hub-beryl.vercel.app/privacy"
 }

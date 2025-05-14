@@ -8,19 +8,46 @@ import { SignInMenu } from '@/src/components/auth/SignInMenu';
 import Link from 'next/link';
 import { ArrowRight } from "lucide-react";
 
-// Add this line to make the page dynamic
-export const dynamic = 'force-dynamic';
+// Force dynamic rendering for this page
+export const runtime = 'edge';
 
 export default function SignupPage() {
   // State to control if the SignInMenu is open
   const [showSignInMenu, setShowSignInMenu] = useState(false);
-  const [isClient, setIsClient] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   
-  // Auto-open the signup modal when the page loads on client side
+  // Only run on client side after component is mounted
   useEffect(() => {
-    setIsClient(true);
-    setShowSignInMenu(true);
+    setIsMounted(true);
+    // Short delay to ensure browser environment is fully ready
+    const timer = setTimeout(() => {
+      setShowSignInMenu(true);
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, []);
+
+  if (!isMounted) {
+    // Return a minimal UI until client-side code can take over
+    return (
+      <main className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
+        <Navbar />
+        <div className="pt-28 pb-16 px-4">
+          <div className="container mx-auto">
+            <div className="text-center max-w-3xl mx-auto">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-blue-500 to-pink-500">
+                Join Neural Nexus
+              </h1>
+              <p className="text-xl text-gray-300 mb-8">
+                Loading signup...
+              </p>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
@@ -39,14 +66,11 @@ export default function SignupPage() {
         </div>
       </div>
 
-      {/* Render the SignInMenu with isSignIn=false to show signup form only on client side */}
-      {isClient && (
-        <SignInMenu 
-          isOpen={showSignInMenu} 
-          onClose={() => setShowSignInMenu(false)} 
-          initialMode="signup"
-        />
-      )}
+      <SignInMenu 
+        isOpen={showSignInMenu} 
+        onClose={() => setShowSignInMenu(false)} 
+        initialMode="signup"
+      />
       
       <Footer />
     </main>

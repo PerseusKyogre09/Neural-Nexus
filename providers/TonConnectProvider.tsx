@@ -9,7 +9,10 @@ type TonConnectContextType = {
 };
 
 // Create the context with default values
-const TonConnectContext = createContext<null | any>(null);
+const TonConnectContext = createContext<TonConnectContextType>({
+  isInitialized: false,
+  connector: null,
+});
 
 // Hook to use the context
 export const useTonConnect = () => useContext(TonConnectContext);
@@ -20,22 +23,30 @@ interface TonConnectProviderProps {
 
 // Provider component
 export const TonConnectProvider = ({ children }: TonConnectProviderProps) => {
+  // Browser detection - MUST be first hook
+  const [isBrowser, setIsBrowser] = useState(false);
   const [tonConnectUI, setTonConnectUI] = useState<null | any>(null);
   const [isInitialized, setIsInitialized] = useState(false);
-
+  
+  // Check if we're in browser - must be first effect
   useEffect(() => {
-    // Only initialize if we're on the client side and TON Connect is enabled
-    if (typeof window === 'undefined' || process.env.NEXT_PUBLIC_ENABLE_TONCONNECT !== 'true') {
+    setIsBrowser(true);
+  }, []);
+  
+  // Second useEffect to actually initialize TonConnect, but only if we're in the browser
+  useEffect(() => {
+    // Skip if not in browser or TonConnect is disabled
+    if (!isBrowser || process.env.NEXT_PUBLIC_ENABLE_TONCONNECT !== 'true') {
       setIsInitialized(true);
       return;
     }
 
     const initTonConnect = async () => {
       try {
+        // Dynamically import TonConnectUI to avoid SSR issues
         const { TonConnectUI } = await import('@tonconnect/ui-react');
         const ui = new TonConnectUI({
           manifestUrl: process.env.NEXT_PUBLIC_TON_MANIFEST_URL || 'https://your-domain.com/tonconnect-manifest.json',
-          // Removed hideInAppNotifications as it might not be supported in the current version
         });
         setTonConnectUI(ui);
         console.log('TonConnect initialized, fam!');
@@ -47,11 +58,17 @@ export const TonConnectProvider = ({ children }: TonConnectProviderProps) => {
     };
 
     initTonConnect();
-  }, []);
+  }, [isBrowser]);
+
+  // Create a memoized context value to avoid unnecessary re-renders
+  const contextValue = {
+    isInitialized,
+    connector: tonConnectUI
+  };
 
   return (
-    <TonConnectContext.Provider value={tonConnectUI}>
-      {isInitialized ? children : <div>Loading TON Connect, hold up...</div>}
+    <TonConnectContext.Provider value={contextValue}>
+      {children}
     </TonConnectContext.Provider>
   );
 }; 

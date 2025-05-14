@@ -5,7 +5,7 @@ import { useAppStore } from '@/lib/store';
 import { AppUser, AppState } from '@/lib/store';
 import type { Auth, User as FirebaseUser } from 'firebase/auth';
 import type { Firestore } from 'firebase/firestore';
-import { Web3Provider, useWeb3 } from '@/providers/Web3Provider';
+import { useWeb3 } from '@/providers/Web3Provider';
 import AuthProvider from './AuthProvider';
 
 // Define types for our minimal placeholder implementations
@@ -251,11 +251,9 @@ export default function AppProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthProvider>
-      <Web3Provider>
-        <AppContext.Provider value={appContextValue}>
-          {children}
-        </AppContext.Provider>
-      </Web3Provider>
+      <AppContext.Provider value={appContextValue}>
+        {children}
+      </AppContext.Provider>
     </AuthProvider>
   );
 } 

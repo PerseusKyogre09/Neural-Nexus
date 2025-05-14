@@ -1,5 +1,12 @@
 {
   "framework": "nextjs",
-  "buildCommand": "npm install && npm run build",
-  "outputDirectory": ".next"
+  "buildCommand": "NEXT_PUBLIC_ENABLE_TONCONNECT=false npm install && NEXT_PUBLIC_ENABLE_TONCONNECT=false npm run build",
+  "outputDirectory": ".next",
+  "env": {
+    "NEXT_PUBLIC_ENABLE_TONCONNECT": "true",
+    "NEXT_PUBLIC_TON_MANIFEST_URL": "https://ai-model-hub-beryl.vercel.app/tonconnect-manifest.json",
+    "NEXT_PUBLIC_COINBASE_PROJECT_ID": "32377b32-6133-41a6-8bcf-9aba45395d08",
+    "NEXT_PUBLIC_COINBASE_APP_KEY_ID": "755ad3cb-c018-4966-954e-886b1d5ecad6",
+    "COINBASE_SECRET": "Yp2EEWCIgVrMWfkzAOvxIrTtutLBYEdht80x3CeXAFpPhzI7Tn2w4QJwUlYMvmnHhuNN3RUJYYr8rn45N1eb7Q=="
+  }
 } 

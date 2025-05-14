@@ -38,6 +38,8 @@ export default function WalletConnect() {
   // Format chain based on chainId
   const getChainName = (chainId: number | null) => {
     if (!chainId) return 'Unknown Network';
+    
+    // Safety check to ensure chains object exists
     const chains: Record<number, string> = {
       1: 'Ethereum Mainnet',
       137: 'Polygon',
@@ -46,7 +48,9 @@ export default function WalletConnect() {
       56: 'BSC',
       43114: 'Avalanche'
     };
-    return chains[chainId] || `Chain ID: ${chainId}`;
+    
+    // Safe access to the object
+    return (chains && chainId in chains) ? chains[chainId] : `Chain ID: ${chainId}`;
   };
   
   // Copy wallet address to clipboard
@@ -230,7 +234,7 @@ export default function WalletConnect() {
                   </div>
                   
                   {/* Web3 Badges Section */}
-                  {userBadges && userBadges.length > 0 && (
+                  {userBadges && Array.isArray(userBadges) && userBadges.length > 0 && (
                     <div className="pt-2 border-t border-gray-800">
                       <h4 className="text-xs text-gray-400 mb-2">Your Badges</h4>
                       <div className="flex flex-wrap gap-2">

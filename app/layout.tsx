@@ -1,11 +1,25 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { Providers } from '../providers';
-import { Toaster } from 'react-hot-toast';
+import dynamic from 'next/dynamic';
+import { Suspense } from 'react';
 
 const inter = Inter({ subsets: ['latin'] });
 
+// Dynamic imports to avoid SSR issues
+const Providers = dynamic(() => import('../providers'), { 
+  ssr: false 
+});
+
+const Toaster = dynamic(() => import('react-hot-toast').then(mod => mod.Toaster), { 
+  ssr: false 
+});
+
+const AgentKitUI = dynamic(() => import('@/components/AgentKitUI'), { 
+  ssr: false 
+});
+
+// Metadata can be exported from a Server Component
 export const metadata: Metadata = {
   title: 'Neural Nexus – Upload & Monetize AI Models',
   description: 'The ultimate AI model hub to sell, share, and transfer ownership of your AI creations.',
@@ -23,10 +37,13 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head />
       <body className={inter.className}>
-        <Providers>
-          {children}
-          <Toaster position="top-center" />
-        </Providers>
+        <Suspense fallback={<div>Loading app...</div>}>
+          <Providers>
+            {children}
+            <Toaster position="top-center" />
+            <AgentKitUI />
+          </Providers>
+        </Suspense>
       </body>
     </html>
   );

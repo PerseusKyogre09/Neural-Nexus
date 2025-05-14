@@ -26,7 +26,8 @@ const Navbar = () => {
     { href: '/open-source', label: 'Open Source' },
     { href: '/pricing', label: 'Pricing' },
     { href: '/api-docs', label: 'API' },
-    { href: '/about', label: 'About' }
+    { href: '/about', label: 'About' },
+    { href: '/careers', label: 'Careers' }
   ];
 
   return (

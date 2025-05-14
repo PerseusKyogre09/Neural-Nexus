@@ -6,23 +6,25 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import SpaceBackground from "@/components/SpaceBackground";
 import SplashScreen from "@/components/SplashScreen";
-import UploadModal from "@/components/UploadModal";
 import { FeaturedModels } from "@/components/FeaturedModels";
 import Navbar from "@/components/Navbar";
 import { AnimatedButton } from "@/components/ui/animated-button";
 import { AnimatedCard } from "@/components/ui/animated-card";
 import Footer from "@/components/Footer";
-import { Analytics } from "@vercel/analytics/next"
+import NewsletterDialog from "@/components/NewsletterDialog";
+import QuoteDisplay from "@/components/QuoteDisplay";
 import { 
   Upload, Download, CreditCard, Wallet, Repeat, DollarSign, Gift, 
-  CheckCircle, ArrowRight, Zap, ChevronRight, Code, Search, Shield
+  CheckCircle, ArrowRight, Zap, ChevronRight, Code, Search, Shield, Mail
 } from 'lucide-react';
 import Brand from "@/components/Brand";
+import Image from 'next/image';
 
 export default function HomePage() {
-  const [showUpload, setShowUpload] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [showUpload, setShowUpload] = useState(false);
+  const [showNewsletter, setShowNewsletter] = useState(false);
   const router = useRouter();
   const featureScrollRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -36,6 +38,17 @@ export default function HomePage() {
     
     return () => clearTimeout(timer);
   }, []);
+
+  // Show newsletter popup after 5 seconds
+  useEffect(() => {
+    if (!loading) {
+      const timer = setTimeout(() => {
+        setShowNewsletter(true);
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
 
   // Horizontal scroll for features
   const handleScrollFeatures = (direction: 'left' | 'right') => {
@@ -87,6 +100,9 @@ export default function HomePage() {
       {/* Splash Screen */}
       {showSplash && <SplashScreen />}
 
+      {/* Newsletter Dialog */}
+      <NewsletterDialog isOpen={showNewsletter} onClose={() => setShowNewsletter(false)} />
+
       {/* Animated Background */}
       <SpaceBackground />
       
@@ -137,7 +153,7 @@ export default function HomePage() {
             </motion.p>
 
             <motion.div
-              className="flex flex-wrap justify-center gap-4"
+              className="flex flex-wrap justify-center gap-4 mb-8"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.5 }}
@@ -155,10 +171,37 @@ export default function HomePage() {
                 View Documentation
               </Link>
             </motion.div>
+            
+            {/* Newsletter button */}
+            <motion.div
+              className="mb-10"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7, duration: 0.5 }}
+            >
+              <button 
+                onClick={() => setShowNewsletter(true)}
+                className="flex items-center mx-auto px-4 py-2 bg-gray-800/70 hover:bg-gray-700/70 rounded-full text-sm font-medium border border-gray-700/50 transition-colors"
+              >
+                <Mail className="w-4 h-4 mr-2 text-purple-400" />
+                Join our newsletter for AI model drops
+                <ArrowRight className="w-3 h-3 ml-2" />
+              </button>
+            </motion.div>
+
+            {/* Featured Quote */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
+              className="mb-12"
+            >
+              <QuoteDisplay variant="subtle" className="max-w-2xl mx-auto" />
+            </motion.div>
 
             {/* Stats Section */}
             <motion.div
-              className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8"
+              className="grid grid-cols-1 md:grid-cols-3 gap-8"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.6 }}
@@ -255,39 +298,374 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-      
-      {/* Featured Models */}
-      <FeaturedModels />
 
-      {/* Upload Modal */}
-      <AnimatePresence>
-        {showUpload && (
-          <UploadModal onClose={() => setShowUpload(false)} />
-        )}
-      </AnimatePresence>
+      {/* Partners Section with actual SVG logos */}
+      <section className="relative py-24 overflow-hidden">
+        {/* Background gradient and blobs */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-gray-950 dark:to-gray-900">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-500/20 rounded-full filter blur-3xl animate-blob"></div>
+          <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full filter blur-3xl animate-blob animation-delay-2000"></div>
+          <div className="absolute bottom-1/4 right-1/3 w-72 h-72 bg-teal-500/20 rounded-full filter blur-3xl animate-blob animation-delay-4000"></div>
+        </div>
+
+        <div className="container px-4 mx-auto relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-violet-500 to-purple-500">Our Partners</h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Collaborating with industry leaders to push the boundaries of AI innovation forward</p>
+          </motion.div>
+
+          {/* Major Partners Grid with actual logos */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3 }}
+              whileHover={{ scale: 1.05 }}
+              className="flex justify-center"
+            >
+              <a href="#" className="block group relative">
+                <div className="w-40 h-24 flex items-center justify-center filter grayscale hover:grayscale-0 transition-all duration-300 hover:drop-shadow-glow">
+                  <Image 
+                    src="/partners/google.svg" 
+                    alt="Google" 
+                    width={120} 
+                    height={40}
+                    className="object-contain" 
+                  />
+                </div>
+              </a>
+            </motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+              whileHover={{ scale: 1.05 }}
+              className="flex justify-center"
+            >
+              <a href="#" className="block group relative">
+                <div className="w-40 h-24 flex items-center justify-center filter grayscale hover:grayscale-0 transition-all duration-300 hover:drop-shadow-glow">
+                  <Image 
+                    src="/partners/microsoft.svg" 
+                    alt="Microsoft" 
+                    width={120} 
+                    height={40}
+                    className="object-contain" 
+                  />
+                </div>
+              </a>
+            </motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+              whileHover={{ scale: 1.05 }}
+              className="flex justify-center"
+            >
+              <a href="#" className="block group relative">
+                <div className="w-40 h-24 flex items-center justify-center filter grayscale hover:grayscale-0 transition-all duration-300 hover:drop-shadow-glow">
+                  <Image 
+                    src="/partners/github.svg" 
+                    alt="GitHub" 
+                    width={120} 
+                    height={40}
+                    className="object-contain" 
+                  />
+                </div>
+              </a>
+            </motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: 0.3 }}
+              whileHover={{ scale: 1.05 }}
+              className="flex justify-center"
+            >
+              <a href="#" className="block group relative">
+                <div className="w-40 h-24 flex items-center justify-center filter grayscale hover:grayscale-0 transition-all duration-300 hover:drop-shadow-glow">
+                  <Image 
+                    src="/partners/redis.svg" 
+                    alt="Redis" 
+                    width={120} 
+                    height={40}
+                    className="object-contain" 
+                  />
+                </div>
+              </a>
+            </motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: 0.4 }}
+              whileHover={{ scale: 1.05 }}
+              className="flex justify-center"
+            >
+              <a href="#" className="block group relative">
+                <div className="w-40 h-24 flex items-center justify-center filter grayscale hover:grayscale-0 transition-all duration-300 hover:drop-shadow-glow">
+                  <Image 
+                    src="/partners/metamask.svg" 
+                    alt="MetaMask" 
+                    width={120} 
+                    height={40}
+                    className="object-contain" 
+                  />
+                </div>
+              </a>
+            </motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: 0.5 }}
+              whileHover={{ scale: 1.05 }}
+              className="flex justify-center"
+            >
+              <a href="#" className="block group relative">
+                <div className="w-40 h-24 flex items-center justify-center filter grayscale hover:grayscale-0 transition-all duration-300 hover:drop-shadow-glow">
+                  <Image 
+                    src="/partners/walletconnect.svg" 
+                    alt="WalletConnect" 
+                    width={120} 
+                    height={40}
+                    className="object-contain" 
+                  />
+                </div>
+              </a>
+            </motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: 0.6 }}
+              whileHover={{ scale: 1.05 }}
+              className="flex justify-center"
+            >
+              <a href="#" className="block group relative">
+                <div className="w-40 h-24 flex items-center justify-center filter grayscale hover:grayscale-0 transition-all duration-300 hover:drop-shadow-glow">
+                  <Image 
+                    src="/partners/coinbase.svg" 
+                    alt="Coinbase" 
+                    width={120} 
+                    height={40}
+                    className="object-contain" 
+                  />
+                </div>
+              </a>
+            </motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: 0.7 }}
+              whileHover={{ scale: 1.05 }}
+              className="flex justify-center"
+            >
+              <a href="#" className="block group relative">
+                <div className="w-40 h-24 flex items-center justify-center filter grayscale hover:grayscale-0 transition-all duration-300 hover:drop-shadow-glow">
+                  <Image 
+                    src="/partners/aws.svg" 
+                    alt="AWS" 
+                    width={120} 
+                    height={40}
+                    className="object-contain" 
+                  />
+                </div>
+              </a>
+            </motion.div>
+          </div>
+          
+          {/* Additional Partners in Ticker */}
+          <div className="mb-12 max-w-6xl mx-auto overflow-hidden">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="text-center mb-6"
+            >
+              <h3 className="text-lg font-medium text-gray-600 dark:text-gray-400">And Many More</h3>
+            </motion.div>
+            
+            <div className="relative w-full">
+              <motion.div
+                initial={{ x: "100%" }}
+                animate={{ x: "-100%" }}
+                transition={{
+                  duration: 30,
+                  repeat: Infinity,
+                  repeatType: "loop",
+                  ease: "linear"
+                }}
+                className="flex whitespace-nowrap"
+              >
+                {[
+                  "NVIDIA", "IBM", "OpenAI", "Intel", "AMD", "Qualcomm", "Databricks", 
+                  "Snowflake", "MongoDB", "Stripe", "Twilio", "Atlassian", "Shopify", "Cloudflare", "Meta"
+                ].map((partner, index) => (
+                  <span 
+                    key={index} 
+                    className="inline-block px-8 text-gray-500 dark:text-gray-400 text-lg font-medium opacity-70 hover:opacity-100 transition-opacity duration-300"
+                  >
+                    {partner}
+                  </span>
+                ))}
+              </motion.div>
+            </div>
+          </div>
+          
+          {/* Floating particles for visual effect */}
+          <div className="absolute inset-0 pointer-events-none">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute rounded-full bg-white dark:bg-gray-700 opacity-30"
+                style={{
+                  width: Math.random() * 6 + 2,
+                  height: Math.random() * 6 + 2,
+                  top: `${Math.random() * 100}%`,
+                  left: `${Math.random() * 100}%`,
+                }}
+                animate={{
+                  y: [0, Math.random() * -30 - 10],
+                  opacity: [0.3, 0]
+                }}
+                transition={{
+                  duration: Math.random() * 3 + 2,
+                  repeat: Infinity,
+                  repeatType: "loop",
+                  ease: "easeInOut",
+                  delay: Math.random() * 5
+                }}
+              />
+            ))}
+          </div>
+          
+          {/* CTA */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-center mt-12"
+          >
+            <Link 
+              href="/partners" 
+              className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-medium text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all duration-300"
+            >
+              Become a Partner
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+      
+      {/* Quote Section */}
+      <section className="py-12 px-4">
+        <div className="container mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <QuoteDisplay variant="gradient" className="max-w-3xl mx-auto" />
+          </motion.div>
+        </div>
+      </section>
+      
+      {/* CTA Section */}
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-pink-900/20 backdrop-blur-sm"></div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="max-w-3xl mx-auto text-center"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-pink-400">
+              Ready to Join the AI Revolution?
+            </h2>
+            <p className="text-xl text-gray-300 mb-8">
+              Upload your first AI model in minutes and start earning. Or find the perfect model for your next project.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4 mb-8">
+              <AnimatedButton 
+                variant="primary" 
+                size="lg"
+                onClick={() => setShowUpload(true)}
+              >
+                <span className="flex items-center">
+                  <Upload className="mr-2 h-5 w-5" />
+                  Upload a Model
+                </span>
+              </AnimatedButton>
+              <AnimatedButton 
+                variant="outline" 
+                size="lg"
+              >
+                <span className="flex items-center">
+                  <Zap className="mr-2 h-5 w-5" />
+                  Explore Trending Models
+                </span>
+              </AnimatedButton>
+            </div>
+            
+            <button 
+              onClick={() => setShowNewsletter(true)}
+              className="flex items-center mx-auto px-5 py-2 bg-gray-800/70 hover:bg-gray-700/70 rounded-full text-sm font-medium border border-gray-700/50 transition-colors"
+            >
+              <Mail className="w-4 h-4 mr-2 text-purple-400" />
+              Get notified about new models
+              <ArrowRight className="w-3 h-3 ml-2" />
+            </button>
+          </motion.div>
+        </div>
+        
+        {/* Animated particles */}
+        {[...Array(10)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full bg-white opacity-20"
+            style={{
+              width: `${Math.random() * 4 + 2}px`,
+              height: `${Math.random() * 4 + 2}px`,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [-20, 20],
+              opacity: [0.1, 0.3, 0.1],
+            }}
+            transition={{
+              duration: Math.random() * 3 + 2,
+              repeat: Infinity,
+              repeatType: "reverse",
+            }}
+          />
+        ))}
+      </section>
 
       {/* Footer */}
       <Footer />
     </main>
   );
-}
-
-// Add these CSS keyframes to your globals.css
-// @keyframes blob {
-//   0% { transform: translate(0px, 0px) scale(1); }
-//   33% { transform: translate(30px, -50px) scale(1.1); }
-//   66% { transform: translate(-20px, 20px) scale(0.9); }
-//   100% { transform: translate(0px, 0px) scale(1); }
-// }
-// 
-// .animate-blob {
-//   animation: blob 7s infinite;
-// }
-// 
-// .animation-delay-2000 {
-//   animation-delay: 2s;
-// }
-// 
-// .animation-delay-4000 {
-//   animation-delay: 4s;
-// } 
+} 
