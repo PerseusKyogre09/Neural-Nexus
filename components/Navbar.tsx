@@ -5,12 +5,22 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import Brand from './Brand';
+import dynamic from 'next/dynamic';
+
+// Import SimpleCryptoButton using dynamic import to avoid SSR issues
+const SimpleCryptoButton = dynamic(
+  () => import('./SimpleCryptoButton'),
+  { ssr: false, loading: () => null }
+);
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
+    
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
@@ -47,7 +57,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-4">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -57,6 +67,12 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
+            
+            {/* Wallet Connect Button - only render when mounted */}
+            {isMounted && process.env.NEXT_PUBLIC_ENABLE_SIMPLE_CRYPTO === 'true' && (
+              <SimpleCryptoButton className="mr-2" />
+            )}
+            
             <Link
               href="/signup"
               className="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium hover:from-cyan-600 hover:to-blue-600 transition-all transform hover:scale-105"
@@ -96,6 +112,14 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
+            
+            {/* Wallet Connect Button on mobile */}
+            {isMounted && process.env.NEXT_PUBLIC_ENABLE_SIMPLE_CRYPTO === 'true' && (
+              <div className="px-3 py-2">
+                <SimpleCryptoButton />
+              </div>
+            )}
+            
             <Link
               href="/signup"
               className="block px-3 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium hover:from-cyan-600 hover:to-blue-600 transition-all"

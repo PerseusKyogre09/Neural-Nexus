@@ -174,6 +174,56 @@ This app uses both Edge Functions (for lightweight operations) and standard serv
 - **Edge Functions**: Fast, lightweight API routes that run globally close to users
 - **Serverless Functions**: More powerful Node.js environments for database operations and complex processing
 
+## Web3 Wallet Integration
+
+Neural Nexus includes a lightweight wallet connection system through the `SimpleCryptoProvider`. This replaces the previous TonConnect implementation.
+
+### Enabling the Wallet Connection
+
+To enable wallet connection in your application:
+
+1. Set the feature flag in your `.env.local` file:
+```
+NEXT_PUBLIC_ENABLE_SIMPLE_CRYPTO=true
+```
+
+2. The wallet connect button will automatically appear in the navbar when the feature flag is enabled.
+
+3. For custom integration, you can use the `SimpleCryptoButton` component:
+```tsx
+import dynamic from 'next/dynamic';
+
+// Import with dynamic to avoid SSR issues
+const SimpleCryptoButton = dynamic(
+  () => import('@/components/SimpleCryptoButton'),
+  { ssr: false }
+);
+
+// Then use it in your component
+function MyComponent() {
+  return <SimpleCryptoButton />;
+}
+```
+
+4. For direct access to wallet state, use the `useSimpleCrypto` hook:
+```tsx
+import { useSimpleCrypto } from '@/providers/SimpleCryptoProvider';
+
+function MyComponent() {
+  const { activeWallet, connectWallet, disconnectWallet } = useSimpleCrypto();
+  
+  return (
+    <div>
+      {activeWallet ? (
+        <div>Connected to: {activeWallet}</div>
+      ) : (
+        <button onClick={() => connectWallet('MetaMask')}>Connect</button>
+      )}
+    </div>
+  );
+}
+```
+
 ## Contributing
 
 Got ideas to make this even more lit? Drop a PR or issue. Let's build this together!
