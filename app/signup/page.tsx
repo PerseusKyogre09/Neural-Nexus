@@ -18,7 +18,7 @@ export default function SignupPage() {
   
   const openSignIn = () => {
     setAuthMode('signin');
-    setShowSignInMenu(true);
+      setShowSignInMenu(true);
   };
   
   const openSignUp = () => {

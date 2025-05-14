@@ -33,6 +33,7 @@ const Navbar = () => {
     { href: '/hosting', label: 'Hosting' },
     { href: '/community', label: 'Community' },
     { href: '/research', label: 'Research' },
+    { href: '/open-source-models', label: 'Open Source Models' },
     { href: '/open-source', label: 'Open Source' },
     { href: '/pricing', label: 'Pricing' },
     { href: '/api-docs', label: 'API' },

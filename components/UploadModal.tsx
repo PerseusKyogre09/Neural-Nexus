@@ -219,20 +219,20 @@ export default function UploadModal({ onClose }: UploadModalProps) {
         {/* Header with steps indicator */}
         <div className="relative p-6 border-b border-white/10">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
-              Upload Your AI Model
-            </h2>
-            
-            <button 
-              onClick={onClose}
-              className="text-gray-400 hover:text-white transition-colors"
-              aria-label="Close upload modal"
-              title="Close"
-            >
-              <X className="h-6 w-6" />
-            </button>
-          </div>
+          <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
+            Upload Your AI Model
+          </h2>
           
+          <button 
+            onClick={onClose}
+            className="text-gray-400 hover:text-white transition-colors"
+            aria-label="Close upload modal"
+              title="Close"
+          >
+            <X className="h-6 w-6" />
+          </button>
+        </div>
+        
           <div className="flex justify-between items-center mt-6">
             {[1, 2, 3].map((step) => (
               <div key={step} className="flex items-center">
@@ -274,7 +274,7 @@ export default function UploadModal({ onClose }: UploadModalProps) {
         <div className="p-6">
           {/* Step 1: Basic Info */}
           {currentStep === 1 && (
-            <div className="space-y-6">
+          <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium mb-2">Model Name*</label>
                 <input 
@@ -439,7 +439,7 @@ export default function UploadModal({ onClose }: UploadModalProps) {
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
+              <div>
                   <label className="block text-sm font-medium mb-2">
                     {isOpenSource ? (
                       <span className="flex items-center">
@@ -453,12 +453,12 @@ export default function UploadModal({ onClose }: UploadModalProps) {
                       </span>
                     )}
                   </label>
-                  <input 
-                    type="number" 
+                <input 
+                  type="number" 
                     className="w-full p-3 bg-black/30 border border-white/10 rounded-lg focus:border-purple-500 focus:outline-none"
                     placeholder={isOpenSource ? "Suggested donation amount" : "0.00 or leave blank for free"}
-                    min="0"
-                    step="0.01"
+                  min="0"
+                  step="0.01"
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
                   />
@@ -520,32 +520,32 @@ export default function UploadModal({ onClose }: UploadModalProps) {
               <div>
                 <label className="block text-sm font-medium mb-2">Model Files*</label>
                 <div className="p-6 border border-dashed border-white/20 rounded-lg text-center">
-                  <div className="mb-4">
+              <div className="mb-4">
                     <Upload className="h-10 w-10 mx-auto text-purple-400 mb-2" />
-                    <h3 className="text-lg font-medium">Upload Model Files</h3>
-                    <p className="text-sm text-gray-400 mt-1">
-                      Drag and drop your model files or click to browse
-                    </p>
-                  </div>
-                  
-                  <input
-                    type="file"
+                <h3 className="text-lg font-medium">Upload Model Files</h3>
+                <p className="text-sm text-gray-400 mt-1">
+                  Drag and drop your model files or click to browse
+                </p>
+              </div>
+              
+              <input
+                type="file"
                     id="model-file-upload"
-                    className="hidden"
+                className="hidden"
                     multiple
                     onChange={handleModelFileChange}
-                  />
-                  
+              />
+              
                   <label htmlFor="model-file-upload">
-                    <AnimatedButton
-                      variant="outline"
-                      size="md"
-                      className="mx-auto"
-                    >
-                      <FileText className="mr-2 h-4 w-4" /> Select Files
-                    </AnimatedButton>
-                  </label>
-                  
+                <AnimatedButton
+                  variant="outline"
+                  size="md"
+                  className="mx-auto"
+                >
+                  <FileText className="mr-2 h-4 w-4" /> Select Files
+                </AnimatedButton>
+              </label>
+              
                   {modelFiles.length > 0 && (
                     <div className="mt-4 text-sm border-t border-white/10 pt-4">
                       <h4 className="font-medium mb-2">Selected Files ({modelFiles.length})</h4>
@@ -908,8 +908,8 @@ export default function UploadModal({ onClose }: UploadModalProps) {
               </div>
             </div>
           )}
-          
-          {/* Action Buttons */}
+            
+            {/* Action Buttons */}
           <div className="flex justify-between pt-6 border-t border-white/10 mt-6">
             {currentStep > 1 ? (
               <AnimatedButton
@@ -931,8 +931,8 @@ export default function UploadModal({ onClose }: UploadModalProps) {
                   Continue
                 </AnimatedButton>
               ) : (
-                <AnimatedButton
-                  variant="primary"
+              <AnimatedButton
+                variant="primary"
                   isLoading={isUploading}
                   onClick={handleFinalSubmit}
                   disabled={isUploading}
@@ -945,7 +945,7 @@ export default function UploadModal({ onClose }: UploadModalProps) {
                   ) : (
                     'Complete Upload'
                   )}
-                </AnimatedButton>
+              </AnimatedButton>
               )}
             </div>
           </div>

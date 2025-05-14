@@ -10,7 +10,7 @@ import Footer from '@/components/Footer';
 import SearchAndFilter, { FilterOptions } from '@/components/SearchAndFilter';
 import {
   Sliders, SlidersHorizontal, Grid3X3, List, TrendingUp, 
-  PlusCircle, HelpCircle, ArrowUpDown, Search, Sparkles
+  PlusCircle, HelpCircle, ArrowUpDown, Search, Sparkles, ArrowRight, DollarSign, Download, Star, Globe, Zap, Award, BarChart
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -405,6 +405,14 @@ export default function MarketplacePage() {
     })
   };
   
+  // Add a utility function for number formatting if not already defined
+  function formatNumber(num: number): string {
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
+  }
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white overflow-hidden">
       <Navbar />
@@ -717,11 +725,11 @@ export default function MarketplacePage() {
               </span>
             </h2>
             
-            <SearchAndFilter 
-              onSearch={handleSearch} 
-              onFilterChange={handleFilterChange} 
-              categories={categories}
-            />
+          <SearchAndFilter 
+            onSearch={handleSearch} 
+            onFilterChange={handleFilterChange} 
+            categories={categories}
+          />
             
             {/* Advanced Filter Tags */}
             <div className="mt-4 flex flex-wrap gap-2">
@@ -735,9 +743,9 @@ export default function MarketplacePage() {
               </button>
               <button
                 className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${
-                  filters.sortBy === 'free' ? 'bg-green-500 text-white' : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700'
+                  filters.minPrice === 0 && filters.maxPrice === 0 ? 'bg-green-500 text-white' : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700'
                 }`}
-                onClick={() => handleFilterChange({...filters, minPrice: 0, maxPrice: 0, sortBy: 'free'})}
+                onClick={() => handleFilterChange({...filters, minPrice: 0, maxPrice: 0})}
               >
                 Free Only
               </button>
@@ -926,6 +934,19 @@ export default function MarketplacePage() {
           </div>
         </div>
       </section>
+      
+      {/* Add a note about paid content and link to open-source models */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="text-center mb-12"
+      >
+        <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">AI Model Marketplace</h1>
+        <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+          Browse our premium collection of paid AI models and datasets. For free resources, check out our <Link href="/open-source-models" className="text-cyan-400 hover:text-cyan-300">Open Source Models</Link>.
+        </p>
+      </motion.div>
       
       <Footer />
     </div>
