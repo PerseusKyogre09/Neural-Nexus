@@ -42,8 +42,8 @@ We're like the 'Radio on the Internet' for AI—powered by strategic partnership
 
 1. **Clone the Repo**:
    ```bash
-   git clone https://github.com/Drago-03/AI-Model-Hub.git
-   cd AI-Model-Hub
+   git clone https://github.com/Drago-03/Neural-Nexus.git
+   cd Neural-Nexus
    ```
 
 2. **Install Dependencies**:
