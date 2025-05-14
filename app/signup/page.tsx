@@ -14,9 +14,11 @@ export const dynamic = 'force-dynamic';
 export default function SignupPage() {
   // State to control if the SignInMenu is open
   const [showSignInMenu, setShowSignInMenu] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   
-  // Auto-open the signup modal when the page loads
+  // Auto-open the signup modal when the page loads on client side
   useEffect(() => {
+    setIsClient(true);
     setShowSignInMenu(true);
   }, []);
 
@@ -37,12 +39,14 @@ export default function SignupPage() {
         </div>
       </div>
 
-      {/* Render the SignInMenu with isSignIn=false to show signup form */}
-      <SignInMenu 
-        isOpen={showSignInMenu} 
-        onClose={() => setShowSignInMenu(false)} 
-        initialMode="signup"
-      />
+      {/* Render the SignInMenu with isSignIn=false to show signup form only on client side */}
+      {isClient && (
+        <SignInMenu 
+          isOpen={showSignInMenu} 
+          onClose={() => setShowSignInMenu(false)} 
+          initialMode="signup"
+        />
+      )}
       
       <Footer />
     </main>

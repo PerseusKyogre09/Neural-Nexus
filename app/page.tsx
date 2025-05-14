@@ -12,6 +12,7 @@ import Navbar from "@/components/Navbar";
 import { AnimatedButton } from "@/components/ui/animated-button";
 import { AnimatedCard } from "@/components/ui/animated-card";
 import Footer from "@/components/Footer";
+import { Analytics } from "@vercel/analytics/next"
 import { 
   Upload, Download, CreditCard, Wallet, Repeat, DollarSign, Gift, 
   CheckCircle, ArrowRight, Zap, ChevronRight, Code, Search, Shield
