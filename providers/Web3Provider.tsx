@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { ethers } from 'ethers';
 import Web3Modal from 'web3modal';
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
-import { configureChains, createConfig, WagmiConfig } from 'wagmi';
+import { configureChains, createConfig, WagmiConfig, Config } from 'wagmi';
 import { mainnet, polygon, optimism, arbitrum } from 'wagmi/chains';
 import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
 import { InjectedConnector } from 'wagmi/connectors/injected';
@@ -39,40 +39,76 @@ interface Web3ContextType {
 // Create the Web3 context
 const Web3Context = createContext<Web3ContextType | undefined>(undefined);
 
+// Helper function to ensure chains have required properties
+const ensureChainProperties = (chain: any) => {
+  if (!chain.rpcUrls) {
+    chain.rpcUrls = {};
+  }
+  if (!chain.rpcUrls.public) {
+    chain.rpcUrls.public = {};
+  }
+  if (!chain.rpcUrls.public.http) {
+    chain.rpcUrls.public.http = [
+      // Fallback RPC URL
+      'https://eth-mainnet.g.alchemy.com/v2/demo'
+    ];
+  }
+  return chain;
+};
+
 // Configure chains for wagmi
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [mainnet, polygon, optimism, arbitrum],
+  // Apply our helper function to ensure chains have required properties
+  [ensureChainProperties(mainnet)],
   [publicProvider()]
 );
 
-// Create wagmi config
-const wagmiConfig = createConfig({
-  autoConnect: false,
-  connectors: [
-    new MetaMaskConnector({ chains }),
-    new CoinbaseWalletConnector({
-      chains,
-      options: {
-        appName: 'Neural Nexus',
-      },
-    }),
-    new WalletConnectConnector({
-      chains,
-      options: {
-        projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || 'demo-project-id',
-      },
-    }),
-    new InjectedConnector({
-      chains,
-      options: {
-        name: 'Injected',
-        shimDisconnect: true,
-      },
-    }),
-  ],
-  publicClient,
-  webSocketPublicClient,
-});
+// Create wagmi config with proper error handling for chain URLs
+let wagmiConfig: any;
+try {
+  wagmiConfig = createConfig({
+    autoConnect: false,
+    connectors: [
+      new MetaMaskConnector({ 
+        chains,
+        options: {
+          shimDisconnect: true,
+        }
+      }),
+      new CoinbaseWalletConnector({
+        chains,
+        options: {
+          appName: 'Neural Nexus',
+        },
+      }),
+      new WalletConnectConnector({
+        chains,
+        options: {
+          projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || 'demo-project-id',
+          showQrModal: true,
+        },
+      }),
+      new InjectedConnector({
+        chains,
+        options: {
+          name: 'Injected',
+          shimDisconnect: true,
+        },
+      }),
+    ],
+    publicClient,
+    webSocketPublicClient,
+  });
+} catch (error) {
+  console.error("Failed to create wagmi config:", error);
+  // Create a minimal fallback object
+  wagmiConfig = {
+    _config: { state: {} },
+    connectors: [],
+    publicClient: { request: async () => null },
+    chains: []
+  };
+}
 
 // Create the Web3 provider component
 export function Web3Provider({ children }: { children: ReactNode }) {
@@ -102,27 +138,34 @@ export function Web3Provider({ children }: { children: ReactNode }) {
   // Initialize Web3Modal on client-side only
   useEffect(() => {
     if (!isBrowser) return;
-    const providerOptions = {
-      coinbasewallet: {
-        package: CoinbaseWalletSDK,
-        options: {
-          appName: "Neural Nexus",
-          infuraId: process.env.NEXT_PUBLIC_INFURA_ID || "demo-infura-id"
+    
+    try {
+      const providerOptions = {
+        coinbasewallet: {
+          package: CoinbaseWalletSDK,
+          options: {
+            appName: "Neural Nexus",
+            infuraId: process.env.NEXT_PUBLIC_INFURA_ID || "demo-infura-id"
+          }
         }
+      };
+      
+      const modal = new Web3Modal({
+        cacheProvider: true,
+        providerOptions,
+        theme: "dark"
+      });
+      
+      setWeb3Modal(modal);
+      
+      // Check if previously connected, but with error handling
+      if (modal.cachedProvider) {
+        connectWallet().catch(error => {
+          console.error("Failed to reconnect cached provider:", error);
+        });
       }
-    };
-    
-    const modal = new Web3Modal({
-      cacheProvider: true,
-      providerOptions,
-      theme: "dark"
-    });
-    
-    setWeb3Modal(modal);
-    
-    // Check if previously connected
-    if (modal.cachedProvider) {
-      connectWallet();
+    } catch (error) {
+      console.error("Failed to initialize Web3Modal:", error);
     }
   }, [isBrowser]);
   
@@ -291,9 +334,14 @@ export function Web3Provider({ children }: { children: ReactNode }) {
   
   return (
     <Web3Context.Provider value={contextValue}>
-      <WagmiConfig config={wagmiConfig}>
-        {children}
-      </WagmiConfig>
+      {wagmiConfig && wagmiConfig._config ? (
+        <WagmiConfig config={wagmiConfig}>
+          {children}
+        </WagmiConfig>
+      ) : (
+        // Fallback rendering without wagmi if configuration failed
+        <>{children}</>
+      )}
     </Web3Context.Provider>
   );
 }
