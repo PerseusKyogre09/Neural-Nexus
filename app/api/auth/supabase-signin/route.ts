@@ -17,13 +17,18 @@ export async function POST(req: NextRequest) {
       }, { status: 500 });
     }
     
-    // Create admin client (server-side only)
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
+    // Initialize Supabase admin client
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+          detectSessionInUrl: false,
+        },
       }
-    });
+    );
     
     // Parse request body
     const { email, password } = await req.json();
@@ -36,10 +41,10 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
     
-    // Sign in with Supabase admin (server side)
+    // Sign in with email and password
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
-      password
+      password,
     });
     
     if (error) {

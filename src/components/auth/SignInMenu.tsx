@@ -99,31 +99,57 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
     setIsLoading(true);
     try {
       if (isSignIn) {
-        // Sign In logic - use Supabase
-        const result = await signInWithSupabase(formData.email, formData.password);
+        // Sign In logic - use API endpoint
+        const response = await fetch('/api/auth/supabase-signin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`API returned status ${response.status}`);
+        }
+
+        const result = await response.json();
+
         if (result.success) {
           console.log('Signed in successfully:', result.user);
           onClose();
         } else {
-          throw new Error(result.error || 'Failed to sign in');
+          throw new Error(result.message || 'Failed to sign in');
         }
       } else {
-        // Sign Up logic with Supabase
-        const result = await signUpWithSupabase(
-          formData.email, 
-          formData.password,
-          {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            display_name: `${formData.firstName} ${formData.lastName}`
-          }
-        );
-        
+        // Sign Up logic - use API endpoint
+        const response = await fetch('/api/auth/supabase-signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            password: formData.password,
+            displayName: `${formData.firstName} ${formData.lastName}`
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`API returned status ${response.status}`);
+        }
+
+        const result = await response.json();
+
         if (result.success) {
           console.log('Account created successfully:', result.user);
           onClose();
         } else {
-          throw new Error(result.error || 'Failed to create account');
+          throw new Error(result.message || 'Failed to create account');
         }
       }
     } catch (err: any) {
@@ -137,20 +163,22 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
   };
 
   const handleGithubLogin = async () => {
-    setIsLoading(true);
     try {
-      // Use OAuth with Supabase instead
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'github',
-      });
+      setIsLoading(true);
+      setError(null);
       
-      if (error) throw error;
-      
-      if (data) {
-        console.log('GitHub login initiated');
-        // Will redirect to GitHub
+      // Get the current origin for the redirect URL
+      const redirectUrl = `${window.location.origin}/auth/callback`;
+      // Construct proper OAuth URL with correct redirect 
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      if (!supabaseUrl) {
+        throw new Error('Missing Supabase configuration');
       }
+      
+      window.location.href = `${supabaseUrl}/auth/v1/authorize?provider=github&redirect_to=${encodeURIComponent(redirectUrl)}`;
+      
     } catch (error: any) {
+      console.error('GitHub login error:', error);
       setError({
         type: 'general',
         message: error.message || 'Failed to login with GitHub'
@@ -160,20 +188,22 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
   };
 
   const handleGoogleLogin = async () => {
-    setIsLoading(true);
     try {
-      // Use OAuth with Supabase instead
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-      });
+      setIsLoading(true);
+      setError(null);
       
-      if (error) throw error;
-      
-      if (data) {
-        console.log('Google login initiated');
-        // Will redirect to Google
+      // Get the current origin for the redirect URL
+      const redirectUrl = `${window.location.origin}/auth/callback`;
+      // Construct proper OAuth URL with correct redirect
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      if (!supabaseUrl) {
+        throw new Error('Missing Supabase configuration');
       }
+      
+      window.location.href = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectUrl)}`;
+      
     } catch (error: any) {
+      console.error('Google login error:', error);
       setError({
         type: 'general',
         message: error.message || 'Failed to login with Google'
@@ -195,6 +225,43 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
       setError({
         type: 'general',
         message: 'Wallet connection failed'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAnonymousLogin = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // Call the anonymous sign-in API endpoint
+      const response = await fetch('/api/auth/anonymous-signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`API returned status ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        console.log('Signed in anonymously:', result.user);
+        onClose();
+        window.location.href = '/dashboard';
+      } else {
+        throw new Error(result.message || 'Failed to sign in anonymously');
+      }
+    } catch (error: any) {
+      console.error('Anonymous login error:', error);
+      setError({
+        type: 'general',
+        message: error.message || 'Failed to login anonymously'
       });
     } finally {
       setIsLoading(false);
@@ -378,6 +445,14 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
                 leftIcon={<Wallet className="h-5 w-5" />}
               >
                 Connect Tonkeeper
+              </Button>
+
+              <Button
+                variant="secondary"
+                className="w-full"
+                onClick={handleAnonymousLogin}
+              >
+                Sign in Anonymously
               </Button>
             </div>
 

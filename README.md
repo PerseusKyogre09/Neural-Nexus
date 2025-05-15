@@ -73,8 +73,15 @@ We're inspired by the 'Radio on the Internet' concept for AI—powered by strate
       - Go to Authentication > Providers
       - Enable Email, Google, GitHub, etc. as needed
       - Configure OAuth credentials for third-party providers
+      - For GitHub & Google OAuth, set the callback URL to: `https://your-supabase-project.supabase.co/auth/v1/callback`
+      - For production, set your Redirect URL in provider settings to: `https://your-site-domain.com/auth/callback`
+      
+   e. Enable anonymous authentication:
+      - Go to Authentication > Providers
+      - Scroll down to "Anonymous Sign-in" and toggle it on
+      - This allows users to try the platform without creating an account
    
-   e. Set up storage buckets:
+   f. Set up storage buckets:
       - Go to Storage
       - Create buckets for: `models`, `avatars`, `thumbnails`
       - Set RLS policies for each bucket

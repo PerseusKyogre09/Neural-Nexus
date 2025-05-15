@@ -382,10 +382,10 @@ export default function CompanyPage() {
                 <Users className="h-6 w-6 text-purple-400 mx-auto mb-3" />
                 <h3 className="font-bold mb-2">Follow Us</h3>
                 <div className="flex items-center gap-4 my-8">
-                  <a href="https://github.com/neuralnexus" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white">
-                    <Github className="h-7 w-7" />
+                  <a href="https://github.com/Drago-03/Neural-Nexus" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white">
+                    <Github className="h-5 w-5" />
                   </a>
-                  <a href="https://linkedin.com/company/neuralnexus" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-600">
+                  <a href="https://www.linkedin.com/in/mantej-singh-arora/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-600">
                     <Linkedin className="h-7 w-7" />
                   </a>
                   <a href="mailto:press@neuralnexus.ai" className="text-gray-400 hover:text-purple-400">

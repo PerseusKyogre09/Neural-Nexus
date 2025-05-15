@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
+import SupabaseProvider from '@/providers/SupabaseProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -37,13 +38,15 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head />
       <body className={inter.className}>
-        <Suspense fallback={<div>Loading app...</div>}>
-          <Providers>
-            {children}
-            <Toaster position="top-center" />
-            <AgentKitUI />
-          </Providers>
-        </Suspense>
+        <SupabaseProvider>
+          <Suspense fallback={<div>Loading app...</div>}>
+            <Providers>
+              {children}
+              <Toaster position="top-center" />
+              <AgentKitUI />
+            </Providers>
+          </Suspense>
+        </SupabaseProvider>
       </body>
     </html>
   );

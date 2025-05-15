@@ -28,8 +28,8 @@ export default function AboutPage() {
       image: "/team/Mantej.png",
       bio: "Visionary founder with a passion for democratizing AI. Leading Neural Nexus to transform how AI models are shared and monetized.",
       social: {
-        linkedin: "https://linkedin.com/in/mantejsingh",
-        github: "https://github.com/mantejsingh"
+        linkedin: "https://www.linkedin.com/in/mantej-singh-arora/",
+        github: "https://github.com/Drago-03/Neural-Nexus"
       }
     },
     {
@@ -38,8 +38,8 @@ export default function AboutPage() {
       image: "/team/Avya.png",
       bio: "Experienced ML engineer leading our technical infrastructure. Expert in optimizing model performance and scalability.",
       social: {
-        linkedin: "https://linkedin.com/in/avyagiri",
-        github: "https://github.com/avyagiri"
+        linkedin: "https://www.linkedin.com/in/mantej-singh-arora/",
+        github: "https://github.com/Drago-03/Neural-Nexus"
       }
     },
     {
@@ -48,8 +48,8 @@ export default function AboutPage() {
       image: "/team/Fatima.png",
       bio: "Strategic leader driving business growth and partnerships. Passionate about the intersection of AI and business innovation.",
       social: {
-        linkedin: "https://linkedin.com/in/fatimak",
-        github: "https://github.com/fatimak"
+        linkedin: "https://www.linkedin.com/in/mantej-singh-arora/",
+        github: "https://github.com/Drago-03/Neural-Nexus"
       }
     }
   ];
@@ -429,7 +429,7 @@ export default function AboutPage() {
             <p className="mb-4"><span className="text-purple-400">Location:</span> Indie Hub office, Chandigarh, India</p>
             <div className="flex justify-center gap-4">
               <a
-                href="https://github.com/Drago-03/AI-Model-Hub.git"
+                href="https://github.com/Drago-03/Neural-Nexus"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition-colors"

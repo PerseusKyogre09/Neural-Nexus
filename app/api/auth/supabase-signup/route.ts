@@ -8,20 +8,18 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
-    // Initialize Supabase admin client with service role key
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-    
-    if (!supabaseUrl || !supabaseServiceKey) {
-      throw new Error('Missing Supabase credentials');
-    }
-    
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
+    // Initialize Supabase admin client
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+          detectSessionInUrl: false,
+        },
       }
-    });
+    );
     
     // Parse request body
     const { firstName, lastName, email, password, displayName } = await req.json();
@@ -36,16 +34,15 @@ export async function POST(req: NextRequest) {
     
     console.log('Creating user with Supabase:', { email, firstName, lastName });
     
-    // Sign up the user with Supabase
-    const { data, error } = await supabase.auth.admin.createUser({
+    // Create the user with Supabase
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
-      email_confirm: true, // Auto-confirm the email
+      email_confirm: true, // Auto-confirm email
       user_metadata: {
         first_name: firstName,
         last_name: lastName,
-        display_name: displayName || firstName,
-        created_at: new Date().toISOString()
+        display_name: displayName
       }
     });
     
@@ -62,13 +59,13 @@ export async function POST(req: NextRequest) {
     // Create user profile in Supabase database - create table if it doesn't exist first
     try {
       // Check if table exists and create it if not
-      const { error: tableExistsError } = await supabase.rpc('check_table_exists', { 
+      const { error: tableExistsError } = await supabaseAdmin.rpc('check_table_exists', { 
         table_name: 'user_profiles' 
       });
       
       if (tableExistsError) {
         // Create the table
-        const { error: createTableError } = await supabase.rpc('create_user_profiles_table');
+        const { error: createTableError } = await supabaseAdmin.rpc('create_user_profiles_table');
         
         if (createTableError) {
           console.error('Error creating user_profiles table:', createTableError);
@@ -76,7 +73,7 @@ export async function POST(req: NextRequest) {
       }
       
       // Insert the user profile
-      const { error: profileError } = await supabase
+      const { error: profileError } = await supabaseAdmin
         .from('user_profiles')
         .insert({
           user_id: data.user.id,

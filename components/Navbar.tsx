@@ -69,11 +69,6 @@ const Navbar = () => {
               </Link>
             ))}
             
-            {/* Wallet Connect Button - only render when mounted */}
-            {isMounted && process.env.NEXT_PUBLIC_ENABLE_SIMPLE_CRYPTO === 'true' && (
-              <SimpleCryptoButton className="mr-2" />
-            )}
-            
             <Link
               href="/signup"
               className="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium hover:from-cyan-600 hover:to-blue-600 transition-all transform hover:scale-105"
@@ -113,13 +108,6 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
-            
-            {/* Wallet Connect Button on mobile */}
-            {isMounted && process.env.NEXT_PUBLIC_ENABLE_SIMPLE_CRYPTO === 'true' && (
-              <div className="px-3 py-2">
-                <SimpleCryptoButton />
-              </div>
-            )}
             
             <Link
               href="/signup"
