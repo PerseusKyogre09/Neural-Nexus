@@ -9,11 +9,15 @@ import { AnimatedCard } from '@/components/ui/animated-card';
 import { 
   Plus, Upload, Zap, Users, DollarSign, 
   BarChart2, TrendingUp, Clock, Diamond, Settings,
-  Layers, Database, Award, Bookmark, Eye
+  Layers, Database, Award, Bookmark, Eye, AlertTriangle
 } from 'lucide-react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import SalesAnalytics from '@/components/dashboard/SalesAnalytics';
+import ModelAnalytics from '@/components/dashboard/ModelAnalytics';
+import CustomerManagement from '@/components/dashboard/CustomerManagement';
+import ProfileCompleteModal from '@/components/ProfileCompleteModal';
 
 interface StatCard {
   label: string;
@@ -27,6 +31,8 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
   const [chartHovered, setChartHovered] = useState<number | null>(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [hasCompletedProfile, setHasCompletedProfile] = useState(false);
   const router = useRouter();
   const { user, appUser } = useAppContext();
   
@@ -98,8 +104,30 @@ export default function DashboardPage() {
     // Simulate data loading
     setTimeout(() => {
       setLoading(false);
-    }, 1500);
-  }, []);
+    }, 1000);
+    
+    // Check if the user has completed their profile
+    // In a real application, you would check this from the database/context
+    const checkProfileStatus = () => {
+      if (user && !hasCompletedProfile && !localStorage.getItem('profileCompleted')) {
+        setIsProfileModalOpen(true);
+      }
+    };
+    
+    if (!loading) {
+      checkProfileStatus();
+    }
+  }, [user, loading, hasCompletedProfile]);
+  
+  // Handle profile completion
+  const handleProfileComplete = (profileData: any) => {
+    console.log("Profile data:", profileData);
+    // In a real app, save this data to the database
+    // For now, just save to localStorage to avoid showing the modal again
+    localStorage.setItem('profileCompleted', 'true');
+    setHasCompletedProfile(true);
+    setIsProfileModalOpen(false);
+  };
   
   // Tab data
   const tabs = [
@@ -115,12 +143,12 @@ export default function DashboardPage() {
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="space-y-4 text-center">
           <div className="flex justify-center">
-            <svg className="animate-spin h-8 w-8 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg className="animate-spin h-10 w-10 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           </div>
-          <p className="text-purple-300 animate-pulse">Loading your dashboard...</p>
+          <p className="text-purple-300 animate-pulse text-lg font-medium">Loading your dashboard...</p>
         </div>
       </div>
     );
@@ -329,111 +357,90 @@ export default function DashboardPage() {
             )}
             
             {activeTab === 'models' && (
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-xl font-bold">Your AI Models</h2>
-                  <AnimatedButton variant="primary" size="sm">
-                    <span className="flex items-center">
-                      <Plus className="h-4 w-4 mr-2" /> 
-                      Upload New Model
-                    </span>
-                  </AnimatedButton>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {myModels.map((model, index) => (
-                    <motion.div
-                      key={model.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="group"
-                    >
-                      <AnimatedCard className="overflow-hidden h-full" hoverEffect="lift">
-                        <div className="relative h-48 overflow-hidden">
-                          <img 
-                            src={model.coverImage} 
-                            alt={model.name} 
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-                          <div className="absolute top-2 right-2">
-                            <span className={`inline-block px-2 py-1 rounded text-xs ${
-                              model.status === 'active' 
-                                ? 'bg-green-500/20 text-green-400' 
-                                : 'bg-yellow-500/20 text-yellow-400'
-                            }`}>
-                              {model.status === 'active' ? 'Active' : 'Pending'}
-                            </span>
-                          </div>
-                        </div>
-                        
-                        <div className="p-4">
-                          <h3 className="font-bold text-lg mb-1">{model.name}</h3>
-                          <p className="text-gray-400 text-sm mb-3 line-clamp-2">{model.description}</p>
-                          
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-400">Category: <span className="text-purple-400">{model.category}</span></span>
-                            <span className="flex items-center text-yellow-400">
-                              {model.rating} ★
-                            </span>
-                          </div>
-                          
-                          <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center">
-                            <span className="text-gray-400 text-sm">{model.sales} sales</span>
-                            <AnimatedButton variant="outline" size="sm">Manage</AnimatedButton>
-                          </div>
-                        </div>
-                      </AnimatedCard>
-                    </motion.div>
-                  ))}
-                  
-                  {/* Add New Model Card */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: myModels.length * 0.1 }}
-                  >
-                    <AnimatedCard 
-                      className="flex flex-col items-center justify-center p-10 h-full border-2 border-dashed border-white/10 bg-transparent"
-                      hoverEffect="none"
-                      onClick={() => console.log('Upload new model')}
-                    >
-                      <motion.div
-                        whileHover={{ scale: 1.1, rotate: 180 }}
-                        transition={{ duration: 0.5, type: "spring" }}
-                        className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mb-4"
-                      >
-                        <Upload className="h-8 w-8 text-purple-400" />
-                      </motion.div>
-                      <h3 className="font-bold text-lg mb-1 text-center">Upload New Model</h3>
-                      <p className="text-gray-400 text-sm text-center">
-                        Drag and drop your model files or click to browse
-                      </p>
-                    </AnimatedCard>
-                  </motion.div>
-                </div>
-              </div>
+              <ModelAnalytics />
             )}
             
             {activeTab === 'sales' && (
-              <div className="space-y-6">
-                <h2 className="text-xl font-bold">Sales Analytics</h2>
-                <p className="text-gray-400">Sales dashboard content would go here</p>
-              </div>
+              <SalesAnalytics />
             )}
             
             {activeTab === 'customers' && (
-              <div className="space-y-6">
-                <h2 className="text-xl font-bold">Customer Management</h2>
-                <p className="text-gray-400">Customers dashboard content would go here</p>
-              </div>
+              <CustomerManagement />
             )}
             
             {activeTab === 'settings' && (
               <div className="space-y-6">
-                <h2 className="text-xl font-bold">Account Settings</h2>
-                <p className="text-gray-400">Settings dashboard content would go here</p>
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold">Account Settings</h2>
+                    <p className="text-gray-400">Manage your profile and preferences</p>
+                  </div>
+                </div>
+                
+                {/* Profile Settings Card */}
+                <AnimatedCard className="p-6">
+                  <div className="flex items-start justify-between">
+                    <h3 className="text-lg font-medium">Profile Information</h3>
+                    <AnimatedButton variant="outline" size="sm" onClick={() => setIsProfileModalOpen(true)}>
+                      Edit Profile
+                    </AnimatedButton>
+                  </div>
+                  
+                  <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <p className="text-sm text-gray-400 mb-1">Display Name</p>
+                      <p className="font-medium">{user?.displayName || 'Not set'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-400 mb-1">Email</p>
+                      <p className="font-medium">{user?.email || 'Not set'}</p>
+                    </div>
+                  </div>
+                </AnimatedCard>
+                
+                {/* Notifications Card */}
+                <AnimatedCard className="p-6">
+                  <h3 className="text-lg font-medium mb-4">Notification Settings</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">Email Notifications</p>
+                        <p className="text-sm text-gray-400">Receive emails about sales and updates</p>
+                      </div>
+                      <div className="relative">
+                        <input type="checkbox" id="emailNotifications" className="sr-only peer" defaultChecked />
+                        <label htmlFor="emailNotifications" className="block w-12 h-6 rounded-full bg-gray-700 cursor-pointer after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:w-5 after:h-5 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-6 peer-checked:bg-purple-500" aria-label="Toggle email notifications"></label>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">Push Notifications</p>
+                        <p className="text-sm text-gray-400">Receive push notifications on your device</p>
+                      </div>
+                      <div className="relative">
+                        <input type="checkbox" id="pushNotifications" className="sr-only peer" />
+                        <label htmlFor="pushNotifications" className="block w-12 h-6 rounded-full bg-gray-700 cursor-pointer after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:w-5 after:h-5 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-6 peer-checked:bg-purple-500" aria-label="Toggle push notifications"></label>
+                      </div>
+                    </div>
+                  </div>
+                </AnimatedCard>
+                
+                {/* Danger Zone */}
+                <AnimatedCard className="p-6 border border-red-500/20">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 bg-red-500/10 rounded-lg">
+                      <AlertTriangle className="h-5 w-5 text-red-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-medium text-red-400">Danger Zone</h3>
+                      <p className="text-sm text-gray-400 my-2">Permanently delete your account and all related data</p>
+                      <AnimatedButton variant="ghost" size="sm" className="text-red-400 hover:text-red-300 hover:bg-red-500/10">
+                        Delete Account
+                      </AnimatedButton>
+                    </div>
+                  </div>
+                </AnimatedCard>
               </div>
             )}
           </motion.div>
@@ -441,6 +448,20 @@ export default function DashboardPage() {
       </main>
       
       <Footer />
+      
+      {/* Profile Completion Modal */}
+      {user && (
+        <ProfileCompleteModal
+          isOpen={isProfileModalOpen}
+          onClose={() => setIsProfileModalOpen(false)}
+          onComplete={handleProfileComplete}
+          userData={{
+            displayName: user.displayName || '',
+            email: user.email || '',
+            photoURL: user.photoURL || '',
+          }}
+        />
+      )}
     </div>
   );
 } 
