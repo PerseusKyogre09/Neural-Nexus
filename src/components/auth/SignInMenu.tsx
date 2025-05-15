@@ -163,22 +163,23 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
   };
 
   const handleGithubLogin = async () => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      setError(null);
+      // Use OAuth with Supabase instead
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: 'https://gtqeeihydjqvidqleawe.supabase.co/auth/v1/callback'
+        }
+      });
       
-      // Get the current origin for the redirect URL
-      const redirectUrl = `${window.location.origin}/auth/callback`;
-      // Construct proper OAuth URL with correct redirect 
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      if (!supabaseUrl) {
-        throw new Error('Missing Supabase configuration');
+      if (error) throw error;
+      
+      if (data) {
+        console.log('GitHub login initiated');
+        // Will redirect to GitHub
       }
-      
-      window.location.href = `${supabaseUrl}/auth/v1/authorize?provider=github&redirect_to=${encodeURIComponent(redirectUrl)}`;
-      
     } catch (error: any) {
-      console.error('GitHub login error:', error);
       setError({
         type: 'general',
         message: error.message || 'Failed to login with GitHub'
@@ -188,22 +189,23 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
   };
 
   const handleGoogleLogin = async () => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
-      setError(null);
+      // Use OAuth with Supabase instead
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: 'https://gtqeeihydjqvidqleawe.supabase.co/auth/v1/callback'
+        }
+      });
       
-      // Get the current origin for the redirect URL
-      const redirectUrl = `${window.location.origin}/auth/callback`;
-      // Construct proper OAuth URL with correct redirect
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      if (!supabaseUrl) {
-        throw new Error('Missing Supabase configuration');
+      if (error) throw error;
+      
+      if (data) {
+        console.log('Google login initiated');
+        // Will redirect to Google
       }
-      
-      window.location.href = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectUrl)}`;
-      
     } catch (error: any) {
-      console.error('Google login error:', error);
       setError({
         type: 'general',
         message: error.message || 'Failed to login with Google'
@@ -225,43 +227,6 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
       setError({
         type: 'general',
         message: 'Wallet connection failed'
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleAnonymousLogin = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      // Call the anonymous sign-in API endpoint
-      const response = await fetch('/api/auth/anonymous-signin', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`API returned status ${response.status}`);
-      }
-
-      const result = await response.json();
-
-      if (result.success) {
-        console.log('Signed in anonymously:', result.user);
-        onClose();
-        window.location.href = '/dashboard';
-      } else {
-        throw new Error(result.message || 'Failed to sign in anonymously');
-      }
-    } catch (error: any) {
-      console.error('Anonymous login error:', error);
-      setError({
-        type: 'general',
-        message: error.message || 'Failed to login anonymously'
       });
     } finally {
       setIsLoading(false);
@@ -445,14 +410,6 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
                 leftIcon={<Wallet className="h-5 w-5" />}
               >
                 Connect Tonkeeper
-              </Button>
-
-              <Button
-                variant="secondary"
-                className="w-full"
-                onClick={handleAnonymousLogin}
-              >
-                Sign in Anonymously
               </Button>
             </div>
 

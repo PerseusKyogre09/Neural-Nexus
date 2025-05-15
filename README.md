@@ -73,8 +73,14 @@ We're inspired by the 'Radio on the Internet' concept for AI—powered by strate
       - Go to Authentication > Providers
       - Enable Email, Google, GitHub, etc. as needed
       - Configure OAuth credentials for third-party providers
-      - For GitHub & Google OAuth, set the callback URL to: `https://your-supabase-project.supabase.co/auth/v1/callback`
-      - For production, set your Redirect URL in provider settings to: `https://your-site-domain.com/auth/callback`
+      - **For GitHub OAuth**: 
+        - Go to your GitHub account > Settings > Developer settings > OAuth Apps > New OAuth App
+        - Set the callback URL to exactly: `https://[YOUR-PROJECT-REF].supabase.co/auth/v1/callback`
+        - Copy the Client ID and Client Secret to Supabase GitHub provider settings
+        - It's critical that the callback URL matches exactly what Supabase expects
+      - **For Google OAuth**:
+        - Set the callback URL to exactly: `https://[YOUR-PROJECT-REF].supabase.co/auth/v1/callback`
+        - Make sure to add the same domain to your authorized redirect URIs
       
    e. Enable anonymous authentication:
       - Go to Authentication > Providers
