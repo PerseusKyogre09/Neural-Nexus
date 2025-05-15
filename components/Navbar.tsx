@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Menu, X, User, Settings, LogOut, BarChart2, Key } from 'lucide-react';
 import Brand from './Brand';
 import dynamic from 'next/dynamic';
+import { useAppContext } from '@/providers/AppProvider';
+import { useRouter } from 'next/navigation';
 
 // Import SimpleCryptoButton using dynamic import to avoid SSR issues
 const SimpleCryptoButton = dynamic(
@@ -17,6 +19,10 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+  const { user, signOut } = useAppContext();
+  const router = useRouter();
 
   useEffect(() => {
     setIsMounted(true);
@@ -25,9 +31,27 @@ const Navbar = () => {
       setIsScrolled(window.scrollY > 10);
     };
 
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setProfileMenuOpen(false);
+      }
+    };
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
+
+  const handleLogout = async () => {
+    if (signOut) {
+      await signOut();
+      router.push('/');
+    }
+  };
 
   const navLinks = [
     { href: '/hosting', label: 'Hosting' },
@@ -36,7 +60,7 @@ const Navbar = () => {
     { href: '/open-source-models', label: 'Open Source Models' },
     { href: '/open-source', label: 'Open Source' },
     { href: '/pricing', label: 'Pricing' },
-    { href: '/api-docs', label: 'API' },
+    { href: '/api', label: 'API' },
     { href: '/about', label: 'About' },
     { href: '/careers', label: 'Careers' }
   ];
@@ -69,12 +93,92 @@ const Navbar = () => {
               </Link>
             ))}
             
-            <Link
-              href="/signup"
-              className="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium hover:from-cyan-600 hover:to-blue-600 transition-all transform hover:scale-105"
-            >
-              Get Started
-            </Link>
+            {user ? (
+              <div className="relative" ref={profileMenuRef}>
+                <button
+                  onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                  className="relative flex items-center focus:outline-none"
+                  aria-label="Open user menu"
+                >
+                  {user.photoURL ? (
+                    <img 
+                      src={user.photoURL} 
+                      alt="Profile"
+                      className="w-8 h-8 rounded-full object-cover border-2 border-purple-500"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white">
+                      {user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'}
+                    </div>
+                  )}
+                </button>
+                
+                <AnimatePresence>
+                  {profileMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-0 mt-2 w-48 bg-gray-900 rounded-xl shadow-lg overflow-hidden border border-gray-700 z-50"
+                    >
+                      <div className="border-b border-gray-700 p-3">
+                        <p className="font-medium">{user.displayName || 'User'}</p>
+                        <p className="text-sm text-gray-400 truncate">{user.email}</p>
+                      </div>
+                      <div className="py-1">
+                        <Link
+                          href="/dashboard"
+                          className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 transition-colors flex items-center"
+                          onClick={() => setProfileMenuOpen(false)}
+                        >
+                          <BarChart2 className="w-4 h-4 mr-2" />
+                          Dashboard
+                        </Link>
+                        <Link
+                          href="/dashboard?tab=api"
+                          className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 transition-colors flex items-center"
+                          onClick={() => setProfileMenuOpen(false)}
+                        >
+                          <Key className="w-4 h-4 mr-2" />
+                          API Keys
+                        </Link>
+                        <Link
+                          href="/profile"
+                          className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 transition-colors flex items-center"
+                          onClick={() => setProfileMenuOpen(false)}
+                        >
+                          <User className="w-4 h-4 mr-2" />
+                          Profile
+                        </Link>
+                        <Link
+                          href="/dashboard?tab=settings"
+                          className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 transition-colors flex items-center"
+                          onClick={() => setProfileMenuOpen(false)}
+                        >
+                          <Settings className="w-4 h-4 mr-2" />
+                          Settings
+                        </Link>
+                        <button
+                          onClick={handleLogout}
+                          className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-gray-800 transition-colors flex items-center"
+                        >
+                          <LogOut className="w-4 h-4 mr-2" />
+                          Logout
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <Link
+                href="/signup"
+                className="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium hover:from-cyan-600 hover:to-blue-600 transition-all transform hover:scale-105"
+              >
+                Get Started
+              </Link>
+            )}
           </div>
 
           {/* Mobile Navigation Button */}
@@ -109,13 +213,77 @@ const Navbar = () => {
               </Link>
             ))}
             
-            <Link
-              href="/signup"
-              className="block px-3 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium hover:from-cyan-600 hover:to-blue-600 transition-all"
-              onClick={() => setIsOpen(false)}
-            >
-              Get Started
-            </Link>
+            {user ? (
+              <>
+                <div className="px-3 py-2 border-t border-gray-700 mt-2 pt-2">
+                  <div className="flex items-center mb-2">
+                    {user.photoURL ? (
+                      <img 
+                        src={user.photoURL} 
+                        alt="Profile"
+                        className="w-8 h-8 rounded-full object-cover border-2 border-purple-500"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white">
+                        {user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'}
+                      </div>
+                    )}
+                    <div className="ml-2">
+                      <p className="font-medium text-sm">{user.displayName || 'User'}</p>
+                      <p className="text-xs text-gray-400 truncate">{user.email}</p>
+                    </div>
+                  </div>
+                  
+                  <Link
+                    href="/dashboard"
+                    className="block px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800 transition-colors flex items-center"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <BarChart2 className="w-4 h-4 mr-2" />
+                    Dashboard
+                  </Link>
+                  <Link
+                    href="/dashboard?tab=api"
+                    className="block px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800 transition-colors flex items-center"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <Key className="w-4 h-4 mr-2" />
+                    API Keys
+                  </Link>
+                  <Link
+                    href="/profile"
+                    className="block px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800 transition-colors flex items-center"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <User className="w-4 h-4 mr-2" />
+                    Profile
+                  </Link>
+                  <Link
+                    href="/dashboard?tab=settings"
+                    className="block px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800 transition-colors flex items-center"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <Settings className="w-4 h-4 mr-2" />
+                    Settings
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-3 py-2 rounded-lg text-red-400 hover:bg-gray-800 transition-colors flex items-center"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
+                  </button>
+                </div>
+              </>
+            ) : (
+              <Link
+                href="/signup"
+                className="block px-3 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium hover:from-cyan-600 hover:to-blue-600 transition-all"
+                onClick={() => setIsOpen(false)}
+              >
+                Get Started
+              </Link>
+            )}
           </div>
         </motion.div>
       </div>

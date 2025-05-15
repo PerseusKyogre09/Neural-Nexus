@@ -9,7 +9,8 @@ import { AnimatedCard } from '@/components/ui/animated-card';
 import { 
   Plus, Upload, Zap, Users, DollarSign, 
   BarChart2, TrendingUp, Clock, Diamond, Settings,
-  Layers, Database, Award, Bookmark, Eye, AlertTriangle
+  Layers, Database, Award, Bookmark, Eye, AlertTriangle,
+  Key, Copy, RefreshCw, Trash2, Code, Lock
 } from 'lucide-react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
@@ -135,6 +136,7 @@ export default function DashboardPage() {
     { id: 'models', label: 'My Models', icon: <Database className="h-4 w-4 mr-2" /> },
     { id: 'sales', label: 'Sales', icon: <DollarSign className="h-4 w-4 mr-2" /> },
     { id: 'customers', label: 'Customers', icon: <Users className="h-4 w-4 mr-2" /> },
+    { id: 'api', label: 'API Keys', icon: <Key className="h-4 w-4 mr-2" /> },
     { id: 'settings', label: 'Settings', icon: <Settings className="h-4 w-4 mr-2" /> }
   ];
   
@@ -366,6 +368,274 @@ export default function DashboardPage() {
             
             {activeTab === 'customers' && (
               <CustomerManagement />
+            )}
+            
+            {activeTab === 'api' && (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold">API Keys</h2>
+                    <p className="text-gray-400">Manage your API keys for integrating with Neural Nexus</p>
+                  </div>
+                  
+                  <AnimatedButton
+                    variant="primary"
+                    size="sm"
+                    className="flex-shrink-0 flex items-center gap-2"
+                  >
+                    <Key className="h-4 w-4" />
+                    Create New API Key
+                  </AnimatedButton>
+                </div>
+                
+                {/* API Keys Overview */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                  <AnimatedCard className="p-5">
+                    <div className="flex flex-col">
+                      <h3 className="text-sm font-medium text-gray-400">Available API Calls</h3>
+                      <p className="text-2xl font-bold mt-2">4,230 / 5,000</p>
+                      <div className="w-full h-2 bg-gray-700 rounded-full mt-2 overflow-hidden">
+                        <div className="bg-purple-500 h-full rounded-full" style={{ width: "85%" }}></div>
+                      </div>
+                      <p className="text-xs text-gray-400 mt-1">Resets in 14 days</p>
+                    </div>
+                  </AnimatedCard>
+                  
+                  <AnimatedCard className="p-5">
+                    <div className="flex flex-col">
+                      <h3 className="text-sm font-medium text-gray-400">Current Pricing</h3>
+                      <p className="text-2xl font-bold mt-2">$0.001</p>
+                      <p className="text-sm text-gray-400 mt-1">Per 1000 tokens</p>
+                      <Link href="/pricing" className="text-purple-400 text-xs mt-1 flex items-center">
+                        <span>View pricing plans</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </Link>
+                    </div>
+                  </AnimatedCard>
+                  
+                  <AnimatedCard className="p-5">
+                    <div className="flex flex-col">
+                      <h3 className="text-sm font-medium text-gray-400">Usage This Month</h3>
+                      <p className="text-2xl font-bold mt-2">$1.25</p>
+                      <p className="text-xs text-gray-400 mt-1">1,250,000 tokens processed</p>
+                      <p className="text-xs text-green-400 mt-1">Free tier: No charges</p>
+                    </div>
+                  </AnimatedCard>
+                </div>
+                
+                {/* API Keys Table */}
+                <AnimatedCard className="overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-800">
+                      <thead className="bg-gray-800/50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                            Name
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                            Key
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                            Created
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                            Last Used
+                          </th>
+                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-800">
+                        <tr className="bg-gray-900/30 hover:bg-gray-800/30 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="ml-0">
+                                <p className="text-sm font-medium">Development Key</p>
+                                <span className="px-2 py-1 text-xs rounded-full bg-blue-500/20 text-blue-400">
+                                  Default
+                                </span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <p className="text-sm font-mono bg-gray-800 px-3 py-1 rounded">NN-xk2s8d9f7g3h5j2k4...</p>
+                              <button 
+                                className="ml-2 p-1 hover:bg-gray-800 rounded-md transition-colors"
+                                aria-label="Copy API key"
+                              >
+                                <Copy className="h-4 w-4 text-gray-400" />
+                              </button>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <p className="text-sm">2023-11-15</p>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <p className="text-sm">2024-05-28</p>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right">
+                            <div className="flex items-center justify-end space-x-2">
+                              <button 
+                                className="p-1 hover:bg-gray-700 rounded-lg transition-colors"
+                                aria-label="Refresh API key"
+                              >
+                                <RefreshCw className="h-4 w-4 text-gray-400" />
+                              </button>
+                              <button 
+                                className="p-1 hover:bg-gray-700 rounded-lg transition-colors"
+                                aria-label="Delete API key"
+                              >
+                                <Trash2 className="h-4 w-4 text-red-400" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr className="bg-gray-800/10 hover:bg-gray-800/30 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="ml-0">
+                                <p className="text-sm font-medium">Production Key</p>
+                                <span className="px-2 py-1 text-xs rounded-full bg-green-500/20 text-green-400">
+                                  Restricted
+                                </span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <p className="text-sm font-mono bg-gray-800 px-3 py-1 rounded">NN-p9q8r7s6t5u4v3w2...</p>
+                              <button 
+                                className="ml-2 p-1 hover:bg-gray-800 rounded-md transition-colors"
+                                aria-label="Copy API key"
+                              >
+                                <Copy className="h-4 w-4 text-gray-400" />
+                              </button>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <p className="text-sm">2024-02-03</p>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <p className="text-sm">2024-05-26</p>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right">
+                            <div className="flex items-center justify-end space-x-2">
+                              <button 
+                                className="p-1 hover:bg-gray-700 rounded-lg transition-colors"
+                                aria-label="Refresh API key"
+                              >
+                                <RefreshCw className="h-4 w-4 text-gray-400" />
+                              </button>
+                              <button 
+                                className="p-1 hover:bg-gray-700 rounded-lg transition-colors"
+                                aria-label="Delete API key"
+                              >
+                                <Trash2 className="h-4 w-4 text-red-400" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </AnimatedCard>
+                
+                {/* API Documentation */}
+                <AnimatedCard className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 bg-purple-500/10 rounded-lg">
+                      <Code className="h-5 w-5 text-purple-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-medium">API Documentation</h3>
+                      <p className="text-sm text-gray-400 my-2">
+                        Check out our comprehensive API documentation to learn how to integrate Neural Nexus models into your applications.
+                      </p>
+                      <div className="bg-gray-800/50 p-4 rounded-md my-4">
+                        <p className="text-sm font-medium mb-2">Authentication Example:</p>
+                        <pre className="bg-gray-900 p-3 rounded-md text-xs overflow-x-auto">
+                          <code>
+                            // JavaScript example<br/>
+                            const response = await fetch('https://api.neuralnexus.ai/v1/models', &#123;<br/>
+                            &nbsp;&nbsp;headers: &#123;<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;'Authorization': 'Bearer YOUR_API_KEY'<br/>
+                            &nbsp;&nbsp;&#125;<br/>
+                            &#125;);
+                          </code>
+                        </pre>
+                      </div>
+                      <Link href="/api" className="text-purple-400 hover:text-purple-300 text-sm flex items-center">
+                        View full documentation
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </Link>
+                    </div>
+                  </div>
+                </AnimatedCard>
+                
+                {/* Client Secret & Callback URLs */}
+                <AnimatedCard className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 bg-yellow-500/10 rounded-lg">
+                      <Lock className="h-5 w-5 text-yellow-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-medium">Client Secret & Callback URLs</h3>
+                      <p className="text-sm text-gray-400 my-2">
+                        For OAuth applications, use the client secret and configure your callback URLs below.
+                      </p>
+                      
+                      <div className="space-y-4 mt-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-400 mb-1">Client Secret</label>
+                          <div className="flex items-center">
+                            <p className="text-sm font-mono bg-gray-800 px-3 py-2 rounded flex-1">
+                              nn_client_secret_k4j5h6g7f8d9s0a1...</p>
+                            <button 
+                              className="ml-2 p-1 hover:bg-gray-800 rounded-md transition-colors"
+                              aria-label="Copy client secret"
+                            >
+                              <Copy className="h-4 w-4 text-gray-400" />
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-400 mb-1">Callback URLs</label>
+                          <div className="flex items-center">
+                            <input 
+                              type="text" 
+                              value="https://myapp.example.com/callback"
+                              placeholder="Enter callback URL"
+                              className="bg-gray-800/80 border border-gray-700 rounded-lg py-2 px-3 text-sm w-full focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            />
+                            <button 
+                              className="ml-2 p-2 bg-purple-500 hover:bg-purple-600 rounded-md transition-colors"
+                              aria-label="Add callback URL"
+                            >
+                              <Plus className="h-4 w-4 text-white" />
+                            </button>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Add multiple callback URLs for your OAuth application
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-4">
+                        <AnimatedButton variant="outline" size="sm">
+                          Save Settings
+                        </AnimatedButton>
+                      </div>
+                    </div>
+                  </div>
+                </AnimatedCard>
+              </div>
             )}
             
             {activeTab === 'settings' && (

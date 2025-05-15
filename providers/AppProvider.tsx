@@ -66,6 +66,7 @@ interface AppContextProps {
   connectWallet: (address: string) => void;
   disconnectWallet: () => void;
   toggleTheme: () => void;
+  signOut: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContextProps>({
@@ -78,6 +79,7 @@ const AppContext = createContext<AppContextProps>({
   connectWallet: () => {},
   disconnectWallet: () => {},
   toggleTheme: () => {},
+  signOut: async () => {},
 });
 
 export const useAppContext = () => {
@@ -236,6 +238,17 @@ export default function AppProvider({ children }: { children: ReactNode }) {
     }
   };
   
+  // Implement signOut method
+  const signOut = async () => {
+    try {
+      await auth.signOut();
+      // Disconnect wallet if connected
+      disconnectWallet();
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+  
   // Add Web3 integration
   const appContextValue = {
     user,
@@ -247,6 +260,7 @@ export default function AppProvider({ children }: { children: ReactNode }) {
     connectWallet,
     disconnectWallet,
     toggleTheme,
+    signOut
   };
 
   return (
