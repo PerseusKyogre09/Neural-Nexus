@@ -54,11 +54,7 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
         return false;
       }
       
-      // Validate last name
-      if (!formData.lastName.trim()) {
-        setError({ type: 'lastName', message: 'Last name is required' });
-        return false;
-      }
+      // Last name is now optional, so we don't validate it here
     }
 
     // Email validation
@@ -290,9 +286,8 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
                     value={formData.lastName}
                     onChange={handleInputChange}
                     leftIcon={<User className="h-5 w-5" />}
-                    placeholder="Enter your last name"
+                    placeholder="Enter your last name (optional)"
                     error={error?.type === 'lastName' ? error.message : undefined}
-                    required
                   />
                 </>
               )}

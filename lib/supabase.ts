@@ -53,7 +53,7 @@ function createPlaceholderClient() {
 export const signUpWithSupabase = async (
   email: string, 
   password: string, 
-  metadata: { first_name: string; last_name: string; display_name?: string }
+  metadata: { first_name: string; last_name?: string; display_name?: string }
 ) => {
   try {
     // Sign up with Supabase
@@ -61,7 +61,11 @@ export const signUpWithSupabase = async (
       email,
       password,
       options: {
-        data: metadata,
+        data: {
+          first_name: metadata.first_name,
+          last_name: metadata.last_name || '',
+          display_name: metadata.display_name || (metadata.last_name ? `${metadata.first_name} ${metadata.last_name}` : metadata.first_name)
+        },
         emailRedirectTo: `${window.location.origin}/auth/callback`
       }
     });

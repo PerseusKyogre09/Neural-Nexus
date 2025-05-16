@@ -501,7 +501,7 @@ export default function DashboardPage() {
                                 <p className="text-sm font-medium">Production Key</p>
                                 <span className="px-2 py-1 text-xs rounded-full bg-green-500/20 text-green-400">
                                   Restricted
-                                </span>
+                            </span>
                               </div>
                             </div>
                           </td>
@@ -631,9 +631,9 @@ export default function DashboardPage() {
                         <AnimatedButton variant="outline" size="sm">
                           Save Settings
                         </AnimatedButton>
-                      </div>
-                    </div>
-                  </div>
+                </div>
+              </div>
+              </div>
                 </AnimatedCard>
               </div>
             )}

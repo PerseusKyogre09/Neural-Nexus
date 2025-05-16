@@ -8,10 +8,26 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
-    // Initialize Supabase admin client
+    // Get Supabase credentials from environment variables
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    // If environment variables are not set, use fallback values for development
+    // In production, these should be properly configured
+    const fallbackUrl = 'https://gtqeeihydjqvidqleawe.supabase.co';
+    const fallbackKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0cWVlaWh5ZGpxdmlkcWxlYXdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDYwNTk5NTQsImV4cCI6MjAyMTYzNTk1NH0.SSUgWgNpaxwRGkbhxVCZtomk_M7jaesZ_tLCzYVn8jg';
+    
+    const finalSupabaseUrl = supabaseUrl || fallbackUrl;
+    const finalSupabaseKey = supabaseServiceKey || fallbackKey;
+    
+    console.log('Supabase URL:', finalSupabaseUrl.substring(0, 15) + '...');
+    console.log('Using service role key:', !!supabaseServiceKey);
+    console.log('Using anon key fallback:', !supabaseServiceKey && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    
+    // Initialize Supabase client
     const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      finalSupabaseUrl,
+      finalSupabaseKey,
       {
         auth: {
           autoRefreshToken: false,
@@ -22,64 +38,101 @@ export async function POST(req: NextRequest) {
     );
     
     // Parse request body
-    const { firstName, lastName, email, password, displayName } = await req.json();
+    let body;
+    try {
+      body = await req.json();
+    } catch (error) {
+      console.error('Error parsing request body:', error);
+      return NextResponse.json({
+        success: false,
+        message: 'Invalid request body'
+      }, { status: 400 });
+    }
+    
+    const { firstName, lastName, email, password, displayName } = body;
     
     // Validate required fields
-    if (!email || !password || !firstName || !lastName) {
+    if (!email || !password || !firstName) {
       return NextResponse.json({
-        message: 'Missing required fields',
+        message: 'Email, password, and first name are required',
         success: false
       }, { status: 400 });
     }
     
-    console.log('Creating user with Supabase:', { email, firstName, lastName });
+    // Set first and last name - last name is optional
+    const userFirstName = firstName;
+    const userLastName = lastName || '';
+    // Create display name, accounting for possibly empty last name
+    const userDisplayName = displayName || (userLastName ? `${userFirstName} ${userLastName}` : userFirstName).trim();
     
-    // Create the user with Supabase
-    const { data, error } = await supabaseAdmin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true, // Auto-confirm email
-      user_metadata: {
-        first_name: firstName,
-        last_name: lastName,
-        display_name: displayName
-      }
-    });
+    console.log('Creating user with Supabase:', { email, firstName: userFirstName, lastName: userLastName });
     
-    if (error) {
-      console.error('Supabase signup error:', error);
-      return NextResponse.json({
-        message: error.message,
-        success: false
-      }, { status: 400 });
-    }
+    // Determine which method to use based on key type
+    let userData;
+    let userError; 
     
-    console.log('User created successfully:', data.user.id);
+    // Check if we have admin permissions or need to use regular signup
+    const isAdmin = finalSupabaseKey.includes('service_role') || finalSupabaseKey === fallbackKey;
     
-    // Create user profile in Supabase database - create table if it doesn't exist first
-    try {
-      // Check if table exists and create it if not
-      const { error: tableExistsError } = await supabaseAdmin.rpc('check_table_exists', { 
-        table_name: 'user_profiles' 
-      });
-      
-      if (tableExistsError) {
-        // Create the table
-        const { error: createTableError } = await supabaseAdmin.rpc('create_user_profiles_table');
-        
-        if (createTableError) {
-          console.error('Error creating user_profiles table:', createTableError);
+    if (isAdmin) {
+      // Use admin API to create user
+      const { data, error } = await supabaseAdmin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true, // Auto-confirm email
+        user_metadata: {
+          first_name: userFirstName,
+          last_name: userLastName,
+          display_name: userDisplayName
         }
-      }
-      
-      // Insert the user profile
+      });
+      userData = data;
+      userError = error;
+    } else {
+      // Use regular signup
+      const { data, error } = await supabaseAdmin.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            first_name: userFirstName,
+            last_name: userLastName,
+            display_name: userDisplayName
+          }
+        }
+      });
+      userData = data;
+      userError = error;
+    }
+    
+    if (userError) {
+      console.error('Supabase signup error:', userError);
+      return NextResponse.json({
+        message: userError.message,
+        success: false
+      }, { status: 400 });
+    }
+    
+    if (!userData || !userData.user) {
+      console.error('No user returned from Supabase');
+      return NextResponse.json({
+        message: 'Failed to create user account',
+        success: false
+      }, { status: 500 });
+    }
+    
+    console.log('User created successfully:', userData.user.id);
+    
+    // Create user profile in Supabase database (if table exists)
+    try {
+      // Check if table exists
       const { error: profileError } = await supabaseAdmin
         .from('user_profiles')
         .insert({
-          user_id: data.user.id,
-          first_name: firstName,
-          last_name: lastName,
-          display_name: displayName || firstName,
+          user_id: userData.user.id,
+          first_name: userFirstName,
+          last_name: userLastName,
+          display_name: userDisplayName || userFirstName,
           email: email,
           created_at: new Date().toISOString()
         });
@@ -97,11 +150,11 @@ export async function POST(req: NextRequest) {
       message: 'User registered successfully',
       success: true,
       user: {
-        id: data.user.id,
-        email: data.user.email,
-        firstName,
-        lastName,
-        displayName: displayName || firstName
+        id: userData.user.id,
+        email: userData.user.email,
+        firstName: userFirstName,
+        lastName: userLastName,
+        displayName: userDisplayName
       }
     }, { status: 201 });
     
