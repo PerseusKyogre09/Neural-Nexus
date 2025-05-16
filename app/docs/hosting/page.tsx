@@ -365,6 +365,362 @@ export default function HostingDocsPage() {
                     </p>
                   </div>
                 </DocSection>
+                
+                <DocSection
+                  id="scaling"
+                  title="Scaling & Performance"
+                  icon={<Cpu className="h-6 w-6 text-yellow-400" />}
+                  isActive={activeSection === 'scaling'}
+                >
+                  <h3 className="text-xl font-medium mb-3 text-yellow-300">Optimizing Model Performance</h3>
+                  <p className="mb-4">
+                    Neural Nexus provides multiple tools and techniques to optimize your model's performance and scale efficiently as your traffic grows.
+                  </p>
+                  
+                  <div className="space-y-6 mb-6">
+                    <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+                      <h4 className="font-medium text-blue-400 mb-2">Automatic Scaling</h4>
+                      <p className="text-sm mb-3">
+                        Our platform automatically scales your model based on incoming traffic, ensuring optimal performance while minimizing costs.
+                      </p>
+                      <div className="bg-gray-900 p-3 rounded-md">
+                        <h5 className="text-sm font-medium text-purple-300 mb-2">Scaling Parameters</h5>
+                        <ul className="text-xs space-y-2">
+                          <li><span className="text-pink-400 font-mono">min_replicas</span>: Minimum number of instances (default: 1)</li>
+                          <li><span className="text-pink-400 font-mono">max_replicas</span>: Maximum number of instances (default: 10)</li>
+                          <li><span className="text-pink-400 font-mono">target_concurrency</span>: Target requests per replica (default: 30)</li>
+                          <li><span className="text-pink-400 font-mono">scale_down_delay</span>: Time to wait before scaling down (default: 300s)</li>
+                        </ul>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+                      <h4 className="font-medium text-blue-400 mb-2">Model Optimization Techniques</h4>
+                      <p className="text-sm mb-3">
+                        Improve your model's performance with these optimization techniques:
+                      </p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-gray-900 p-3 rounded-md">
+                          <h5 className="text-sm font-medium text-green-300 mb-2">Quantization</h5>
+                          <p className="text-xs">
+                            Reduce model size and improve inference speed by converting weights from float32 to int8 or other precision formats.
+                            Our platform supports post-training quantization and quantization-aware training.
+                          </p>
+                        </div>
+                        <div className="bg-gray-900 p-3 rounded-md">
+                          <h5 className="text-sm font-medium text-green-300 mb-2">Pruning</h5>
+                          <p className="text-xs">
+                            Remove unnecessary weights from your model to reduce size and computational requirements
+                            while maintaining accuracy.
+                          </p>
+                        </div>
+                        <div className="bg-gray-900 p-3 rounded-md">
+                          <h5 className="text-sm font-medium text-green-300 mb-2">KV Caching</h5>
+                          <p className="text-xs">
+                            For transformer models, our platform automatically implements key-value caching to
+                            significantly speed up sequential inference operations.
+                          </p>
+                        </div>
+                        <div className="bg-gray-900 p-3 rounded-md">
+                          <h5 className="text-sm font-medium text-green-300 mb-2">Batching</h5>
+                          <p className="text-xs">
+                            Our platform implements dynamic batching to process multiple requests together,
+                            significantly improving throughput for high-traffic models.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+                      <h4 className="font-medium text-blue-400 mb-2">Load Balancing & High Availability</h4>
+                      <p className="text-sm mb-3">
+                        Neural Nexus automatically distributes traffic across multiple replicas and regions to ensure high availability and performance.
+                      </p>
+                      <ul className="text-sm space-y-2">
+                        <li className="flex items-start">
+                          <span className="text-green-400 mr-2">✓</span>
+                          <span>Global load balancing with automatic failover</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-green-400 mr-2">✓</span>
+                          <span>Multi-region deployment options for disaster recovery</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-green-400 mr-2">✓</span>
+                          <span>Health checks and automatic instance replacement</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-green-400 mr-2">✓</span>
+                          <span>99.9% uptime SLA for enterprise customers</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-blue-900/20 border border-blue-900/30 rounded-lg p-4">
+                    <h4 className="font-medium text-blue-300 mb-2">Performance Benchmarking</h4>
+                    <p className="text-sm text-gray-300">
+                      Use our benchmarking tools to test your model's performance across different hardware configurations
+                      and optimization settings. This can help you identify the optimal setup for your specific use case.
+                      Access the benchmarking tools through the dashboard or via our API.
+                    </p>
+                  </div>
+                </DocSection>
+                
+                <DocSection
+                  id="security"
+                  title="Security & Compliance"
+                  icon={<Shield className="h-6 w-6 text-red-400" />}
+                  isActive={activeSection === 'security'}
+                >
+                  <h3 className="text-xl font-medium mb-3 text-red-300">Enterprise-Grade Security</h3>
+                  <p className="mb-4">
+                    Neural Nexus implements comprehensive security measures to protect your models and data
+                    throughout the deployment lifecycle.
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+                      <h4 className="font-medium text-purple-300 mb-2">Data Protection</h4>
+                      <ul className="text-sm space-y-2">
+                        <li className="flex items-start">
+                          <span className="text-green-400 mr-2">✓</span>
+                          <span>Encryption at rest and in transit (TLS 1.3, AES-256)</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-green-400 mr-2">✓</span>
+                          <span>Private VPC deployments for network isolation</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-green-400 mr-2">✓</span>
+                          <span>Customer-managed encryption keys (CMEK)</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-green-400 mr-2">✓</span>
+                          <span>Secure model artifact storage</span>
+                        </li>
+                      </ul>
+                    </div>
+                    
+                    <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+                      <h4 className="font-medium text-purple-300 mb-2">Access Control</h4>
+                      <ul className="text-sm space-y-2">
+                        <li className="flex items-start">
+                          <span className="text-green-400 mr-2">✓</span>
+                          <span>Role-based access control (RBAC)</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-green-400 mr-2">✓</span>
+                          <span>Multi-factor authentication (MFA)</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-green-400 mr-2">✓</span>
+                          <span>API key rotation and management</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-green-400 mr-2">✓</span>
+                          <span>Single Sign-On (SSO) integration</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  
+                  <h4 className="text-lg font-medium mb-3 text-orange-300">Compliance Certifications</h4>
+                  <p className="mb-4">
+                    Neural Nexus maintains compliance with industry standards and regulations to support your
+                    security and compliance requirements.
+                  </p>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div className="bg-gray-800/50 p-3 rounded-lg border border-gray-700 text-center">
+                      <h5 className="font-medium text-white">SOC 2 Type II</h5>
+                      <p className="text-xs text-gray-400 mt-1">Security & Availability</p>
+                    </div>
+                    <div className="bg-gray-800/50 p-3 rounded-lg border border-gray-700 text-center">
+                      <h5 className="font-medium text-white">HIPAA</h5>
+                      <p className="text-xs text-gray-400 mt-1">Healthcare Data</p>
+                    </div>
+                    <div className="bg-gray-800/50 p-3 rounded-lg border border-gray-700 text-center">
+                      <h5 className="font-medium text-white">GDPR</h5>
+                      <p className="text-xs text-gray-400 mt-1">Data Privacy</p>
+                    </div>
+                    <div className="bg-gray-800/50 p-3 rounded-lg border border-gray-700 text-center">
+                      <h5 className="font-medium text-white">ISO 27001</h5>
+                      <p className="text-xs text-gray-400 mt-1">Information Security</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700 mb-6">
+                    <h4 className="font-medium text-blue-300 mb-2">Security Best Practices</h4>
+                    <p className="text-sm mb-3">
+                      Follow these best practices to enhance the security of your deployed models:
+                    </p>
+                    <ul className="text-sm space-y-2">
+                      <li className="flex items-start">
+                        <span className="text-yellow-400 mr-2">1.</span>
+                        <span>Implement API key rotation on a regular schedule</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-yellow-400 mr-2">2.</span>
+                        <span>Use the principle of least privilege when assigning permissions</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-yellow-400 mr-2">3.</span>
+                        <span>Enable audit logging for all API operations</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-yellow-400 mr-2">4.</span>
+                        <span>Set up alerting for suspicious activities or unusual traffic patterns</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-yellow-400 mr-2">5.</span>
+                        <span>Implement input validation to prevent prompt injection attacks</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <div className="bg-red-900/20 border border-red-900/30 rounded-lg p-4">
+                    <h4 className="font-medium text-red-300 mb-2">Data Residency & Sovereignty</h4>
+                    <p className="text-sm text-gray-300">
+                      For customers with specific data residency requirements, we offer region-specific deployments
+                      in North America, Europe, and Asia Pacific. Enterprise customers can also implement custom
+                      data handling policies to comply with specific regulatory frameworks.
+                    </p>
+                  </div>
+                </DocSection>
+                
+                <DocSection
+                  id="monitoring"
+                  title="Monitoring & Analytics"
+                  icon={<Database className="h-6 w-6 text-blue-400" />}
+                  isActive={activeSection === 'monitoring'}
+                >
+                  <h3 className="text-xl font-medium mb-3 text-blue-300">Comprehensive Monitoring</h3>
+                  <p className="mb-4">
+                    Neural Nexus provides powerful monitoring and analytics tools to help you understand your model's
+                    performance, usage patterns, and potential issues.
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+                      <h4 className="font-medium text-green-300 mb-2">Performance Metrics</h4>
+                      <p className="text-sm mb-3">
+                        Track key performance indicators for your deployed models:
+                      </p>
+                      <ul className="text-sm space-y-2">
+                        <li className="flex items-start">
+                          <span className="text-pink-400 mr-2">•</span>
+                          <span>Average response time and p95/p99 latency</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-pink-400 mr-2">•</span>
+                          <span>Requests per second and throughput</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-pink-400 mr-2">•</span>
+                          <span>Memory and GPU utilization</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-pink-400 mr-2">•</span>
+                          <span>Error rates and types</span>
+                        </li>
+                      </ul>
+                    </div>
+                    
+                    <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+                      <h4 className="font-medium text-green-300 mb-2">Usage Analytics</h4>
+                      <p className="text-sm mb-3">
+                        Understand how your models are being used:
+                      </p>
+                      <ul className="text-sm space-y-2">
+                        <li className="flex items-start">
+                          <span className="text-pink-400 mr-2">•</span>
+                          <span>Total requests and tokens processed</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-pink-400 mr-2">•</span>
+                          <span>Usage patterns by time and region</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-pink-400 mr-2">•</span>
+                          <span>API key and endpoint usage breakdown</span>
+                        </li>
+                        <li className="flex items-start">
+                          <span className="text-pink-400 mr-2">•</span>
+                          <span>Cost analysis and optimization recommendations</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700 mb-6">
+                    <h4 className="font-medium text-purple-300 mb-2">Alerting & Notifications</h4>
+                    <p className="text-sm mb-3">
+                      Set up custom alerts to be notified about important events or issues:
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="bg-gray-900 p-3 rounded-md">
+                        <h5 className="text-sm font-medium text-blue-300 mb-2">Performance Alerts</h5>
+                        <ul className="text-xs space-y-1">
+                          <li>High latency thresholds exceeded</li>
+                          <li>Error rate spikes</li>
+                          <li>Resource utilization warnings</li>
+                        </ul>
+                      </div>
+                      <div className="bg-gray-900 p-3 rounded-md">
+                        <h5 className="text-sm font-medium text-blue-300 mb-2">Usage Alerts</h5>
+                        <ul className="text-xs space-y-1">
+                          <li>Budget thresholds reached</li>
+                          <li>Unusual traffic patterns</li>
+                          <li>API key usage anomalies</li>
+                        </ul>
+                      </div>
+                    </div>
+                    <p className="text-sm mt-3">
+                      Alerts can be delivered via email, Slack, webhook, or integrated with your existing monitoring systems.
+                    </p>
+                  </div>
+                  
+                  <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700 mb-6">
+                    <h4 className="font-medium text-purple-300 mb-2">Logging & Debugging</h4>
+                    <p className="text-sm mb-3">
+                      Comprehensive logging to help you troubleshoot issues:
+                    </p>
+                    <ul className="text-sm space-y-2">
+                      <li className="flex items-start">
+                        <span className="text-green-400 mr-2">✓</span>
+                        <span>Request and response logs with configurable verbosity</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-green-400 mr-2">✓</span>
+                        <span>Model execution logs with timing breakdowns</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-green-400 mr-2">✓</span>
+                        <span>System logs for infrastructure events</span>
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-green-400 mr-2">✓</span>
+                        <span>Log retention and export options</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <div className="bg-indigo-900/20 border border-indigo-900/30 rounded-lg p-4">
+                    <h4 className="font-medium text-indigo-300 mb-2">Integration with External Monitoring Tools</h4>
+                    <p className="text-sm text-gray-300">
+                      Neural Nexus monitoring can be integrated with popular monitoring and observability platforms:
+                    </p>
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      <span className="bg-indigo-900/30 text-indigo-300 px-2 py-1 rounded text-xs">Datadog</span>
+                      <span className="bg-indigo-900/30 text-indigo-300 px-2 py-1 rounded text-xs">Grafana</span>
+                      <span className="bg-indigo-900/30 text-indigo-300 px-2 py-1 rounded text-xs">New Relic</span>
+                      <span className="bg-indigo-900/30 text-indigo-300 px-2 py-1 rounded text-xs">Prometheus</span>
+                      <span className="bg-indigo-900/30 text-indigo-300 px-2 py-1 rounded text-xs">CloudWatch</span>
+                      <span className="bg-indigo-900/30 text-indigo-300 px-2 py-1 rounded text-xs">Splunk</span>
+                    </div>
+                  </div>
+                </DocSection>
               </div>
             </div>
           </div>
