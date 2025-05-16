@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Github, Mail, Lock, X, AlertCircle, User, Wallet } from 'lucide-react';
+import { Github, Mail, Lock, X, AlertCircle, User } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 // Import Supabase auth functions
@@ -47,42 +47,49 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
   };
 
   const validateForm = () => {
+    // Reset previous errors
+    setError(null);
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError({
+        type: 'email',
+        message: 'Please enter a valid email address'
+      });
+      return false;
+    }
+    
+    // Validate password
+    if (formData.password.length < 8) {
+      setError({
+        type: 'password',
+        message: 'Password must be at least 8 characters long'
+      });
+      return false;
+    }
+    
+    // Additional signup validation
     if (!isSignIn) {
       // Validate first name
       if (!formData.firstName.trim()) {
-        setError({ type: 'firstName', message: 'First name is required' });
+        setError({
+          type: 'firstName',
+          message: 'First name is required'
+        });
         return false;
       }
       
-      // Last name is now optional, so we don't validate it here
+      // Validate password confirmation
+      if (formData.password !== formData.confirmPassword) {
+        setError({
+          type: 'password',
+          message: 'Passwords do not match'
+        });
+        return false;
+      }
     }
-
-    // Email validation
-    if (!formData.email) {
-      setError({ type: 'email', message: 'Email is required' });
-      return false;
-    }
-    if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      setError({ type: 'email', message: 'Please enter a valid email address' });
-      return false;
-    }
-
-    // Password validation
-    if (!formData.password) {
-      setError({ type: 'password', message: 'Password is required' });
-      return false;
-    }
-    if (formData.password.length < 6) {
-      setError({ type: 'password', message: 'Password must be at least 6 characters' });
-      return false;
-    }
-
-    // Confirm password validation for sign up
-    if (!isSignIn && formData.password !== formData.confirmPassword) {
-      setError({ type: 'password', message: 'Passwords do not match' });
-      return false;
-    }
-
+    
     return true;
   };
 
@@ -206,25 +213,6 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
         type: 'general',
         message: error.message || 'Failed to login with Google'
       });
-      setIsLoading(false);
-    }
-  };
-
-  const handleTonkeeperLogin = async () => {
-    setError(null);
-    setIsLoading(true);
-    try {
-      // Using SimpleCryptoProvider instead of TonConnect
-      setError({
-        type: 'general',
-        message: 'Wallet connection is now available through the navbar using SimpleCryptoProvider'
-      });
-    } catch (err) {
-      setError({
-        type: 'general',
-        message: 'Wallet connection failed'
-      });
-    } finally {
       setIsLoading(false);
     }
   };
@@ -396,15 +384,6 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
                 }
               >
                 Continue with Google
-              </Button>
-
-              <Button
-                variant="secondary"
-                className="w-full"
-                onClick={handleTonkeeperLogin}
-                leftIcon={<Wallet className="h-5 w-5" />}
-              >
-                Connect Tonkeeper
               </Button>
             </div>
 

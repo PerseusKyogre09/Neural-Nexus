@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import SupabaseProvider from '@/providers/SupabaseProvider';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -44,6 +45,7 @@ export default function RootLayout({
               {children}
               <Toaster position="top-center" />
               <AgentKitUI />
+              <Analytics />
             </Providers>
           </Suspense>
         </SupabaseProvider>

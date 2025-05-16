@@ -60,6 +60,7 @@ const Navbar = () => {
     { href: '/open-source-models', label: 'Open Source Models' },
     { href: '/open-source', label: 'Open Source' },
     { href: '/pricing', label: 'Pricing' },
+    { href: '/playground', label: 'AI Playground' },
     { href: '/api', label: 'API' },
     { href: '/about', label: 'About' },
     { href: '/careers', label: 'Careers' }
