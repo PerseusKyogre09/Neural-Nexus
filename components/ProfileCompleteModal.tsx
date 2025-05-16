@@ -213,7 +213,7 @@ export default function ProfileCompleteModal({
                             value={profileData.email}
                             onChange={handleInputChange}
                             className="pl-10 w-full bg-gray-800/50 border border-gray-700 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                            placeholder="your.email@example.com"
+                            placeholder="name@yourdomain.com"
                             required
                           />
                         </div>

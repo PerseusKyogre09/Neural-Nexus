@@ -21,7 +21,9 @@ export default function CookiePolicy() {
             <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-blue-500 to-pink-500">
               Cookie Policy
             </h1>
-            <p className="text-gray-400">Last updated: {new Date().toLocaleDateString()}</p>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              Last updated: May 16, 2025
+            </p>
           </motion.div>
           
           <motion.div
@@ -150,7 +152,7 @@ export default function CookiePolicy() {
                 If you have any questions about our Cookie Policy, please contact us:
               </p>
               <ul className="list-disc pl-6 mb-4 space-y-2">
-                <li>By email: privacy@neuralnexus.ai</li>
+                <li>By email: mantejarora@gmail.com</li>
                 <li>By visiting the contact page on our website: <a href="/contact" className="text-blue-400 hover:text-blue-300 underline">Contact Us</a></li>
               </ul>
             </div>

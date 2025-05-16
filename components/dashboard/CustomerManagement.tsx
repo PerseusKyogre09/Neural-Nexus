@@ -70,7 +70,7 @@ export default function CustomerManagement() {
       return {
         id: `cust-${index + 100}`,
         name,
-        email: name.toLowerCase().replace(' ', '.') + '@example.com',
+        email: name.toLowerCase().replace(' ', '.') + '@yourdomain.com',
         avatar: Math.random() > 0.3 ? `https://i.pravatar.cc/150?u=${name.replace(' ', '')}` : undefined,
         totalSpent: Math.floor(Math.random() * 9900) + 100,
         purchaseCount: Math.floor(Math.random() * 20) + 1,

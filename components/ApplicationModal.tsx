@@ -211,7 +211,7 @@ export default function ApplicationModal({
                         id="email"
                         name="email"
                         className="w-full bg-gray-700/50 border border-gray-600 rounded-lg py-3 px-4 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                        placeholder="your.email@example.com"
+                        placeholder="name@yourdomain.com"
                         value={formState.email}
                         onChange={handleInputChange}
                         required

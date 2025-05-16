@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     
     // Generate random anonymous user details
     const anonymousId = `anon_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    const anonymousEmail = `${anonymousId}@neuralnexus.ai`;
+    const anonymousEmail = `${anonymousId}@example.com`;
     const anonymousPassword = `pw_${Math.random().toString(36).substring(2, 15)}`;
     const displayName = `Guest_${Math.random().toString(36).substring(2, 7)}`;
     

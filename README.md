@@ -265,9 +265,12 @@ These docs are here to ensure we're all on the same page, building a safe and cr
 Got ideas to make this even more lit? Drop a PR or issue. Let's build this together! 💡
 
 ### **Contributors**
-- **Mantej Singh** - Project Lead & Developer 🚀
-- **Fatima Kachhi** - Project Developer 🚀
-- **Avya Giri** - Developer
+
+Thanks to all our awesome contributors who are helping build Neural Nexus! 🔥
+
+<a href="https://github.com/Drago-03/Neural-Nexus/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Drago-03/Neural-Nexus" />
+</a>
 
 ## License
 

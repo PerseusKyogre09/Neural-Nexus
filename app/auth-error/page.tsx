@@ -123,7 +123,7 @@ export default function AuthErrorPage() {
                       <path d="M20 6L9 17L4 12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </div>
-                  <span>Contact support at <a href="mailto:support@neuralnexus.ai" className="text-blue-400 hover:underline">support@neuralnexus.ai</a></span>
+                  <span>Contact support at <a href="mailto:mantejarora@gmail.com" className="text-blue-400 hover:underline">mantejarora@gmail.com</a></span>
                 </li>
               </ul>
             </motion.div>
