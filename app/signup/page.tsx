@@ -1,30 +1,43 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { SignInMenu } from '@/src/components/auth/SignInMenu';
 import Link from 'next/link';
 import { ArrowRight, LogIn, UserPlus } from "lucide-react";
+import dynamic from 'next/dynamic';
 
 // Remove edge runtime to avoid size limits
 // export const runtime = 'edge';
 
-export default function SignupPage() {
+// Create a client-only component to fix NextRouter issue
+const SignupContent = () => {
   // State to control if the SignInMenu is open
   const [showSignInMenu, setShowSignInMenu] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    // Mark component as mounted to ensure router is available
+    setMounted(true);
+  }, []);
   
   const openSignIn = () => {
     setAuthMode('signin');
-      setShowSignInMenu(true);
+    setShowSignInMenu(true);
   };
   
   const openSignUp = () => {
     setAuthMode('signup');
     setShowSignInMenu(true);
   };
+
+  // Don't render until client-side
+  if (!mounted) {
+    return <SignupLoading />;
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
@@ -129,5 +142,38 @@ export default function SignupPage() {
       
       <Footer />
     </main>
+  );
+};
+
+// Loading component for Suspense fallback
+function SignupLoading() {
+  return (
+    <main className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
+      <Navbar />
+      
+      <div className="pt-28 pb-16 px-4">
+        <div className="container mx-auto flex flex-col items-center justify-center">
+          <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-6"></div>
+          <h2 className="text-2xl font-bold">Loading Signup...</h2>
+          <p className="text-gray-400 mt-2">Preparing signup options</p>
+        </div>
+      </div>
+      
+      <Footer />
+    </main>
+  );
+}
+
+// Export a dynamic component with SSR disabled
+const SignupPageNoSSR = dynamic(() => Promise.resolve(SignupContent), {
+  ssr: false,
+  loading: () => <SignupLoading />
+});
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<SignupLoading />}>
+      <SignupPageNoSSR />
+    </Suspense>
   );
 } 

@@ -1,99 +1,66 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, useRef } from 'react';
-import { createClient, Session } from '@supabase/supabase-js';
+import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
+import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 
+// Create context for Supabase client and user
 type SupabaseContextType = {
-  session: Session | null;
-  isLoading: boolean;
+  supabase: SupabaseClient;
+  user: User | null;
 };
 
-const SupabaseContext = createContext<SupabaseContextType>({
-  session: null,
-  isLoading: true,
-});
+const SupabaseContext = createContext<SupabaseContextType | undefined>(undefined);
 
-export const useSupabase = () => useContext(SupabaseContext);
-
-export default function SupabaseProvider({ 
-  children 
-}: { 
-  children: React.ReactNode 
-}) {
-  const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+// Provider component to wrap around the app
+export default function SupabaseProvider({ children }: { children: ReactNode }) {
+  const [supabase] = useState(() => 
+    createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gtqeeihydjqvidqleawe.supabase.co',
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0cWVlaWh5ZGpxdmlkcWxlYXdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDYwNTk5NTQsImV4cCI6MjAyMTYzNTk1NH0.SSUgWgNpaxwRGkbhxVCZtomk_M7jaesZ_tLCzYVn8jg'
+    )
+  );
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
-  const isInitialAuthCheckRef = useRef(true);
 
   useEffect(() => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    
-    if (!supabaseUrl || !supabaseAnonKey) {
-      console.error('Missing Supabase configuration');
-      setIsLoading(false);
-      return;
-    }
-    
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: true
-      }
-    });
-    
-    // Get initial session
-    const getInitialSession = async () => {
-      try {
-        const { data, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          throw error;
-        }
-        
-        setSession(data.session);
-      } catch (error) {
-        console.error('Error fetching initial session:', error);
-      } finally {
-        setIsLoading(false);
-        isInitialAuthCheckRef.current = false;
-      }
+    // Get the current user when the component mounts
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
     };
-    
-    getInitialSession();
-    
-    // Define a global auth redirect handler with subscription
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, newSession) => {
-      setSession(newSession);
-      
-      // Handle redirects only for initial sign in/sign out events
-      if (event === 'SIGNED_IN' && !isInitialAuthCheckRef.current) {
-        console.log('User signed in');
-        router.push('/dashboard');
-      } else if (event === 'SIGNED_OUT' && !isInitialAuthCheckRef.current) {
-        console.log('User signed out');
-        router.push('/');
-      }
-      
-      // After the initial sign-in/sign-out, reset the flag
-      if (isInitialAuthCheckRef.current) {
-        isInitialAuthCheckRef.current = false;
+
+    getUser();
+
+    // Set up the auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        setUser(session.user);
+        router.refresh();
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        router.refresh();
       }
     });
-    
-    // Cleanup on unmount
+
+    // Clean up the subscription when the component unmounts
     return () => {
       subscription.unsubscribe();
     };
-  }, [router]);
+  }, [supabase, router]);
 
   return (
-    <SupabaseContext.Provider value={{ session, isLoading }}>
+    <SupabaseContext.Provider value={{ supabase, user }}>
       {children}
     </SupabaseContext.Provider>
   );
+}
+
+// Custom hook to use the Supabase context
+export function useSupabase() {
+  const context = useContext(SupabaseContext);
+  if (context === undefined) {
+    throw new Error('useSupabase must be used inside SupabaseProvider');
+  }
+  return context;
 } 

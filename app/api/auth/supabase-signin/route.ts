@@ -8,24 +8,25 @@ export async function POST(req: NextRequest) {
   try {
     // Get Supabase credentials from environment variables
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     
-    // If environment variables are not set, use fallback values for development
-    // In production, these should be properly configured
-    const fallbackUrl = 'https://gtqeeihydjqvidqleawe.supabase.co';
-    const fallbackKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd0cWVlaWh5ZGpxdmlkcWxlYXdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDYwNTk5NTQsImV4cCI6MjAyMTYzNTk1NH0.SSUgWgNpaxwRGkbhxVCZtomk_M7jaesZ_tLCzYVn8jg';
+    // Log key usage for debugging
+    console.log('Supabase URL:', supabaseUrl?.substring(0, 15) + '...');
+    console.log('Using service role key:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
+    console.log('Using anon key fallback:', !process.env.SUPABASE_SERVICE_ROLE_KEY && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
     
-    const finalSupabaseUrl = supabaseUrl || fallbackUrl;
-    const finalSupabaseKey = supabaseServiceKey || fallbackKey;
-    
-    console.log('Supabase URL:', finalSupabaseUrl.substring(0, 15) + '...');
-    console.log('Using service role key:', !!supabaseServiceKey);
-    console.log('Using anon key fallback:', !supabaseServiceKey && !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('Missing Supabase credentials');
+      return NextResponse.json({
+        success: false,
+        message: 'Server configuration error'
+      }, { status: 500 });
+    }
     
     // Initialize Supabase client
     const supabase = createClient(
-      finalSupabaseUrl,
-      finalSupabaseKey,
+      supabaseUrl,
+      supabaseKey,
       {
         auth: {
           autoRefreshToken: false,
@@ -68,14 +69,6 @@ export async function POST(req: NextRequest) {
     if (error) {
       console.error('Supabase signin error:', error.message);
       
-      // Handle specific error cases
-      if (error.message.includes('Email not confirmed')) {
-        return NextResponse.json({
-          success: false,
-          message: 'Please confirm your email address before signing in'
-        }, { status: 401 });
-      }
-      
       return NextResponse.json({
         success: false,
         message: error.message || 'Invalid login credentials'
@@ -101,7 +94,7 @@ export async function POST(req: NextRequest) {
         email: data.user.email,
         user_metadata: data.user.user_metadata
       }
-    }, { status: 200 });
+    });
     
   } catch (error: any) {
     console.error('Error during server-side signin:', error);

@@ -8,6 +8,8 @@ const nextConfig = {
       "firebasestorage.googleapis.com",
       "lh3.googleusercontent.com",
       "localhost",
+      "www.neuralnexus.biz",
+      "neuralnexus.biz"
     ],
     unoptimized: true,
   },
@@ -26,6 +28,22 @@ const nextConfig = {
     // Disable CSS optimization to prevent critters-related errors
     optimizeCss: false,
     // Server Actions are available by default now
+  },
+  // Handle domain redirection
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'neuralnexus-dragos-projects-f5e4e2da.vercel.app',
+          },
+        ],
+        destination: 'https://www.neuralnexus.biz/:path*',
+        permanent: true,
+      },
+    ];
   },
   // Create a static fallback for client-only pages to prevent SSR issues
   async rewrites() {

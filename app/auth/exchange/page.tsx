@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 
-export default function AuthExchange() {
+function AuthExchangeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
@@ -75,5 +75,28 @@ export default function AuthExchange() {
         )}
       </div>
     </div>
+  );
+}
+
+// Fallback loading UI for Suspense
+function ExchangeFallback() {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black flex items-center justify-center">
+      <div className="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-gray-700/50 max-w-md w-full">
+        <h1 className="text-2xl font-bold text-white mb-4">Loading...</h1>
+        <div className="flex items-center space-x-3">
+          <div className="w-5 h-5 rounded-full border-2 border-blue-500 border-t-transparent animate-spin"></div>
+          <p className="text-gray-300">Preparing authentication...</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function AuthExchange() {
+  return (
+    <Suspense fallback={<ExchangeFallback />}>
+      <AuthExchangeContent />
+    </Suspense>
   );
 } 

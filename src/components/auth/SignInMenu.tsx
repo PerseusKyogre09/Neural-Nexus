@@ -5,6 +5,9 @@ import { Input } from '../ui/Input';
 // Import Supabase auth functions
 import { signUpWithSupabase, signInWithSupabase } from '@/lib/supabase';
 import supabase from '@/lib/supabase';
+import { useRouter } from 'next/router';
+import { toast } from 'react-hot-toast';
+import { useSupabase } from '@/providers/SupabaseProvider';
 
 interface SignInMenuProps {
   isOpen: boolean;
@@ -22,12 +25,15 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<AuthError | null>(null);
+  const router = useRouter();
+  const { supabase } = useSupabase();
 
   // Update when initialMode changes from parent
   useEffect(() => {
@@ -80,6 +86,25 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
         return false;
       }
       
+      // Validate username
+      if (!formData.username.trim()) {
+        setError({
+          type: 'username',
+          message: 'Username is required'
+        });
+        return false;
+      }
+      
+      // Username format validation (letters, numbers, underscores only)
+      const usernameRegex = /^[a-zA-Z0-9_]+$/;
+      if (!usernameRegex.test(formData.username)) {
+        setError({
+          type: 'username',
+          message: 'Username can only contain letters, numbers, and underscores'
+        });
+        return false;
+      }
+      
       // Validate password confirmation
       if (formData.password !== formData.confirmPassword) {
         setError({
@@ -102,65 +127,60 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
     setIsLoading(true);
     try {
       if (isSignIn) {
-        // Sign In logic - use API endpoint
-        const response = await fetch('/api/auth/supabase-signin', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password
-          }),
+        // Sign in directly with Supabase
+        const response = await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password
         });
 
-        if (!response.ok) {
-          throw new Error(`API returned status ${response.status}`);
-        }
-
-        const result = await response.json();
-
-        if (result.success) {
-          console.log('Signed in successfully:', result.user);
-          onClose();
+        if (response.error) throw response.error;
+        
+        if (response.data.user) {
+          console.log('Signed in successfully:', response.data.user);
+          toast.success("You've been signed in successfully.");
+          router.push('/dashboard'); // Redirect to dashboard
         } else {
-          throw new Error(result.message || 'Failed to sign in');
+          throw new Error('Failed to sign in');
         }
       } else {
-        // Sign Up logic - use API endpoint
-        const response = await fetch('/api/auth/supabase-signup', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            password: formData.password,
-            displayName: `${formData.firstName} ${formData.lastName}`
-          }),
+        // Sign up directly with Supabase
+        const response = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            data: {
+              first_name: formData.firstName,
+              last_name: formData.lastName || '',
+              username: formData.username,
+              display_name: `${formData.firstName} ${formData.lastName || ''}`.trim(),
+              profileComplete: false
+            }
+          }
         });
 
-        if (!response.ok) {
-          throw new Error(`API returned status ${response.status}`);
-        }
-
-        const result = await response.json();
-
-        if (result.success) {
-          console.log('Account created successfully:', result.user);
-          onClose();
+        if (response.error) throw response.error;
+        
+        if (response.data.user) {
+          console.log('Account created successfully:', response.data.user);
+          // For auto-confirmed email flows
+          if (response.data.session) {
+            toast.success("You've been signed in successfully.");
+            router.push('/dashboard'); // Redirect to dashboard if session exists
+          } else {
+            // For email confirmation flows
+            toast.success("Please check your email to verify your account before signing in.");
+            onClose();
+          }
         } else {
-          throw new Error(result.message || 'Failed to create account');
+          throw new Error('Failed to create account');
         }
       }
     } catch (err: any) {
+      console.error('Authentication error:', err);
       setError({
         type: 'general',
         message: err.message || 'An error occurred during authentication'
       });
-    } finally {
       setIsLoading(false);
     }
   };
@@ -168,25 +188,27 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
   const handleGithubLogin = async () => {
     setIsLoading(true);
     try {
-      // Use OAuth with Supabase instead
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: 'https://gtqeeihydjqvidqleawe.supabase.co/auth/v1/callback'
-        }
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
       });
       
-      if (error) throw error;
-      
-      if (data) {
-        console.log('GitHub login initiated');
-        // Will redirect to GitHub
+      if (error) {
+        console.error("GitHub login error:", error);
+        setError({
+          type: 'general',
+          message: error.message || "Failed to sign in with GitHub"
+        });
       }
     } catch (error: any) {
+      console.error("GitHub auth error:", error);
       setError({
         type: 'general',
-        message: error.message || 'Failed to login with GitHub'
+        message: error.message || "An unexpected error occurred"
       });
+    } finally {
       setIsLoading(false);
     }
   };
@@ -194,25 +216,27 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     try {
-      // Use OAuth with Supabase instead
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: 'https://gtqeeihydjqvidqleawe.supabase.co/auth/v1/callback'
-        }
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
       });
       
-      if (error) throw error;
-      
-      if (data) {
-        console.log('Google login initiated');
-        // Will redirect to Google
+      if (error) {
+        console.error("Google login error:", error);
+        setError({
+          type: 'general',
+          message: error.message || "Failed to sign in with Google"
+        });
       }
     } catch (error: any) {
+      console.error("Google auth error:", error);
       setError({
         type: 'general',
-        message: error.message || 'Failed to login with Google'
+        message: error.message || "An unexpected error occurred"
       });
+    } finally {
       setIsLoading(false);
     }
   };
@@ -276,6 +300,18 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
                     leftIcon={<User className="h-5 w-5" />}
                     placeholder="Enter your last name (optional)"
                     error={error?.type === 'lastName' ? error.message : undefined}
+                  />
+
+                  <Input
+                    label="Username"
+                    type="text"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    leftIcon={<User className="h-5 w-5" />}
+                    placeholder="Choose a username"
+                    error={error?.type === 'username' ? error.message : undefined}
+                    required
                   />
                 </>
               )}

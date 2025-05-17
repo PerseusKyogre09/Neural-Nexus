@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 
-export default function CallbackPage() {
+function CallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
@@ -95,5 +95,30 @@ export default function CallbackPage() {
         )}
       </div>
     </div>
+  );
+}
+
+// Fallback loading UI for Suspense
+function CallbackFallback() {
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black flex items-center justify-center">
+      <div className="max-w-md w-full p-8 bg-gray-800/50 backdrop-blur-lg rounded-xl border border-gray-700/40">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-white mb-4">Loading...</h1>
+          <div className="flex justify-center mb-6">
+            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <p className="text-gray-300">Preparing authentication...</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function CallbackPage() {
+  return (
+    <Suspense fallback={<CallbackFallback />}>
+      <CallbackContent />
+    </Suspense>
   );
 } 

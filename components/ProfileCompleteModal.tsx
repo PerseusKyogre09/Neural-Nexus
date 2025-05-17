@@ -13,6 +13,7 @@ interface ProfileCompleteModalProps {
     displayName?: string;
     email?: string;
     photoURL?: string;
+    username?: string;
   };
 }
 
@@ -26,6 +27,7 @@ export default function ProfileCompleteModal({
   const [profileData, setProfileData] = useState({
     displayName: userData.displayName || '',
     email: userData.email || '',
+    username: userData.username || '',
     bio: '',
     organization: '',
     location: '',
@@ -198,6 +200,22 @@ export default function ProfileCompleteModal({
                             onChange={handleInputChange}
                             className="pl-10 w-full bg-gray-800/50 border border-gray-700 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                             placeholder="Your name"
+                            required
+                          />
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-1">Username</label>
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
+                          <input
+                            type="text"
+                            name="username"
+                            value={profileData.username}
+                            onChange={handleInputChange}
+                            className="pl-10 w-full bg-gray-800/50 border border-gray-700 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            placeholder="Choose a username"
                             required
                           />
                         </div>

@@ -19,6 +19,8 @@ import SalesAnalytics from '@/components/dashboard/SalesAnalytics';
 import ModelAnalytics from '@/components/dashboard/ModelAnalytics';
 import CustomerManagement from '@/components/dashboard/CustomerManagement';
 import ProfileCompleteModal from '@/components/ProfileCompleteModal';
+import { useSession } from 'next-auth/react';
+import { useSupabase } from '@/providers/SupabaseProvider';
 
 interface StatCard {
   label: string;
@@ -35,10 +37,37 @@ export default function DashboardPage() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [hasCompletedProfile, setHasCompletedProfile] = useState(false);
   const router = useRouter();
-  const { user, appUser } = useAppContext();
+  const { user: appUser } = useAppContext();
+  const { data: sessionData } = useSession();
+  const { user: supabaseUser } = useSupabase();
   
-  // Fake model data
-  const myModels = [
+  // Get the user from either NextAuth or Supabase
+  const user = supabaseUser || sessionData?.user;
+  
+  // Determine if this is an anonymous user or a demo view
+  const isAnonymousOrDemo = !user || !user.email?.includes('@');
+  
+  // Empty/starter data for real authenticated users
+  const emptyModels: any[] = [];
+  const emptyRevenueData = [
+    { month: "Jan", amount: 0 },
+    { month: "Feb", amount: 0 },
+    { month: "Mar", amount: 0 },
+    { month: "Apr", amount: 0 },
+    { month: "May", amount: 0 },
+    { month: "Jun", amount: 0 },
+    { month: "Jul", amount: 0 }
+  ];
+  const emptyStats = [
+    { label: "Total Models", value: 0, icon: <Layers className="h-5 w-5" />, color: "from-blue-500 to-cyan-400", change: undefined },
+    { label: "Total Sales", value: 0, icon: <TrendingUp className="h-5 w-5" />, color: "from-green-500 to-emerald-400", change: undefined },
+    { label: "Revenue", value: "$0", icon: <DollarSign className="h-5 w-5" />, color: "from-purple-500 to-violet-400", change: undefined },
+    { label: "Model Views", value: "0", icon: <Eye className="h-5 w-5" />, color: "from-pink-500 to-rose-400", change: undefined }
+  ];
+  const emptyActivities: any[] = [];
+  
+  // Demo data for anonymous users
+  const demoModels = [
     {
       id: "model1",
       name: "ImageGen Pro",
@@ -71,8 +100,8 @@ export default function DashboardPage() {
     }
   ];
   
-  // Revenue data for chart
-  const revenueData = [
+  // Demo revenue data for chart
+  const demoRevenueData = [
     { month: "Jan", amount: 1250 },
     { month: "Feb", amount: 1800 },
     { month: "Mar", amount: 1400 },
@@ -82,44 +111,58 @@ export default function DashboardPage() {
     { month: "Jul", amount: 3100 }
   ];
   
-  // Stats cards
-  const stats: StatCard[] = [
-    { label: "Total Models", value: myModels.length, icon: <Layers className="h-5 w-5" />, color: "from-blue-500 to-cyan-400" },
+  // Demo stats cards
+  const demoStats: StatCard[] = [
+    { label: "Total Models", value: 3, icon: <Layers className="h-5 w-5" />, color: "from-blue-500 to-cyan-400" },
     { label: "Total Sales", value: 257, icon: <TrendingUp className="h-5 w-5" />, change: 12, color: "from-green-500 to-emerald-400" },
     { label: "Revenue", value: "$7,840", icon: <DollarSign className="h-5 w-5" />, change: 18, color: "from-purple-500 to-violet-400" },
     { label: "Model Views", value: "12.4K", icon: <Eye className="h-5 w-5" />, change: 5, color: "from-pink-500 to-rose-400" }
   ];
   
-  // Recent activities
-  const activities = [
+  // Demo recent activities
+  const demoActivities = [
     { text: "Your model 'ImageGen Pro' was purchased", time: "2 hours ago", icon: <DollarSign className="h-4 w-4 text-green-400" /> },
     { text: "New 5-star review on 'NLP Transformer X'", time: "Yesterday", icon: <Award className="h-4 w-4 text-yellow-400" /> },
     { text: "Your model was featured on the homepage", time: "3 days ago", icon: <Bookmark className="h-4 w-4 text-blue-400" /> },
     { text: "Your account reached Gold tier status", time: "1 week ago", icon: <Diamond className="h-4 w-4 text-amber-400" /> }
   ];
   
-  // Find the highest value for chart scaling
-  const maxRevenue = Math.max(...revenueData.map(item => item.amount));
+  // Use the appropriate data based on whether this is a demo/anonymous user
+  const myModels = isAnonymousOrDemo ? demoModels : emptyModels;
+  const revenueData = isAnonymousOrDemo ? demoRevenueData : emptyRevenueData;
+  const stats = isAnonymousOrDemo ? demoStats : emptyStats;
+  const activities = isAnonymousOrDemo ? demoActivities : emptyActivities;
+  
+  // Find the highest value for chart scaling (minimum of 1 to avoid division by zero)
+  const maxRevenue = Math.max(...revenueData.map(item => item.amount), 1);
 
   useEffect(() => {
-    // Simulate data loading
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-    
-    // Check if the user has completed their profile
-    // In a real application, you would check this from the database/context
-    const checkProfileStatus = () => {
-      if (user && !hasCompletedProfile && !localStorage.getItem('profileCompleted')) {
-        setIsProfileModalOpen(true);
+    // Check if user exists and profile is complete
+    if (user) {
+      // If using Supabase, check metadata
+      if (supabaseUser) {
+        const hasCompleteProfile = supabaseUser.user_metadata?.profileComplete === true;
+        setHasCompletedProfile(hasCompleteProfile);
+        setIsProfileModalOpen(!hasCompleteProfile);
+      } 
+      // If using NextAuth, check profile completion status from session
+      else if (sessionData?.user) {
+        // Assuming NextAuth session includes profileComplete in user object
+        const hasCompleteProfile = sessionData.user.profileComplete === true;
+        setHasCompletedProfile(hasCompleteProfile);
+        setIsProfileModalOpen(!hasCompleteProfile);
       }
-    };
-    
-    if (!loading) {
-      checkProfileStatus();
+      setLoading(false);
     }
-  }, [user, loading, hasCompletedProfile]);
-  
+  }, [user, supabaseUser, sessionData]);
+
+  // Show profile completion modal if needed
+  useEffect(() => {
+    if (user && !hasCompletedProfile && !loading) {
+      setIsProfileModalOpen(true);
+    }
+  }, [user, hasCompletedProfile, loading]);
+
   // Handle profile completion
   const handleProfileComplete = (profileData: any) => {
     console.log("Profile data:", profileData);
@@ -168,7 +211,9 @@ export default function DashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-2 mb-1"
           >
-            <h1 className="text-3xl font-bold">Yo, {user?.displayName || 'Creator'}! 👋</h1>
+            <h1 className="text-3xl font-bold">
+              Yo, {user?.user_metadata?.first_name || user?.displayName || 'Creator'}! 👋
+            </h1>
             <span className="bg-gradient-to-r from-green-400 to-emerald-500 text-xs px-2 py-1 rounded-full text-white font-medium">
               GOLD TIER
             </span>
@@ -184,34 +229,43 @@ export default function DashboardPage() {
         </div>
         
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
+        >
           {stats.map((stat, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
+            <AnimatedCard 
+              key={stat.label}
+              className={`bg-gradient-to-r ${stat.color} p-5 rounded-xl flex flex-col justify-between h-full`}
               whileHover={{ y: -5, transition: { duration: 0.2 } }}
-              className="relative overflow-hidden rounded-xl"
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                show: { 
+                  opacity: 1, 
+                  y: 0,
+                  transition: { delay: 0.05 * index }
+                }
+              }}
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-10 rounded-xl`} />
-              <div className="p-6 backdrop-blur-sm border border-white/10 rounded-xl relative z-10">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="p-2 bg-white/10 rounded-lg">
-                    {stat.icon}
-                  </div>
-                  {stat.change && (
-                    <span className={`text-xs font-medium flex items-center ${stat.change > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {stat.change > 0 ? '↑' : '↓'} {Math.abs(stat.change)}%
-                    </span>
-                  )}
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-sm font-medium opacity-90">{stat.label}</h3>
+                <div className="p-2 bg-white/20 rounded-lg">
+                  {stat.icon}
                 </div>
-                <h3 className="text-2xl font-bold">{stat.value}</h3>
-                <p className="text-gray-400 text-sm">{stat.label}</p>
               </div>
-            </motion.div>
+              <div>
+                <div className="text-2xl font-bold mb-1">{stat.value}</div>
+                {stat.change !== undefined && (
+                  <div className={`text-xs flex items-center ${stat.change >= 0 ? 'text-green-300' : 'text-red-300'}`}>
+                    {stat.change >= 0 ? '↑' : '↓'} {Math.abs(stat.change)}% from last month
+                  </div>
+                )}
+              </div>
+            </AnimatedCard>
           ))}
-        </div>
+        </motion.div>
         
         {/* Tabs */}
         <div className="flex overflow-x-auto pb-2 mb-6 scrollbar-hide gap-2">
