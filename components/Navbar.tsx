@@ -8,6 +8,17 @@ import Brand from './Brand';
 import dynamic from 'next/dynamic';
 import { useAppContext } from '@/providers/AppProvider';
 import { useRouter } from 'next/navigation';
+import { AIAssistantButton } from '@/components/ui/AIAssistantButton';
+
+// Define a type for the User object with metadata
+interface ExtendedUser {
+  email?: string;
+  displayName?: string;
+  photoURL?: string;
+  user_metadata?: {
+    first_name?: string;
+  };
+}
 
 // Import SimpleCryptoButton using dynamic import to avoid SSR issues
 const SimpleCryptoButton = dynamic(
@@ -22,6 +33,7 @@ const Navbar = () => {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
   const { user, signOut } = useAppContext();
+  const typedUser = user as ExtendedUser;
   const router = useRouter();
 
   useEffect(() => {
@@ -111,6 +123,10 @@ const Navbar = () => {
               )
             ))}
             
+            <AIAssistantButton variant="text" size="sm" className="text-gray-300 hover:text-white">
+              Ask AI
+            </AIAssistantButton>
+            
             {user ? (
               <div className="relative" ref={profileMenuRef}>
                 <button
@@ -142,7 +158,7 @@ const Navbar = () => {
                     >
                       <div className="border-b border-gray-700 p-3">
                         <p className="font-medium">
-                          {user.user_metadata?.first_name || user.displayName || 'User'}
+                          {typedUser?.user_metadata?.first_name || user.displayName || 'User'}
                         </p>
                         <p className="text-sm text-gray-400 truncate">{user.email}</p>
                       </div>
@@ -222,6 +238,12 @@ const Navbar = () => {
           }}
         >
           <div className="px-2 pt-2 pb-3 space-y-1">
+            <div className="block px-3 py-2">
+              <AIAssistantButton variant="pill" size="sm" className="w-full">
+                Ask AI Assistant
+              </AIAssistantButton>
+            </div>
+            
             {navLinks.map((link) => (
               isExternalLink(link.href) ? (
                 <a
@@ -263,7 +285,7 @@ const Navbar = () => {
                     )}
                     <div className="ml-2">
                       <p className="font-medium text-sm">
-                        {user.user_metadata?.first_name || user.displayName || 'User'}
+                        {typedUser?.user_metadata?.first_name || user.displayName || 'User'}
                       </p>
                       <p className="text-xs text-gray-400 truncate">{user.email}</p>
                     </div>

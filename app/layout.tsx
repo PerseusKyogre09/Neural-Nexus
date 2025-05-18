@@ -4,6 +4,7 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import { fontSans } from '@/lib/fonts';
 import ClientLayout from './ClientLayout';
+import { AIAgentProvider } from '@/providers/AIAgentProvider';
 
 // Metadata can be exported from a Server Component
 export const metadata: Metadata = {
@@ -28,7 +29,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
           fontSans.variable
         )}
       >
-        <ClientLayout>{children}</ClientLayout>
+        <AIAgentProvider>
+          <ClientLayout>{children}</ClientLayout>
+        </AIAgentProvider>
       </body>
     </html>
   );

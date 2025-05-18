@@ -216,8 +216,8 @@ export default function SignUpPage() {
       <div className="bg-white/5 backdrop-blur-md rounded-xl border border-purple-500/10 p-6 md:p-8 shadow-xl">
         {error && error.field === 'general' && (
           <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
             className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex items-start"
           >
             <AlertCircle className="h-5 w-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" />
@@ -331,7 +331,7 @@ export default function SignUpPage() {
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-700" />
-          </div>
+                  </div>
           <div className="relative flex justify-center text-sm">
             <span className="px-2 bg-gray-900 text-gray-400">
               Or continue with
