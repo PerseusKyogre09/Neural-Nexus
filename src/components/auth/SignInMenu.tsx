@@ -5,7 +5,7 @@ import { Input } from '../ui/Input';
 // Import Supabase auth functions
 import { signUpWithSupabase, signInWithSupabase } from '@/lib/supabase';
 import supabase from '@/lib/supabase';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { useSupabase } from '@/providers/SupabaseProvider';
 
@@ -16,7 +16,7 @@ interface SignInMenuProps {
 }
 
 interface AuthError {
-  type: 'email' | 'password' | 'firstName' | 'lastName' | 'general';
+  type: 'email' | 'password' | 'firstName' | 'lastName' | 'username' | 'general';
   message: string;
 }
 
