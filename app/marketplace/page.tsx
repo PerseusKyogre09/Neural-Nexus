@@ -944,7 +944,7 @@ export default function MarketplacePage() {
       >
         <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">AI Model Marketplace</h1>
         <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-          Browse our premium collection of paid AI models and datasets. For free resources, check out our <Link href="/open-source-models" className="text-cyan-400 hover:text-cyan-300">Open Source Models</Link>.
+          Browse our premium collection of paid AI models and datasets. For free resources, check out our <Link href="/open-source" className="text-cyan-400 hover:text-cyan-300">Open Source</Link>.
         </p>
       </motion.div>
       
