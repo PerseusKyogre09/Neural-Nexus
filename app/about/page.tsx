@@ -39,8 +39,8 @@ export default function AboutPage() {
       image: "/team/Avya.png",
       bio: "Experienced ML engineer leading our technical infrastructure. Expert in optimizing model performance and scalability.",
       social: {
-        linkedin: "https://www.linkedin.com/in/mantej-singh-arora/",
-        github: "https://github.com/Drago-03/Neural-Nexus"
+        linkedin: "https://www.linkedin.com/in/avya-giri/",
+        github: "https://github.com/AvyaGiri"
       }
     },
     {
