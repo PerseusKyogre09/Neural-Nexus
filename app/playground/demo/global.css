@@ -1,0 +1,345 @@
+/* VS Code-like theme styling */
+
+/* Dark theme */
+.vscode-dark {
+  --vscode-bg: #1e1e1e;
+  --vscode-bg-light: #252526;
+  --vscode-bg-lighter: #2d2d2d;
+  --vscode-bg-lightest: #333333;
+  --vscode-text: #d4d4d4;
+  --vscode-text-light: #cccccc;
+  --vscode-text-muted: #888888;
+  --vscode-border: #3d3d3d;
+  --vscode-border-light: #555555;
+  --vscode-hover: #2a2d2e;
+  --vscode-active: #37373d;
+  --vscode-focus: #04395e;
+  --vscode-accent: #007acc;
+  --vscode-accent-light: #0e639c;
+  --vscode-error: #f14c4c;
+  --vscode-warning: #cca700;
+  --vscode-success: #89d185;
+}
+
+/* Light theme */
+.vscode-light {
+  --vscode-bg: #ffffff;
+  --vscode-bg-light: #f3f3f3;
+  --vscode-bg-lighter: #e8e8e8;
+  --vscode-bg-lightest: #d0d0d0;
+  --vscode-text: #333333;
+  --vscode-text-light: #444444;
+  --vscode-text-muted: #777777;
+  --vscode-border: #e0e0e0;
+  --vscode-border-light: #cccccc;
+  --vscode-hover: #e8e8e8;
+  --vscode-active: #cce5ff;
+  --vscode-focus: #cce5ff;
+  --vscode-accent: #0078d4;
+  --vscode-accent-light: #0066b5;
+  --vscode-error: #d32f2f;
+  --vscode-warning: #e9a700;
+  --vscode-success: #388e3c;
+}
+
+/* Syntax highlighting */
+.keyword {
+  color: #569cd6;
+}
+
+.string {
+  color: #ce9178;
+}
+
+.number {
+  color: #b5cea8;
+}
+
+.boolean {
+  color: #569cd6;
+}
+
+.comment {
+  color: #6a9955;
+}
+
+.function {
+  color: #dcdcaa;
+}
+
+.class {
+  color: #4ec9b0;
+}
+
+.type {
+  color: #4ec9b0;
+}
+
+.variable {
+  color: #9cdcfe;
+}
+
+.operator {
+  color: #d4d4d4;
+}
+
+.property {
+  color: #9cdcfe;
+}
+
+.parameter {
+  color: #9cdcfe;
+}
+
+/* Light theme syntax highlighting */
+.vscode-light .keyword {
+  color: #0000ff;
+}
+
+.vscode-light .string {
+  color: #a31515;
+}
+
+.vscode-light .number {
+  color: #098658;
+}
+
+.vscode-light .boolean {
+  color: #0000ff;
+}
+
+.vscode-light .comment {
+  color: #008000;
+}
+
+.vscode-light .function {
+  color: #795e26;
+}
+
+.vscode-light .class {
+  color: #267f99;
+}
+
+.vscode-light .type {
+  color: #267f99;
+}
+
+.vscode-light .variable {
+  color: #001080;
+}
+
+.vscode-light .operator {
+  color: #000000;
+}
+
+.vscode-light .property {
+  color: #001080;
+}
+
+.vscode-light .parameter {
+  color: #001080;
+}
+
+/* VS Code scrollbars */
+::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(121, 121, 121, 0.4);
+  border-radius: 7px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(100, 100, 100, 0.7);
+}
+
+.vscode-light ::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.4);
+}
+
+.vscode-light ::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(100, 100, 100, 0.7);
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+/* Common utilities */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* VS Code button styles */
+.vscode-button {
+  background-color: var(--vscode-accent-light);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 2px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.vscode-button:hover {
+  background-color: var(--vscode-accent);
+}
+
+.vscode-button:active {
+  background-color: var(--vscode-accent);
+  transform: translateY(1px);
+}
+
+.vscode-button:disabled {
+  background-color: var(--vscode-bg-lightest);
+  color: var(--vscode-text-muted);
+  cursor: not-allowed;
+}
+
+/* VS Code input styles */
+.vscode-input {
+  background-color: var(--vscode-bg-light);
+  color: var(--vscode-text);
+  border: 1px solid var(--vscode-border);
+  padding: 6px 10px;
+  border-radius: 2px;
+  font-size: 13px;
+  outline: none;
+}
+
+.vscode-input:focus {
+  border-color: var(--vscode-accent);
+}
+
+/* VS Code badge */
+.vscode-badge {
+  background-color: var(--vscode-bg-lightest);
+  color: var(--vscode-text-light);
+  padding: 2px 6px;
+  border-radius: 11px;
+  font-size: 11px;
+  display: inline-block;
+}
+
+/* Modal styles */
+.vscode-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.vscode-modal {
+  background-color: var(--vscode-bg);
+  border: 1px solid var(--vscode-border);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  max-width: 80%;
+  max-height: 80%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.vscode-modal-header {
+  background-color: var(--vscode-bg-light);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--vscode-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.vscode-modal-body {
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.vscode-modal-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--vscode-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Status messages */
+.vscode-status {
+  font-size: 13px;
+  padding: 8px 12px;
+  margin: 8px 0;
+  border-radius: 4px;
+  border-left: 4px solid transparent;
+}
+
+.vscode-status-info {
+  background-color: rgba(0, 122, 204, 0.1);
+  border-left-color: var(--vscode-accent);
+}
+
+.vscode-status-warning {
+  background-color: rgba(204, 167, 0, 0.1);
+  border-left-color: var(--vscode-warning);
+}
+
+.vscode-status-error {
+  background-color: rgba(241, 76, 76, 0.1);
+  border-left-color: var(--vscode-error);
+}
+
+.vscode-status-success {
+  background-color: rgba(137, 209, 133, 0.1);
+  border-left-color: var(--vscode-success);
+}
+
+/* Typing indicator for chat */
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+}
+
+.typing-indicator span {
+  height: 8px;
+  width: 8px;
+  float: left;
+  margin: 0 1px;
+  background-color: #9e9ea1;
+  display: block;
+  border-radius: 50%;
+  opacity: 0.4;
+}
+
+.typing-indicator span:nth-of-type(1) {
+  animation: 1s blink infinite 0.3333s;
+}
+
+.typing-indicator span:nth-of-type(2) {
+  animation: 1s blink infinite 0.6666s;
+}
+
+.typing-indicator span:nth-of-type(3) {
+  animation: 1s blink infinite 0.9999s;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 1;
+  }
+} 

@@ -1,0 +1,99 @@
+{
+  "neural_nexus": {
+    "api": {
+      "baseUrl": "https://api.neuralnexus.ai/v1",
+      "timeout": 30000,
+      "retries": 3,
+      "headers": {
+        "Content-Type": "application/json",
+        "User-Agent": "Neural-Nexus-JS-SDK/1.0.0"
+      }
+    },
+    "models": {
+      "deepseek_coder": {
+        "id": "deepseek-ai/deepseek-coder-33b-instruct",
+        "maxTokens": 16384,
+        "contextWindow": 32768,
+        "description": "Specialized coding model optimized for code completion and generation",
+        "defaultParams": {
+          "temperature": 0.7,
+          "topP": 0.95,
+          "frequencyPenalty": 0.0,
+          "presencePenalty": 0.0,
+          "stopSequences": ["```", "---"]
+        }
+      },
+      "llama3": {
+        "id": "meta-llama/llama-3-70b-instruct",
+        "maxTokens": 8192,
+        "contextWindow": 16384,
+        "description": "General purpose model with strong reasoning capabilities",
+        "defaultParams": {
+          "temperature": 0.8,
+          "topP": 0.9,
+          "frequencyPenalty": 0.1,
+          "presencePenalty": 0.1,
+          "stopSequences": ["###", "<|eot|>"]
+        }
+      },
+      "mistral": {
+        "id": "mistralai/mistral-7b-instruct",
+        "maxTokens": 4096,
+        "contextWindow": 8192,
+        "description": "Fast and efficient model for general purpose tasks",
+        "defaultParams": {
+          "temperature": 0.7,
+          "topP": 0.9,
+          "frequencyPenalty": 0.0,
+          "presencePenalty": 0.0,
+          "stopSequences": ["</s>", "<|im_end|>"]
+        }
+      }
+    },
+    "features": {
+      "streaming": true,
+      "visionSupport": true,
+      "functionCalling": true,
+      "embeddings": true,
+      "codeCompletion": true,
+      "codeGeneration": true,
+      "jsonMode": true
+    },
+    "rateLimit": {
+      "requestsPerMinute": 60,
+      "tokensPerMinute": 100000,
+      "burstRequests": 5
+    }
+  },
+  "application": {
+    "name": "Neural Nexus Playground",
+    "version": "1.0.0",
+    "environment": "development",
+    "logging": {
+      "level": "info",
+      "format": "json",
+      "destination": "console"
+    },
+    "cache": {
+      "enabled": true,
+      "ttl": 3600,
+      "maxSize": 1000
+    },
+    "ui": {
+      "theme": "dark",
+      "codeHighlighting": true,
+      "editorFont": "JetBrains Mono",
+      "fontSize": 14,
+      "tabSize": 2
+    }
+  },
+  "security": {
+    "tokenEncryption": true,
+    "sensitiveDataMasking": true,
+    "rateLimiting": true,
+    "contentFiltering": {
+      "enabled": true,
+      "level": "medium"
+    }
+  }
+} 

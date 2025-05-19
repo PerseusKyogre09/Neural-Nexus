@@ -95,7 +95,8 @@ function useSafeSession() {
           // Use getSession instead of useSession
           const session = await auth.getSession();
           if (isMounted && session) {
-            setSessionData(session.data);
+            // Fix: Set the session directly instead of trying to access .data property
+            setSessionData(session);
           }
         } catch (err) {
           console.error('Session fetch error:', err);
@@ -135,7 +136,7 @@ export default function AIAgent({ systemContext }: { systemContext?: string }) {
     {
       id: '1',
       role: 'agent',
-      content: systemContext || "Hey there! I'm the Neural Nexus AI Assistant. How can I help you today? You can ask me about our platform, AI models, marketplace, or anything else!",
+      content: "Hey there! 👋 I'm your Neural Nexus assistant powered by DeepSeek. What's up? I can help with questions about our platform, marketplace, or anything Neural Nexus related. What can I help you with today?",
       timestamp: new Date()
     }
   ]);
@@ -257,30 +258,62 @@ export default function AIAgent({ systemContext }: { systemContext?: string }) {
       // Log interaction for analytics (in a real app)
       aiService.logInteraction(userMessage.content, response.message, sessionData?.user?.email || undefined);
       
-      // Create agent response message
-      const agentMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'agent',
-        content: response.message,
-        timestamp: new Date(),
-        actions: response.suggestedActions,
-        links: response.links,
-        additionalContext: response.additionalContext
-      };
+      // Add typing delay for more human-like interaction
+      const typingDelay = Math.min(1000 + response.message.length * 10, 3000);
       
-      setMessages(prev => [...prev, agentMessage]);
+      setTimeout(() => {
+        // Create agent response message with more conversational tone
+        let enhancedMessage = response.message;
+        
+        // Add occasional filler words and emojis for human-like quality
+        if (Math.random() > 0.7) {
+          const fillers = ["Hmm, ", "So, ", "Well, ", "Okay, ", "Got it! ", "Cool, ", "Alright, "];
+          enhancedMessage = fillers[Math.floor(Math.random() * fillers.length)] + enhancedMessage;
+        }
+        
+        // Add emoji occasionally
+        if (Math.random() > 0.7) {
+          const emojis = ["👍", "✨", "💡", "🚀", "👉", "🔥", "😊"];
+          const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+          
+          if (Math.random() > 0.5) {
+            enhancedMessage = enhancedMessage + " " + emoji;
+          } else {
+            const sentences = enhancedMessage.split('. ');
+            if (sentences.length > 1) {
+              sentences[0] = sentences[0] + " " + emoji;
+              enhancedMessage = sentences.join('. ');
+            } else {
+              enhancedMessage = emoji + " " + enhancedMessage;
+            }
+          }
+        }
+        
+        const agentMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'agent',
+          content: enhancedMessage,
+          timestamp: new Date(),
+          actions: response.suggestedActions,
+          links: response.links,
+          additionalContext: response.additionalContext
+        };
+        
+        setMessages(prev => [...prev, agentMessage]);
+        setIsTyping(false);
+      }, typingDelay);
+      
     } catch (error) {
       // Handle errors
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'system',
-        content: "I'm sorry, I encountered an error processing your request. Please try again later.",
+        content: "Oops! 😅 Something went wrong with my brain. Can you try asking again?",
         timestamp: new Date()
       };
       
       setMessages(prev => [...prev, errorMessage]);
       console.error('AI Agent error:', error);
-    } finally {
       setIsTyping(false);
     }
   };
@@ -295,7 +328,7 @@ export default function AIAgent({ systemContext }: { systemContext?: string }) {
         {
           id: Date.now().toString(),
           role: 'system',
-          content: "Chat history cleared. How can I help you today?",
+          content: "Chat history wiped clean! ✨ What's on your mind?",
           timestamp: new Date()
         }
       ]);
@@ -305,7 +338,7 @@ export default function AIAgent({ systemContext }: { systemContext?: string }) {
       const helpMessage: Message = {
         id: Date.now().toString(),
         role: 'system',
-        content: "Available commands:\n/clear - Clear chat history\n/help - Show this help message\n/sample - Show sample questions\n/about - About Neural Nexus AI Assistant",
+        content: "Here's what I can do for you:\n\n/clear - Reset our conversation\n/help - Show this help message\n/sample - Check out some example questions\n/about - Learn about me",
         timestamp: new Date()
       };
       setMessages(prev => [...prev, helpMessage]);
@@ -315,7 +348,7 @@ export default function AIAgent({ systemContext }: { systemContext?: string }) {
       const samplesMessage: Message = {
         id: Date.now().toString(),
         role: 'system',
-        content: "Here are some questions you can ask me:",
+        content: "Need some inspiration? Try asking me these:",
         timestamp: new Date(),
         actions: [
           { type: 'question', label: 'What is Neural Nexus?', value: 'What is Neural Nexus?' },
@@ -332,7 +365,7 @@ export default function AIAgent({ systemContext }: { systemContext?: string }) {
       const aboutMessage: Message = {
         id: Date.now().toString(),
         role: 'system',
-        content: "Neural Nexus AI Assistant v1.0\nI'm here to help you navigate the Neural Nexus platform, answer questions about our services, and provide assistance with using our platform.\n\nI can help with:\n- General questions about Neural Nexus\n- Model uploads and management\n- Account information\n- API integration\n- Pricing and payments\n- And much more!",
+        content: "Hey! 👋 I'm your Neural Nexus assistant powered by DeepSeek. I'm here to make your experience awesome!\n\nI can help with:\n- Answering questions about Neural Nexus\n- Helping you navigate the platform\n- Explaining features and services\n- Troubleshooting common issues\n\nJust chat with me like you would with a friend! I'm focused on Neural Nexus stuff, so that's where I'm most helpful.",
         timestamp: new Date()
       };
       setMessages(prev => [...prev, aboutMessage]);
@@ -342,7 +375,7 @@ export default function AIAgent({ systemContext }: { systemContext?: string }) {
       const unknownCommandMessage: Message = {
         id: Date.now().toString(),
         role: 'system',
-        content: `Unknown command: ${command}\nType /help to see available commands.`,
+        content: `Hmm, I don't recognize "${command}" 🤔 Try /help to see what commands I know!`,
         timestamp: new Date()
       };
       setMessages(prev => [...prev, unknownCommandMessage]);
@@ -394,11 +427,11 @@ export default function AIAgent({ systemContext }: { systemContext?: string }) {
   
   // Suggested questions for users to click on
   const suggestedQuestions = [
-    "What is Neural Nexus?",
-    "How do I upload a model?",
-    "How do payments work?",
-    "How secure is my data?",
-    "How do I get API keys?"
+    "What can Neural Nexus do for me?",
+    "How do I get started with Neural Nexus?",
+    "Tell me about the marketplace",
+    "Is my data safe with Neural Nexus?",
+    "What makes DeepSeek special?"
   ];
   
   return (
@@ -416,37 +449,39 @@ export default function AIAgent({ systemContext }: { systemContext?: string }) {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.9 }}
-            animate={{ 
-              opacity: 1, 
-              y: 0, 
-              scale: 1,
-              height: isMinimized ? 'auto' : '500px'
-            }}
-            exit={{ opacity: 0, y: 50, scale: 0.9 }}
-            transition={{ duration: 0.3 }}
-            className="fixed bottom-20 right-6 w-80 md:w-96 bg-white dark:bg-gray-900 rounded-xl shadow-2xl overflow-hidden z-50 flex flex-col border border-gray-200 dark:border-gray-700"
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className={`fixed bottom-6 right-6 w-96 max-w-[calc(100vw-3rem)] ${
+              isMinimized ? 'h-16' : 'h-[600px] max-h-[calc(100vh-6rem)]'
+            } bg-gray-900 rounded-xl shadow-xl overflow-hidden border border-gray-700 flex flex-col z-50`}
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-3 text-white flex justify-between items-center">
+            <div className="px-4 py-3 bg-gray-800 border-b border-gray-700 flex items-center justify-between">
               <div className="flex items-center">
-                <Cpu className="h-5 w-5 mr-2" />
-                <h3 className="font-medium">Neural Nexus Assistant</h3>
+                <Cpu className="h-5 w-5 text-purple-400 mr-2" />
+                <h3 className="font-medium text-white">Neural Nexus Assistant</h3>
+                <div className="ml-2 px-2 py-0.5 bg-blue-900/50 rounded text-xs text-blue-300 flex items-center">
+                  <Sparkles className="h-3 w-3 mr-1" />
+                  DeepSeek
+                </div>
               </div>
-              <div className="flex items-center">
-                <button 
+              
+              <div className="flex items-center space-x-1">
+                <button
                   onClick={toggleMinimize}
-                  className="p-1 hover:bg-white/20 rounded-full"
-                  aria-label={isMinimized ? "Expand chat" : "Minimize chat"}
+                  className="p-1 rounded-md hover:bg-gray-700 transition-colors"
+                  aria-label={isMinimized ? "Expand" : "Minimize"}
                 >
-                  {isMinimized ? <Maximize2 size={16} /> : <Minimize2 size={16} />}
+                  {isMinimized ? <Maximize2 className="h-4 w-4" /> : <Minimize2 className="h-4 w-4" />}
                 </button>
-                <button 
+                <button
                   onClick={toggleChat}
-                  className="p-1 hover:bg-white/20 rounded-full ml-1"
+                  className="p-1 rounded-md hover:bg-gray-700 transition-colors"
                   aria-label="Close chat"
                 >
-                  <X size={16} />
+                  <X className="h-4 w-4" />
                 </button>
               </div>
             </div>
@@ -531,8 +566,11 @@ export default function AIAgent({ systemContext }: { systemContext?: string }) {
                   <div className="mb-4 flex justify-start">
                     <div className="max-w-[85%] p-3 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white border border-gray-200 dark:border-gray-600">
                       <div className="flex items-center">
-                        <Loader size={16} className="animate-spin mr-2" />
-                        <span>AI Assistant is thinking...</span>
+                        <div className="typing-indicator">
+                          <span></span>
+                          <span></span>
+                          <span></span>
+                        </div>
                       </div>
                     </div>
                   </div>

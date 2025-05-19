@@ -69,10 +69,9 @@ const Navbar = () => {
     { href: '/hosting', label: 'Hosting' },
     { href: '/community', label: 'Community' },
     { href: '/research', label: 'Research' },
-    { href: '/open-source-models', label: 'Open Source Models' },
     { href: '/open-source', label: 'Open Source' },
     { href: '/pricing', label: 'Pricing' },
-    { href: '/playground', label: 'AI Playground' },
+    { href: '/playground', label: 'AI Playground', isComingSoon: true },
     { href: '/api', label: 'API' },
     { href: '/about', label: 'About' },
     { href: '/careers', label: 'Careers' }
@@ -102,7 +101,20 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
             {navLinks.map((link) => (
-              isExternalLink(link.href) ? (
+              link.isComingSoon ? (
+                <div
+                  key={link.href}
+                  className="relative group cursor-default"
+                >
+                  <span className="text-gray-300 transition-colors">
+                    {link.label}
+                  </span>
+                  <div className="absolute left-0 top-full mt-1 w-full h-0.5 bg-gray-700 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
+                  <div className="absolute left-1/2 transform -translate-x-1/2 top-full mt-2 px-3 py-1 bg-gray-800 text-xs text-gray-300 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                    <em>Coming Soon</em>
+                  </div>
+                </div>
+              ) : isExternalLink(link.href) ? (
                 <a
                   key={link.href}
                   href={link.href}
@@ -122,10 +134,6 @@ const Navbar = () => {
                 </Link>
               )
             ))}
-            
-            <AIAssistantButton variant="text" size="sm" className="text-gray-300 hover:text-white">
-              Ask AI
-            </AIAssistantButton>
             
             {user ? (
               <div className="relative" ref={profileMenuRef}>
@@ -238,14 +246,15 @@ const Navbar = () => {
           }}
         >
           <div className="px-2 pt-2 pb-3 space-y-1">
-            <div className="block px-3 py-2">
-              <AIAssistantButton variant="pill" size="sm" className="w-full">
-                Ask AI Assistant
-              </AIAssistantButton>
-            </div>
-            
             {navLinks.map((link) => (
-              isExternalLink(link.href) ? (
+              link.isComingSoon ? (
+                <div
+                  key={link.href}
+                  className="block px-3 py-2 rounded-lg text-gray-400 cursor-default"
+                >
+                  {link.label} <em className="text-xs ml-2 text-gray-500">Coming Soon</em>
+                </div>
+              ) : isExternalLink(link.href) ? (
                 <a
                   key={link.href}
                   href={link.href}
