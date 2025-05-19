@@ -11,7 +11,6 @@ import { CoinbaseAgentProvider } from '@/providers/CoinbaseAgentProvider';
 import { SimpleCryptoProvider } from '@/providers/SimpleCryptoProvider';
 import AppProvider from '@/providers/AppProvider';
 import { Suspense, useEffect, useState } from 'react';
-import React from 'react';
 
 // Dynamic imports to avoid SSR issues
 const AgentKitUI = dynamic(() => import('@/components/AgentKitUI'), { 
