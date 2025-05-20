@@ -1,4 +1,5 @@
 # Neural Nexus - AI Model Hub
+_Star the Repo⭐_
 
 <div align="center">
   <img src="public/images/Logo.png" alt="Neural Nexus Logo" width="200" />
