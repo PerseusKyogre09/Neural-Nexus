@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
+const webpack = require('webpack');
+
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
+  swcMinify: false, // Disable SWC minify since we're using Babel
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
@@ -91,7 +93,7 @@ const nextConfig = {
     ];
   },
   // Skip problematic pages during server-side build
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, dev }) => {
     if (isServer) {
       // Skip client-only pages during server builds
       config.optimization.splitChunks.cacheGroups = {
@@ -111,6 +113,28 @@ const nextConfig = {
         },
       };
     }
+    
+    // Fix "React is not defined" error by providing React as a global
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      react: require.resolve('react'),
+    };
+    
+    // Add React as a global using ProvidePlugin
+    config.plugins.push(
+      new webpack.ProvidePlugin({
+        React: 'react',
+      })
+    );
+    
+    // Handle ethers library - exclude it from the build if NEXT_SKIP_ETHERS is set
+    if (process.env.NEXT_SKIP_ETHERS) {
+      config.externals = [
+        ...(config.externals || []),
+        'ethers',
+      ];
+    }
+    
     return config;
   },
 };

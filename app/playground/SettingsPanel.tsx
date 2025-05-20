@@ -54,6 +54,8 @@ const MockSwitch = ({ checked, onChange }: { checked: boolean, onChange: () => v
   <button
     className={`w-10 h-5 rounded-full p-1 transition-colors ${checked ? 'bg-blue-500' : 'bg-gray-400'}`}
     onClick={onChange}
+    aria-pressed={checked ? 'true' : 'false'}
+    title="Toggle setting"
   >
     <div className={`bg-white w-3 h-3 rounded-full transform transition-transform ${checked ? 'translate-x-5' : ''}`} />
   </button>
@@ -194,7 +196,7 @@ export default function SettingsPanel({ theme, onClose, onSaveSettings, onThemeC
           theme === 'dark' ? 'hover:bg-[#2d2d2d]' : 'hover:bg-[#f9f9f9]'
         )}
         onClick={() => toggleSection(section)}
-        aria-expanded={isExpanded ? "true" : "false"}
+        aria-expanded={isExpanded ? 'true' : 'false'}
         title={isExpanded ? "Collapse Settings" : "Expand Settings"}
       >
         <div className="flex items-center">

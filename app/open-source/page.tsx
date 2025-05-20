@@ -6,6 +6,9 @@ import Footer from "@/components/Footer";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import DatasetExplorer from "@/components/DatasetExplorer";
+import GitHubRepoExplorer from "@/components/GitHubRepoExplorer";
+import KaggleDatasetExplorer from "@/components/KaggleDatasetExplorer";
+import AIModelExplorer from "@/components/AIModelExplorer";
 import { 
   Github, 
   Code, 
@@ -474,115 +477,7 @@ export default function OpenSourcePage() {
           
           {/* Projects Section */}
           {activeTab === 'projects' && (
-            <>
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div className="relative max-w-md w-full">
-                  <input 
-                    type="text" 
-                    placeholder="Search projects..." 
-                    className="w-full bg-gray-800/70 border border-gray-700 rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-purple-500/50"
-                    value={searchVibe}
-                    onChange={(e) => setSearchVibe(e.target.value)}
-                    aria-label="Search projects"
-                  />
-                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                </div>
-                
-                <div className="flex flex-wrap gap-2">
-                  {projectCategories.map(category => (
-                    <button 
-                      key={category.id}
-                      className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
-                        activeCategory === category.id 
-                          ? 'bg-purple-600 text-white' 
-                          : 'bg-gray-800/70 text-gray-300 hover:bg-gray-700'
-                      }`}
-                      onClick={() => setActiveCategory(category.id)}
-                    >
-                      {category.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              
-              {filteredProjects.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredProjects.map((project, index) => (
-                    <motion.div
-                      key={project.name}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: index * 0.1 }}
-                      className="bg-gray-800/30 border border-gray-700/50 rounded-xl overflow-hidden hover:border-purple-500/30 transition-all"
-                    >
-                      <div className="p-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-xl font-bold text-white">{project.name}</h3>
-                          <div className="flex items-center gap-2">
-                            <span 
-                              className="inline-block w-3 h-3 rounded-full"
-                              style={{ backgroundColor: project.languageColor }}
-                            ></span>
-                            <span className="text-sm text-gray-400">{project.language}</span>
-                          </div>
-                        </div>
-                        
-                        <p className="text-gray-300 mb-6 h-12 line-clamp-2">{project.description}</p>
-                        
-                        <div className="flex flex-wrap gap-2 mb-6">
-                          {project.tags.map(tag => (
-                            <span 
-                              key={tag} 
-                              className="text-xs bg-gray-700/50 text-gray-300 px-2 py-1 rounded"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                        
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className="flex items-center">
-                              <Star className="h-4 w-4 text-yellow-400 mr-1" />
-                              <span className="text-sm">{project.stars.toLocaleString()}</span>
-                            </div>
-                            <div className="flex items-center">
-                              <GitFork className="h-4 w-4 text-gray-400 mr-1" />
-                              <span className="text-sm">{project.forks.toLocaleString()}</span>
-                            </div>
-                          </div>
-                          
-                          <a 
-                            href={project.repoUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-purple-400 hover:text-purple-300 flex items-center text-sm font-medium"
-                          >
-                            View Repo
-                            <ExternalLink className="h-3.5 w-3.5 ml-1" />
-                          </a>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-20 bg-gray-800/30 rounded-xl border border-gray-700/50">
-                  <Code className="h-12 w-12 mx-auto mb-4 text-gray-500" />
-                  <h3 className="text-xl font-bold mb-2">No projects found</h3>
-                  <p className="text-gray-400 mb-6">Try adjusting your search or category filter</p>
-                  <button 
-                    className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg transition-colors"
-                    onClick={() => {
-                      setSearchVibe('');
-                      setActiveCategory('all');
-                    }}
-                  >
-                    Reset Filters
-                  </button>
-                </div>
-              )}
-            </>
+            <GitHubRepoExplorer />
           )}
           
           {/* Models Section */}
@@ -591,165 +486,17 @@ export default function OpenSourcePage() {
               <div className="bg-gradient-to-r from-pink-500/20 to-purple-600/20 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-pink-500/30 mb-12">
                 <h2 className="text-2xl font-bold mb-6 flex items-center">
                   <span className="text-3xl mr-2">🔥</span> 
-                  <span className="bg-gradient-to-r from-red-400 to-pink-500 bg-clip-text text-transparent">Trending This Week</span>
+                  <span className="bg-gradient-to-r from-red-400 to-pink-500 bg-clip-text text-transparent">Trending AI Models</span>
                 </h2>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
-                  <div className="bg-black/30 p-4 rounded-lg border border-pink-500/20 flex flex-col">
-                    <div className="flex justify-between items-start mb-3">
-                      <h3 className="text-xl font-semibold">Mixtral 8x7B</h3>
-                      <span className="text-xs bg-gradient-to-r from-pink-500 to-purple-500 text-white px-2 py-1 rounded-full">Trending #1</span>
-                    </div>
-                    <p className="text-gray-300 text-sm mb-3">Mixtral's sparse mixture of experts model that's eating other LLMs for breakfast. Unreal performance for its size.</p>
-                    <div className="mt-auto flex items-center">
-                      <span className="text-pink-400 text-xs mr-3">38k+ downloads</span>
-                      <Link href="https://huggingface.co/mistralai/Mixtral-8x7B-v0.1" className="text-blue-400 hover:text-blue-300 text-sm ml-auto">
-                        Check it →
-                      </Link>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-black/30 p-4 rounded-lg border border-pink-500/20 flex flex-col">
-                    <div className="flex justify-between items-start mb-3">
-                      <h3 className="text-xl font-semibold">SDXL Turbo</h3>
-                      <span className="text-xs bg-gradient-to-r from-pink-500 to-purple-500 text-white px-2 py-1 rounded-full">Trending #2</span>
-                    </div>
-                    <p className="text-gray-300 text-sm mb-3">Real-time Stable Diffusion that generates images in a single step. This thing is straight-up magic.</p>
-                    <div className="mt-auto flex items-center">
-                      <span className="text-pink-400 text-xs mr-3">26k+ downloads</span>
-                      <Link href="https://huggingface.co/stabilityai/sdxl-turbo" className="text-blue-400 hover:text-blue-300 text-sm ml-auto">
-                        Check it →
-                      </Link>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-black/30 p-4 rounded-lg border border-pink-500/20 flex flex-col">
-                    <div className="flex justify-between items-start mb-3">
-                      <h3 className="text-xl font-semibold">CodeLlama 13B</h3>
-                      <span className="text-xs bg-gradient-to-r from-pink-500 to-purple-500 text-white px-2 py-1 rounded-full">Trending #3</span>
-                    </div>
-                    <p className="text-gray-300 text-sm mb-3">Meta's code generation model that's leveling up devs everywhere. It writes code so clean you'll think it's human.</p>
-                    <div className="mt-auto flex items-center">
-                      <span className="text-pink-400 text-xs mr-3">19k+ downloads</span>
-                      <Link href="https://huggingface.co/codellama/CodeLlama-13b-hf" className="text-blue-400 hover:text-blue-300 text-sm ml-auto">
-                        Check it →
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-gray-700/50 mb-12">
-                <h2 className="text-2xl font-bold mb-6 flex items-center">
-                  <span className="text-3xl mr-2">🤖</span> 
-                  <span className="bg-gradient-to-r from-pink-500 to-orange-400 bg-clip-text text-transparent">AI Models That Slap</span>
-                </h2>
                 <p className="text-gray-300 mb-6">
-                  These models are giving main character energy fr. All free to use, no strings attached. 
-                  Just grab 'em from Hugging Face and cook up something that'll make the TL go wild.
+                  Explore the hottest AI models from across the ecosystem. Our crawler automatically fetches the latest models
+                  from platforms like Hugging Face, ensuring you always have access to cutting-edge AI capabilities.
                 </p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                  <div className="p-4 bg-gray-700/20 rounded-lg border border-gray-600/30">
-                    <h3 className="text-xl font-semibold mb-2">BERT (Bidirectional Encoder Representations from Transformers)</h3>
-                    <p className="text-gray-300">Perfect for text classification, question answering, and more. Pre-trained on massive datasets for ultimate accuracy.</p>
-                    <Link href="https://huggingface.co/bert-base-uncased" className="text-blue-400 hover:text-blue-300 flex items-center mt-3">
-                      Check it out <span className="ml-1">→</span>
-                    </Link>
-                  </div>
-
-                  <div className="p-4 bg-gray-700/20 rounded-lg border border-gray-600/30">
-                    <h3 className="text-xl font-semibold mb-2">GPT-2 (Generative Pre-trained Transformer 2)</h3>
-                    <p className="text-gray-300">Generate human-like text with this OG model. Great for chatbots and creative writing tools.</p>
-                    <Link href="https://huggingface.co/gpt2" className="text-blue-400 hover:text-blue-300 flex items-center mt-3">
-                      Check it out <span className="ml-1">→</span>
-                    </Link>
-                  </div>
-
-                  <div className="p-4 bg-gray-700/20 rounded-lg border border-gray-600/30">
-                    <h3 className="text-xl font-semibold mb-2">T5 (Text-To-Text Transfer Transformer)</h3>
-                    <p className="text-gray-300">A versatile model for summarization, translation, and text generation. One model, many tasks!</p>
-                    <Link href="https://huggingface.co/t5-base" className="text-blue-400 hover:text-blue-300 flex items-center mt-3">
-                      Check it out <span className="ml-1">→</span>
-                    </Link>
-                  </div>
-
-                  <div className="p-4 bg-gray-700/20 rounded-lg border border-gray-600/30">
-                    <h3 className="text-xl font-semibold mb-2">DistilBERT</h3>
-                    <p className="text-gray-300">A lighter, faster version of BERT with 97% of its performance but half the size. Speedy vibes!</p>
-                    <Link href="https://huggingface.co/distilbert-base-uncased" className="text-blue-400 hover:text-blue-300 flex items-center mt-3">
-                      Check it out <span className="ml-1">→</span>
-                    </Link>
-                  </div>
-
-                  <div className="p-4 bg-gray-700/20 rounded-lg border border-gray-600/30">
-                    <h3 className="text-xl font-semibold mb-2">RoBERTa (Robustly Optimized BERT)</h3>
-                    <p className="text-gray-300">An upgraded BERT with better training techniques for top-tier results on NLP tasks.</p>
-                    <Link href="https://huggingface.co/roberta-base" className="text-blue-400 hover:text-blue-300 flex items-center mt-3">
-                      Check it out <span className="ml-1">→</span>
-                    </Link>
-                  </div>
-
-                  <div className="p-4 bg-gray-700/20 rounded-lg border border-gray-600/30">
-                    <h3 className="text-xl font-semibold mb-2">CLIP (Contrastive Language-Image Pretraining)</h3>
-                    <p className="text-gray-300">Connects text and images for tasks like image classification and captioning. Vision + language = 🔥</p>
-                    <Link href="https://huggingface.co/openai/clip-vit-base-patch32" className="text-blue-400 hover:text-blue-300 flex items-center mt-3">
-                      Check it out <span className="ml-1">→</span>
-                    </Link>
-                  </div>
-                </div>
-
-                <div className="text-center mt-6">
-                  <Link href="https://huggingface.co/models" className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-lg transition-all inline-block">
-                    Explore More Models on Hugging Face
-                  </Link>
-                </div>
               </div>
 
-              <div className="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-gray-700/50">
-                <h2 className="text-2xl font-bold mb-6 flex items-center">
-                  <span className="text-3xl mr-2">⚙️</span>
-                  <span className="bg-gradient-to-r from-purple-400 to-blue-500 bg-clip-text text-transparent">Tools To Level Up Your AI Game</span>
-                </h2>
-                <p className="text-gray-300 mb-6">
-                  The tools you need to go from zero to AI hero without the struggle. 
-                  These libraries and scripts are bussin' - no cap. Your workflow just got a glow up.
-                </p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                  <div className="p-4 bg-gray-700/20 rounded-lg border border-gray-600/30">
-                    <h3 className="text-xl font-semibold mb-2">Transformers Library by Hugging Face</h3>
-                    <p className="text-gray-300">The ultimate toolkit for working with pre-trained models. Fine-tune, train, and deploy with ease.</p>
-                    <Link href="https://github.com/huggingface/transformers" className="text-blue-400 hover:text-blue-300 flex items-center mt-3">
-                      Grab the Code <span className="ml-1">→</span>
-                    </Link>
-                  </div>
-
-                  <div className="p-4 bg-gray-700/20 rounded-lg border border-gray-600/30">
-                    <h3 className="text-xl font-semibold mb-2">PyTorch Training Scripts</h3>
-                    <p className="text-gray-300">Official PyTorch scripts for training models on various tasks. Clean and customizable.</p>
-                    <Link href="https://github.com/pytorch/examples" className="text-blue-400 hover:text-blue-300 flex items-center mt-3">
-                      Grab the Code <span className="ml-1">→</span>
-                    </Link>
-                  </div>
-
-                  <div className="p-4 bg-gray-700/20 rounded-lg border border-gray-600/30">
-                    <h3 className="text-xl font-semibold mb-2">LangChain</h3>
-                    <p className="text-gray-300">Framework for developing apps powered by LLMs. Makes chaining together prompts, models and data sources stupid easy.</p>
-                    <Link href="https://github.com/langchain-ai/langchain" className="text-blue-400 hover:text-blue-300 flex items-center mt-3">
-                      Access repo <span className="ml-1">→</span>
-                    </Link>
-                  </div>
-
-                  <div className="p-4 bg-gray-700/20 rounded-lg border border-gray-600/30">
-                    <h3 className="text-xl font-semibold mb-2">GGUF Model Format</h3>
-                    <p className="text-gray-300">Optimized format for running large models efficiently on consumer hardware. Run Llama 2 on your laptop - straight fire.</p>
-                    <Link href="https://github.com/ggerganov/llama.cpp" className="text-blue-400 hover:text-blue-300 flex items-center mt-3">
-                      Access repo <span className="ml-1">→</span>
-                    </Link>
-                  </div>
-                </div>
-              </div>
+              {/* Integrate the AIModelExplorer component */}
+              <AIModelExplorer />
             </div>
           )}
           
@@ -769,8 +516,8 @@ export default function OpenSourcePage() {
                 </p>
               </div>
               
-              {/* Integrate the DatasetExplorer component */}
-              <DatasetExplorer />
+              {/* Integrate the KaggleDatasetExplorer component */}
+              <KaggleDatasetExplorer />
               
               <div className="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-gray-700/50 mt-12">
                 <h2 className="text-2xl font-bold mb-6 flex items-center">
@@ -977,25 +724,25 @@ export default function OpenSourcePage() {
             >
               <div className="absolute top-0 right-0">
                 <span className="bg-purple-500 text-xs font-bold px-3 py-1 rounded-bl-lg">
-                  Q3 2023
+                  Q4 2025
                 </span>
               </div>
-              <h3 className="text-xl font-bold mb-3 mt-4">NeuralEngine v2.0</h3>
+              <h3 className="text-xl font-bold mb-3 mt-4">Collaborative Workspaces</h3>
               <p className="text-gray-300 mb-4">
-                Major update with 3x faster inference, new model format support, and improved memory efficiency.
+                Team-based development environments with real-time collaboration features for model development and deployment.
               </p>
               <div className="space-y-2">
                 <div className="flex items-center">
                   <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  <span className="text-sm text-gray-300">CUDA graph optimizations</span>
+                  <span className="text-sm text-gray-300">Shared notebooks with Git integration</span>
                 </div>
                 <div className="flex items-center">
                   <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  <span className="text-sm text-gray-300">Improved quantization support</span>
+                  <span className="text-sm text-gray-300">Role-based permissions at project level</span>
                 </div>
                 <div className="flex items-center">
                   <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  <span className="text-sm text-gray-300">Streaming response API</span>
+                  <span className="text-sm text-gray-300">Built-in code review workflows</span>
                 </div>
               </div>
             </motion.div>
@@ -1008,25 +755,25 @@ export default function OpenSourcePage() {
             >
               <div className="absolute top-0 right-0">
                 <span className="bg-blue-500 text-xs font-bold px-3 py-1 rounded-bl-lg">
-                  Q4 2023
+                  Q3 2026
                 </span>
               </div>
-              <h3 className="text-xl font-bold mb-3 mt-4">DataFlowPro Cloud</h3>
+              <h3 className="text-xl font-bold mb-3 mt-4">AI Agent Framework</h3>
               <p className="text-gray-300 mb-4">
-                Cloud-based version with collaborative features, pipeline sharing, and integrated annotations.
+                Framework for building autonomous AI agents with reasoning capabilities that can perform complex tasks.
               </p>
               <div className="space-y-2">
                 <div className="flex items-center">
                   <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  <span className="text-sm text-gray-300">Team workspace functionality</span>
+                  <span className="text-sm text-gray-300">Agent orchestration and monitoring</span>
                 </div>
                 <div className="flex items-center">
                   <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  <span className="text-sm text-gray-300">Pipeline version control</span>
+                  <span className="text-sm text-gray-300">Advanced reasoning capabilities</span>
                 </div>
                 <div className="flex items-center">
                   <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  <span className="text-sm text-gray-300">Data quality monitoring</span>
+                  <span className="text-sm text-gray-300">Complex task automation</span>
                 </div>
               </div>
             </motion.div>
@@ -1039,25 +786,25 @@ export default function OpenSourcePage() {
             >
               <div className="absolute top-0 right-0">
                 <span className="bg-pink-500 text-xs font-bold px-3 py-1 rounded-bl-lg">
-                  Q1 2024
+                  Q1 2027
                 </span>
               </div>
-              <h3 className="text-xl font-bold mb-3 mt-4">Model Registry Enterprise</h3>
+              <h3 className="text-xl font-bold mb-3 mt-4">Core SDK Release</h3>
               <p className="text-gray-300 mb-4">
-                Enterprise version with advanced security, compliance features, and organizational roles.
+                Launch of the official Neural Nexus SDK with comprehensive libraries for Python, JavaScript, Rust, and Go.
               </p>
               <div className="space-y-2">
                 <div className="flex items-center">
                   <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  <span className="text-sm text-gray-300">RBAC and SSO integration</span>
+                  <span className="text-sm text-gray-300">High-level abstractions for all capabilities</span>
                 </div>
                 <div className="flex items-center">
                   <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  <span className="text-sm text-gray-300">Audit logging and compliance</span>
+                  <span className="text-sm text-gray-300">Multi-language support (Python, JS, Rust, Go)</span>
                 </div>
                 <div className="flex items-center">
                   <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  <span className="text-sm text-gray-300">Advanced model governance</span>
+                  <span className="text-sm text-gray-300">Low-level control for platform features</span>
                 </div>
               </div>
             </motion.div>

@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import dataCrawler from '@/lib/DataCrawler';
+import { DataCrawler } from '@/lib/DataCrawler';
+
+// This makes the route compatible with static exports
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,6 +11,9 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get('category') || '';
     const search = searchParams.get('search') || '';
     const forceRefresh = searchParams.get('refresh') === 'true';
+    
+    // Get DataCrawler instance
+    const dataCrawler = DataCrawler.getInstance();
     
     // Get filtered datasets
     let datasets;

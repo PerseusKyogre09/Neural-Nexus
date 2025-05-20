@@ -1,7 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { ethers } from 'ethers';
+// Use our wrapper instead of directly importing ethers
+import ethers, { getDefaultProvider, Contract, providers } from './EthersWrapper';
 import Web3Modal from 'web3modal';
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
 import { configureChains, createConfig, WagmiConfig, Config } from 'wagmi';

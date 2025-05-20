@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "checkJs": false,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "target": "es2020",
+    "module": "es2015",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "exclude": ["node_modules", "**/node_modules/*", ".next", "out"]
+} 
