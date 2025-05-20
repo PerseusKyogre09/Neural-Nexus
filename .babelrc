@@ -1,4 +1,28 @@
 {
-  "presets": ["next/babel"],
-  "plugins": []
+  "presets": [
+    [
+      "next/babel",
+      {
+        "preset-env": {},
+        "preset-react": {
+          "runtime": "automatic",
+          "importSource": "react"
+        }
+      }
+    ]
+  ],
+  "plugins": [],
+  "env": {
+    "edge": {
+      "presets": [
+        [
+          "next/babel",
+          {
+            "preset-env": {},
+            "preset-react": false
+          }
+        ]
+      ]
+    }
+  }
 } 

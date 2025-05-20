@@ -1,16 +1,11 @@
-// Pure JavaScript middleware with absolutely no React dependencies
+// Ultra minimal middleware with no dependencies at all
 
+// Export config to define paths
 export const config = {
   matcher: ['/signin', '/signup', '/auth/callback']
 };
 
+// Bare minimum implementation
 export default function middleware(request) {
-  // Create basic response with headers
-  return new Response(null, {
-    status: 200,
-    headers: {
-      'x-edge-middleware': 'true',
-      'x-client-side-rendering': 'true'
-    }
-  });
+  return new Response();
 } 

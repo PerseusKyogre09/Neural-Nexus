@@ -1,185 +1,63 @@
 /** @type {import('next').NextConfig} */
-const webpack = require('webpack');
-const path = require('path');
-const edgeConfig = require('./scripts/edge-config');
-
 const nextConfig = {
-  reactStrictMode: true,
-  swcMinify: false, // Disable SWC minify since we're using Babel
+  // Core settings
+  reactStrictMode: false,
+  swcMinify: false,
+  
+  // Image optimization settings
   images: {
-    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**.supabase.co',
-        port: '',
-      },
-      {
-        protocol: 'https',
-        hostname: '**.arweave.net',
-        port: '',
-      },
-      {
-        protocol: 'https',
-        hostname: '**.ipfs.nftstorage.link',
-        port: '',
-      },
-      {
-        protocol: 'https',
-        hostname: '**.ipfs.w3s.link',
-        port: '',
-      },
-      {
-        protocol: 'https',
-        hostname: '**.ipfs.dweb.link',
-        port: '',
-      },
-      {
-        protocol: 'https',
-        hostname: '**.cloudinary.com',
-        port: '',
-      },
+      { protocol: 'https', hostname: '**.supabase.co' },
+      { protocol: 'https', hostname: '**.arweave.net' },
+      { protocol: 'https', hostname: '**.cloudinary.com' },
+      { protocol: 'https', hostname: '**.ipfs.nftstorage.link' },
+      { protocol: 'https', hostname: '**.ipfs.w3s.link' },
+      { protocol: 'https', hostname: '**.ipfs.dweb.link' },
     ],
   },
-  eslint: {
-    // Don't run ESLint during build for speed
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    // Don't run TS checking during build for speed
-    ignoreBuildErrors: true,
-  },
-  // Move these out of experimental as per warning
+  
+  // Disable type checking and linting during build
+  typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
+  
+  // For static auth pages
   skipTrailingSlashRedirect: true,
   skipMiddlewareUrlNormalize: true,
+  
+  // Middleware matcher - these must match middleware.js
   experimental: {
-    optimizeCss: false,
-    // These settings help with client-side only pages
-    serverActions: {
-      allowedOrigins: ['localhost:3000', '127.0.0.1:3000'],
-    },
+    middlewarePrefetch: false,
   },
-  // Function to generate a custom build ID for consistent builds
-  generateBuildId: async () => {
-    return "neural-nexus-build"
-  },
-  // Handle static HTML files for authentication pages
-  rewrites() {
-    return [
-      {
-        source: '/signin',
-        destination: '/signin-static.html',
-      },
-      {
-        source: '/signup',
-        destination: '/signup-static.html',
-      },
-      {
-        source: '/auth/callback',
-        destination: '/auth-callback-static.html',
-      },
-    ]
-  },
-  // Mark client-side rendering pages
-  async headers() {
-    return [
-      {
-        source: '/(signin|signup|auth/callback)',
-        headers: [
-          {
-            key: 'x-client-side-rendering',
-            value: 'true',
-          },
-        ],
-      },
-    ];
-  },
-  // Skip problematic pages during server-side build
-  webpack: (config, { isServer, dev, buildId, webpack, isEdgeRuntime }) => {
-    // Specific config for Edge Runtime (middleware)
+  
+  // Webpack configuration
+  webpack: (config, { isEdgeRuntime }) => {
+    // Handle Edge runtime (middleware)
     if (isEdgeRuntime) {
-      // For middleware, exclude React and other problematic packages
       const originalEntry = config.entry;
       
+      // Handle middleware entry
       config.entry = async () => {
         const entries = await originalEntry();
         
-        // Find middleware entries and filter imports
-        if (entries['middleware'] && entries['pages/_app'] && isServer) {
-          // Exclude React and related packages
-          config.externals = [
-            ...(config.externals || []),
-            ...edgeConfig.excludePackages,
-          ];
+        if (entries['middleware']) {
+          console.log('Configuring webpack for middleware');
         }
         
         return entries;
       };
       
-      return config;
-    }
-    
-    if (isServer) {
-      // Skip client-only pages during server builds
-      config.optimization.splitChunks.cacheGroups = {
-        ...config.optimization.splitChunks.cacheGroups,
-        clientOnly: {
-          test: module => {
-            const modulePath = module.resource || '';
-            return (
-              modulePath.includes('/app/signin/') ||
-              modulePath.includes('/app/signup/') ||
-              modulePath.includes('/app/auth/callback/')
-            );
-          },
-          name: 'client-only',
-          chunks: 'all',
-          enforce: true,
+      // Force React to be empty in edge runtime
+      config.resolve = {
+        ...config.resolve,
+        alias: {
+          ...config.resolve.alias,
+          'react': false,
+          'react-dom': false,
         },
       };
     }
     
-    // Fix "React is not defined" error by providing React as a global
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      react: require.resolve('react'),
-      // Explicitly add Babel plugins to fallbacks
-      '@babel/plugin-transform-react-jsx': require.resolve('@babel/plugin-transform-react-jsx'),
-      '@babel/plugin-transform-private-methods': require.resolve('@babel/plugin-transform-private-methods'),
-      '@babel/plugin-transform-private-property-in-object': require.resolve('@babel/plugin-transform-private-property-in-object'),
-      '@babel/plugin-transform-class-properties': require.resolve('@babel/plugin-transform-class-properties'),
-    };
-    
-    // Add React as a global using ProvidePlugin
-    config.plugins.push(
-      new webpack.ProvidePlugin({
-        React: 'react',
-      })
-    );
-    
-    // Ensure babel plugins are loaded correctly
-    config.resolve.modules = [
-      'node_modules',
-      path.resolve(__dirname, 'node_modules'),
-      ...config.resolve.modules || [],
-    ];
-    
-    // Handle ethers library - exclude it from the build if NEXT_SKIP_ETHERS is set
-    if (process.env.NEXT_SKIP_ETHERS) {
-      config.externals = [
-        ...(config.externals || []),
-        'ethers',
-      ];
-    }
-    
     return config;
-  },
-  // Middleware configuration
-  middleware: {
-    // Don't run middleware on these paths
-    skipMiddlewareUrlNormalize: true,
-    // Only run on specific paths
-    matcher: ['/signin', '/signup', '/auth/callback']
   },
 };
 

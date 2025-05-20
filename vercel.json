@@ -1,26 +1,10 @@
 {
   "framework": "nextjs",
-  "buildCommand": "node ./scripts/vercel-build-hook.js pre && NEXT_RUNTIME=edge NEXT_DISABLE_REACT_IN_MIDDLEWARE=true npm run custom-vercel-build && node ./scripts/purge-edge-modules.js && node ./scripts/vercel-build-hook.js post",
+  "buildCommand": "NODE_ENV=production NEXT_RUNTIME=edge NEXT_DISABLE_REACT_IN_MIDDLEWARE=true BABEL_ENV=edge next build",
   "outputDirectory": ".next",
   "env": {
-    "NEXT_PUBLIC_ENABLE_TONCONNECT": "true",
-    "NEXT_PUBLIC_TON_MANIFEST_URL": "https://ai-model-hub-beryl.vercel.app/tonconnect-manifest.json",
-    "NEXT_PUBLIC_COINBASE_PROJECT_ID": "32377b32-6133-41a6-8bcf-9aba45395d08",
-    "NEXT_PUBLIC_COINBASE_APP_KEY_ID": "755ad3cb-c018-4966-954e-886b1d5ecad6",
-    "COINBASE_SECRET": "Yp2EEWCIgVrMWfkzAOvxIrTtutLBYEdht80x3CeXAFpPhzI7Tn2w4QJwUlYMvmnHhuNN3RUJYYr8rn45N1eb7Q==",
-    "NEXT_PUBLIC_RUNTIME_JS_REACT": "true",
     "NEXT_RUNTIME": "edge",
-    "NEXT_DISABLE_REACT_IN_MIDDLEWARE": "true"
-  },
-  "installCommand": "npm install",
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next",
-      "config": {
-        "zeroConfig": true,
-        "skipAutoInstall": false
-      }
-    }
-  ]
+    "NEXT_DISABLE_REACT_IN_MIDDLEWARE": "true",
+    "BABEL_ENV": "edge"
+  }
 } 
