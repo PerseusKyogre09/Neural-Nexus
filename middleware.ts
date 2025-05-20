@@ -1,47 +1,24 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-// Define paths that should be client-side only (no SSR)
-const CLIENT_SIDE_PATHS = ['/signin', '/signup', '/auth/callback'];
-
-/**
- * Middleware to handle authentication paths and prevent "document is not defined" errors
- * during static site generation
- */
+// Basic middleware - no React imports or dependencies
 export function middleware(request: NextRequest) {
-  // Get current path
   const path = request.nextUrl.pathname;
   
-  // Check if we're in the build process or using custom server
-  const isBuildProcess = request.headers.get('x-is-build') === 'true';
-  const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
-  
-  // Handle build process or static generation
-  if (isBuildProcess || isBuildPhase) {
-    // Skip the problematic pages during build
-    if (CLIENT_SIDE_PATHS.includes(path)) {
-      const staticFilePath = `${path.replace(/\/$/, '')}-static.html`;
-      return NextResponse.rewrite(new URL(staticFilePath, request.url));
-    }
-  }
-  
-  // Mark client-side rendering pages
-  if (CLIENT_SIDE_PATHS.includes(path)) {
+  // Simple URL rewrite logic for auth paths
+  if (path === '/signin' || path === '/signup' || path === '/auth/callback') {
+    // Add client-side rendering header
     const response = NextResponse.next();
     response.headers.set('x-client-side-rendering', 'true');
     return response;
   }
   
-  // For other paths, proceed normally
   return NextResponse.next();
 }
 
-// Configure middleware to run only on specified paths
+// Only run middleware on these paths
 export const config = {
-  matcher: [
-    '/signin', 
-    '/signup', 
-    '/auth/callback',
-  ],
+  matcher: ['/signin', '/signup', '/auth/callback'],
 };
 
 // Configure routes for this middleware - run on all routes except static files and API

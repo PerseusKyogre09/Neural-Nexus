@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const webpack = require('webpack');
 const path = require('path');
+const edgeConfig = require('./scripts/edge-config');
 
 const nextConfig = {
   reactStrictMode: true,
@@ -94,7 +95,30 @@ const nextConfig = {
     ];
   },
   // Skip problematic pages during server-side build
-  webpack: (config, { isServer, dev }) => {
+  webpack: (config, { isServer, dev, buildId, webpack, isEdgeRuntime }) => {
+    // Specific config for Edge Runtime (middleware)
+    if (isEdgeRuntime) {
+      // For middleware, exclude React and other problematic packages
+      const originalEntry = config.entry;
+      
+      config.entry = async () => {
+        const entries = await originalEntry();
+        
+        // Find middleware entries and filter imports
+        if (entries['middleware'] && entries['pages/_app'] && isServer) {
+          // Exclude React and related packages
+          config.externals = [
+            ...(config.externals || []),
+            ...edgeConfig.excludePackages,
+          ];
+        }
+        
+        return entries;
+      };
+      
+      return config;
+    }
+    
     if (isServer) {
       // Skip client-only pages during server builds
       config.optimization.splitChunks.cacheGroups = {
@@ -149,6 +173,13 @@ const nextConfig = {
     }
     
     return config;
+  },
+  // Middleware configuration
+  middleware: {
+    // Don't run middleware on these paths
+    skipMiddlewareUrlNormalize: true,
+    // Only run on specific paths
+    matcher: ['/signin', '/signup', '/auth/callback']
   },
 };
 
