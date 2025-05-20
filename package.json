@@ -5,9 +5,10 @@
   "scripts": {
     "dev": "next dev",
     "prebuild": "node ./scripts/prepare-build.js",
-    "build": "npm install --no-save @babel/plugin-transform-react-jsx @babel/plugin-transform-private-methods @babel/plugin-transform-private-property-in-object @babel/plugin-transform-class-properties && NEXT_PUBLIC_ENABLE_SIMPLE_CRYPTO=true NEXT_SKIP_ETHERS=true next build && node ./scripts/fix-react-build.js",
+    "build": "NEXT_PUBLIC_ENABLE_SIMPLE_CRYPTO=true NEXT_SKIP_ETHERS=true next build && node ./scripts/fix-react-build.js",
     "postbuild": "node ./scripts/patch-build.js",
     "custom-build": "./build-with-cleanup.sh",
+    "custom-vercel-build": "node ./scripts/vercel-build.js",
     "start": "next start",
     "custom-start": "node dev-server.js",
     "lint": "next lint"

@@ -1,6 +1,6 @@
 {
   "framework": "nextjs",
-  "buildCommand": "npm install --no-save @babel/plugin-transform-react-jsx @babel/plugin-transform-private-methods @babel/plugin-transform-private-property-in-object @babel/plugin-transform-class-properties && NEXT_PUBLIC_ENABLE_TONCONNECT=false NEXT_PUBLIC_RUNTIME_JS_REACT=true npm run build",
+  "buildCommand": "npm run custom-vercel-build",
   "outputDirectory": ".next",
   "env": {
     "NEXT_PUBLIC_ENABLE_TONCONNECT": "true",
@@ -10,5 +10,5 @@
     "COINBASE_SECRET": "Yp2EEWCIgVrMWfkzAOvxIrTtutLBYEdht80x3CeXAFpPhzI7Tn2w4QJwUlYMvmnHhuNN3RUJYYr8rn45N1eb7Q==",
     "NEXT_PUBLIC_RUNTIME_JS_REACT": "true"
   },
-  "installCommand": "npm install && npm install --no-save @babel/plugin-transform-react-jsx @babel/plugin-transform-private-methods @babel/plugin-transform-private-property-in-object @babel/plugin-transform-class-properties"
+  "installCommand": "npm install"
 } 
