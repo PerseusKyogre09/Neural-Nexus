@@ -2,13 +2,44 @@
  * prepare-build.js
  * 
  * This script prepares the project for building by creating necessary
- * static HTML fallback files for authentication pages.
+ * static HTML fallback files for authentication pages and ensuring babel plugins are available.
  */
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 console.log('🔍 Preparing build environment...');
+
+// Function to check if a package is installed
+function isPackageInstalled(packageName) {
+  try {
+    require.resolve(packageName);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+// Check and install babel plugins if needed
+const requiredBabelPackages = [
+  '@babel/plugin-transform-react-jsx',
+  '@babel/plugin-transform-private-methods',
+  '@babel/plugin-transform-private-property-in-object',
+  '@babel/plugin-transform-class-properties'
+];
+
+let missingPackages = requiredBabelPackages.filter(pkg => !isPackageInstalled(pkg));
+
+if (missingPackages.length > 0) {
+  console.log('📦 Installing missing babel plugins...');
+  try {
+    execSync(`npm install ${missingPackages.join(' ')}`, { stdio: 'inherit' });
+    console.log('✅ Successfully installed babel plugins');
+  } catch (error) {
+    console.error('⚠️ Failed to install babel plugins:', error.message);
+  }
+}
 
 // Create public directory if it doesn't exist
 const publicDir = path.join(process.cwd(), 'public');

@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const webpack = require('webpack');
+const path = require('path');
 
 const nextConfig = {
   reactStrictMode: true,
@@ -118,6 +119,11 @@ const nextConfig = {
     config.resolve.fallback = {
       ...config.resolve.fallback,
       react: require.resolve('react'),
+      // Explicitly add Babel plugins to fallbacks
+      '@babel/plugin-transform-react-jsx': require.resolve('@babel/plugin-transform-react-jsx'),
+      '@babel/plugin-transform-private-methods': require.resolve('@babel/plugin-transform-private-methods'),
+      '@babel/plugin-transform-private-property-in-object': require.resolve('@babel/plugin-transform-private-property-in-object'),
+      '@babel/plugin-transform-class-properties': require.resolve('@babel/plugin-transform-class-properties'),
     };
     
     // Add React as a global using ProvidePlugin
@@ -126,6 +132,13 @@ const nextConfig = {
         React: 'react',
       })
     );
+    
+    // Ensure babel plugins are loaded correctly
+    config.resolve.modules = [
+      'node_modules',
+      path.resolve(__dirname, 'node_modules'),
+      ...config.resolve.modules || [],
+    ];
     
     // Handle ethers library - exclude it from the build if NEXT_SKIP_ETHERS is set
     if (process.env.NEXT_SKIP_ETHERS) {
