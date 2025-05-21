@@ -20,11 +20,7 @@ const nextConfig = {
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
   
-  // For static auth pages
-  skipTrailingSlashRedirect: true,
-  skipMiddlewareUrlNormalize: true,
-  
-  // Middleware matcher - these must match middleware.js
+  // Middleware configuration
   experimental: {
     middlewarePrefetch: false,
   },

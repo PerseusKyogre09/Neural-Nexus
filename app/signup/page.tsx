@@ -1,8 +1,8 @@
 "use client";
 
-// The dynamic export configuration at the top ensures this page is only rendered client-side
+// The dynamic export configuration ensures this page is only rendered client-side
 export const dynamic = "force-dynamic";
-export const runtime = "experimental-edge";
+export const runtime = "edge";
 export const dynamicParams = true;
 
 import React, { useState, useEffect } from 'react';
@@ -13,14 +13,10 @@ import { Button } from '@/src/components/ui/Button';
 import { Mail, Lock, Github, AlertCircle, User } from 'lucide-react';
 import Link from 'next/link';
 import { useSupabase } from '@/providers/SupabaseProvider';
-import { useRouter } from 'next/navigation';
-import nextDynamic from 'next/dynamic';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-// Dynamically import toast to avoid 'document is not defined' during SSR
-const ToastProvider = nextDynamic(
-  () => import('react-hot-toast').then((mod) => ({ default: () => null, toast: mod.toast })),
-  { ssr: false }
-);
+// Import toast dynamically to avoid SSR issues
+const importToast = () => import('react-hot-toast').then(mod => mod.toast);
 
 interface AuthError {
   field: 'email' | 'password' | 'firstName' | 'lastName' | 'username' | 'general';
@@ -36,16 +32,49 @@ export default function SignUpPage() {
     password: '',
     confirmPassword: ''
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<AuthError | null>(null);
   const [isClient, setIsClient] = useState(false);
   const { supabase } = useSupabase();
   const router = useRouter();
+  const searchParams = useSearchParams();
   
   // Set isClient to true when component mounts to ensure we only access browser APIs on the client
   useEffect(() => {
-    setIsClient(true);
-  }, []);
+    if (typeof window !== 'undefined') {
+      // Mark that we're on the client
+      setIsClient(true);
+      
+      // Check for error message in URL - use safe access
+      const errorMsg = searchParams?.get ? searchParams.get('error') : null;
+      if (errorMsg) {
+        // Import toast dynamically
+        importToast().then(toast => {
+          toast.error(typeof errorMsg === 'string' ? errorMsg : 'An error occurred');
+        }).catch(err => {
+          console.error("Error showing toast:", err);
+        });
+      }
+      
+      // Stop loading after a short delay to ensure smooth transition
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
+    }
+  }, [searchParams]);
+  
+  // Show loading state until client-side code is ready
+  if (!isClient || isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black flex items-center justify-center">
+        <div className="p-8 rounded-xl bg-gray-800/30 backdrop-blur-md text-center">
+          <div className="w-12 h-12 border-t-2 border-purple-500 border-r-2 rounded-full animate-spin mx-auto mb-4"></div>
+          <h2 className="text-xl font-semibold text-white mb-2">Loading</h2>
+          <p className="text-gray-300">Preparing sign-up page...</p>
+        </div>
+      </div>
+    );
+  }
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

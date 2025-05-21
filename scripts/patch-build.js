@@ -38,32 +38,29 @@ serverDirs.forEach(dir => {
   }
 });
 
-// Copy static HTML files from public to the server directory
-const staticFiles = [
-  { source: 'public/signin-static.html', dest: '.next/server/pages/signin.html' },
-  { source: 'public/signup-static.html', dest: '.next/server/pages/signup.html' },
-  { source: 'public/auth-callback-static.html', dest: '.next/server/pages/auth/callback.html' },
-  // Also copy to app directory for client-side rendering
-  { source: 'public/signin-static.html', dest: '.next/server/app/signin/page.html' },
-  { source: 'public/signup-static.html', dest: '.next/server/app/signup/page.html' },
-  { source: 'public/auth-callback-static.html', dest: '.next/server/app/auth/callback/page.html' },
-];
+// Create .nojekyll file to ensure proper static file serving if deployed to GitHub Pages
+const nojekyllPath = path.join('.next', '.nojekyll');
+if (!fs.existsSync(nojekyllPath)) {
+  fs.writeFileSync(nojekyllPath, '', 'utf8');
+  console.log('📄 Created .nojekyll file');
+}
 
-staticFiles.forEach(({ source, dest }) => {
-  if (fs.existsSync(source)) {
-    // Create the directory if it doesn't exist
-    const destDir = path.dirname(dest);
-    if (!fs.existsSync(destDir)) {
-      fs.mkdirSync(destDir, { recursive: true });
-    }
-    
-    // Copy the file
-    fs.copyFileSync(source, dest);
-    console.log(`📄 Copying ${source} to ${dest}`);
-  } else {
-    console.warn(`⚠️ Warning: ${source} does not exist`);
-  }
-});
+// Check if routes-manifest.json exists, if not create a basic one
+const routesManifestPath = path.join('.next', 'routes-manifest.json');
+if (!fs.existsSync(routesManifestPath)) {
+  // Create a minimal routes manifest
+  const routesManifest = {
+    version: 3,
+    basePath: "",
+    headers: [],
+    rewrites: [],
+    redirects: [],
+    dynamicRoutes: []
+  };
+  
+  fs.writeFileSync(routesManifestPath, JSON.stringify(routesManifest, null, 2), 'utf8');
+  console.log('📄 Created basic routes-manifest.json');
+}
 
 console.log('✅ Build patching complete');
 console.log('🚀 The build is ready for deployment!'); 
