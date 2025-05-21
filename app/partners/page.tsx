@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PartnerCard from '../../src/components/ui/PartnerCard';
 import { 
   ArrowRight, 
   X, 
@@ -69,7 +70,7 @@ export default function PartnersPage() {
   const majorPartners = [
     { 
       name: "Google", 
-      logo: "/partners/google.svg", 
+      logo: "/partners/7123025_logo_google_g_icon.svg", 
       description: "Strategic AI research partner, collaborating on foundational models and ethical AI development frameworks." 
     },
     { 
@@ -79,22 +80,22 @@ export default function PartnersPage() {
     },
     { 
       name: "NVIDIA", 
-      logo: "/partners/nvidia.svg", 
+      logo: "partners/icons8-nvidia.svg", 
       description: "Hardware acceleration partner, optimizing models for NVIDIA GPUs and providing specialized training resources." 
     },
     { 
       name: "OpenAI", 
-      logo: "/partners/openai.svg", 
+      logo: "/partners/icons8-chatgpt.svg", 
       description: "Research collaboration partner focusing on responsible AI deployment and interoperability standards." 
     },
     { 
       name: "IBM", 
-      logo: "/partners/ibm.svg", 
+      logo: "/partners/icons8-ibm.svg", 
       description: "Enterprise integration partner helping businesses adopt and implement AI solutions at scale." 
     },
     { 
       name: "Meta", 
-      logo: "/partners/meta.svg", 
+      logo: "/partners/icons8-meta.svg", 
       description: "Research partner specializing in multimodal AI models and social interaction understanding systems." 
     }
   ];
@@ -288,10 +289,9 @@ export default function PartnersPage() {
         </div>
       </section>
 
-      {/* Major Partners Section */}
-      <section className="py-20 px-4 bg-black/50">
+        <section className="py-20 px-4 bg-black/50 text-white">
         <div className="container mx-auto">
-          <motion.h2 
+          <motion.h2
             className="text-3xl font-bold mb-16 text-center"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -303,74 +303,76 @@ export default function PartnersPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {majorPartners.map((partner, index) => (
-              <motion.div
-                key={partner.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ scale: 1.03, boxShadow: "0 10px 25px -5px rgba(123, 97, 255, 0.3)" }}
-                className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700/30 hover:border-purple-500/50 transition-all"
-              >
-                <div className="h-20 mb-4 flex items-center">
-                  <Image 
-                    src={partner.logo} 
-                    alt={partner.name} 
-                    width={160} 
-                    height={80} 
-                    className="object-contain"
-                  />
-                </div>
-                <h3 className="text-xl font-semibold mb-2 text-white">{partner.name}</h3>
-                <p className="text-gray-400">{partner.description}</p>
-              </motion.div>
+              <PartnerCard key={partner.name} partner={partner} index={index} />
             ))}
           </div>
         </div>
       </section>
+      {/* END Major Partners Section */}
+   
+      
 
+
+
+   
       {/* Additional Partners */}
-      <section className="py-16 px-4 bg-gradient-to-r from-gray-900 to-black">
-        <div className="container mx-auto">
-          <motion.h2 
-            className="text-2xl font-bold mb-10 text-center"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            Our Growing Partner Ecosystem
-          </motion.h2>
+  <section className="py-16 px-4 bg-gradient-to-r from-gray-900 to-black">
+  <div className="container mx-auto">
+    <motion.h2
+      className="text-2xl font-bold mb-10 text-center"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5 }}
+    >
+      Our Growing Partner Ecosystem
+    </motion.h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 mb-10">
-            {otherPartners.map((partner, index) => (
-              <motion.div
-                key={partner.name}
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-                whileHover={{ 
-                  scale: 1.1,
-                  filter: "grayscale(0)",
-                  transition: { duration: 0.2 }
-                }}
-                className="flex justify-center"
-              >
-                <div className="w-32 h-20 flex items-center justify-center filter grayscale hover:grayscale-0 transition-all duration-300 hover:drop-shadow-glow">
-                  <Image 
-                    src={partner.logo} 
-                    alt={partner.name} 
-                    width={100} 
-                    height={60}
-                    className="object-contain" 
-                  />
-                </div>
-              </motion.div>
-            ))}
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 mb-10">
+      {otherPartners.map((partner, index) => (
+        <motion.div
+          key={partner.name}
+          // --- ANIMATION WITH SMALL SLIDING EFFECT ---
+          initial={{
+            opacity: 0,
+            scale: 0.8,
+            y: 50,
+            x: index % 2 === 0 ? -20 : 20 // Slide in from alternating left (-20px) and right (20px)
+          }}
+          whileInView={{
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            x: 0 // Slide to their final horizontal position
+          }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{
+            type: "spring",
+            stiffness: 150,
+            damping: 20,
+            delay: index * 0.08
+          }}
+          // --- HOVER ANIMATION ---
+          whileHover={{
+            scale: 1.15,
+            transition: { duration: 0.2 }
+          }}
+          className="flex justify-center"
+        >
+          <div className="w-32 h-20 flex items-center justify-center filter grayscale hover:grayscale-0 transition-all duration-300 hover:drop-shadow-glow">
+            <Image
+              src={partner.logo}
+              alt={partner.name}
+              width={100}
+              height={60}
+              className="object-contain"
+            />
           </div>
-        </div>
-      </section>
+        </motion.div>
+      ))}
+    </div>
+  </div>
+</section>
 
       {/* Partnership Types */}
       <section className="py-20 px-4 bg-black/50">
@@ -451,99 +453,85 @@ export default function PartnersPage() {
         </div>
       </section>
 
-      {/* Partnership Process */}
-      <section className="py-20 px-4 bg-gradient-to-b from-gray-900 to-black">
-        <div className="container mx-auto">
-          <motion.div 
-            className="text-center mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <h2 className="text-3xl font-bold mb-4">Partnership Journey</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">
-              A straightforward process to establish a productive and valuable partnership
-            </p>
-          </motion.div>
+    <section className="py-20 px-4 bg-gradient-to-b from-gray-900 to-black">
+      <div className="container mx-auto">
+        <motion.div
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
+          <h2 className="text-3xl font-bold mb-4 text-white">Partnership Journey</h2>
+          <p className="text-gray-400 max-w-2xl mx-auto">
+            A straightforward process to establish a productive and valuable partnership
+          </p>
+        </motion.div>
 
-          <div className="relative py-10">
-            {/* Timeline Line with Gradient */}
-            <motion.div 
-              className="absolute left-1/2 transform -translate-x-1/2 h-full w-1.5 bg-gradient-to-b from-violet-500 via-blue-500 to-cyan-500 rounded-full"
-              initial={{ height: 0 }}
-              whileInView={{ height: "100%" }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.5 }}
-            />
-            
-            {/* Process Steps */}
-            <div className="space-y-28 relative">
-              {partnershipProcess.map((step, index) => (
+        <div className="relative py-10">
+          {/* Timeline Line with Gradient */}
+          <motion.div
+            className="absolute z-10 left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-gradient-to-b from-violet-500 via-blue-500 to-cyan-500 rounded-full"
+            initial={{ height: 0 }}
+            whileInView={{ height: "100%" }}
+            viewport={{ once: true }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
+          />
+
+          {/* Process Steps Container */}
+          <div className="space-y-24 md:space-y-28"> {/* Adjusted vertical spacing for better readability on larger screens */}
+            {partnershipProcess.map((step, index) => (
+              <div
+                key={step.title}
+                className="relative flex items-center w-full"
+              >
+                {/* Content Block */}
                 <motion.div
-                  key={step.title}
-                  initial={{ opacity: 0, x: index % 2 === 0 ? -20 : 20 }}
+                  className={`w-full md:w-1/2 ${index % 2 === 0 ? 'md:mr-auto md:text-right md:pr-16' : 'md:ml-auto md:text-left md:pl-16'}`}
+                  initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }} // Slide in from side
                   whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.2 }}
-                  className={`flex items-center ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}
+                  viewport={{ once: true, amount: 0.3 }} // Trigger when 30% in view
+                  transition={{ duration: 0.4, delay: index * 0.2 + 0.1, ease: "easeOut" }}
                 >
-                  <div className={`w-1/2 ${index % 2 === 0 ? 'pr-16 text-right' : 'pl-16 text-left'}`}>
-                    <motion.h3 
-                      className="text-xl font-semibold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-blue-400"
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.5, delay: index * 0.2 + 0.2 }}
-                    >
-                      {step.title}
-                    </motion.h3>
-                    <motion.p 
-                      className="text-gray-400"
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.5, delay: index * 0.2 + 0.3 }}
-                    >
-                      {step.description}
-                    </motion.p>
-                  </div>
-                  
-                  <motion.div 
-                    className={`absolute left-1/2 transform -translate-x-1/2 flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br ${
-                      [
-                        "from-violet-500 to-purple-600",
-                        "from-purple-500 to-blue-600", 
-                        "from-blue-500 to-cyan-600",
-                        "from-cyan-500 to-teal-600",
-                        "from-teal-500 to-green-600",
-                        "from-green-500 to-emerald-600"
-                      ][index % 6]
-                    } shadow-lg shadow-${
-                      ["violet", "purple", "blue", "cyan", "teal", "green"][index % 6]
-                    }-500/30 border border-white/10 z-10`}
-                    initial={{ scale: 0 }}
-                    whileInView={{ scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ 
-                      duration: 0.5, 
-                      delay: 0.5 + index * 0.2,
-                      type: "spring",
-                      stiffness: 200
-                    }}
-                  >
-                    <div>
-                      {step.icon}
-                    </div>
-                  </motion.div>
-                  
-                  <div className="w-1/2"></div>
+                  <h3 className="text-xl font-semibold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-blue-400">
+                    {step.title}
+                  </h3>
+                  <p className="text-gray-400">
+                    {step.description}
+                  </p>
                 </motion.div>
-              ))}
-            </div>
+
+                {/* Timeline Circle */}
+                <motion.div
+                  className="absolute z-30 right-[641px] top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br shadow-lg border border-white/10 "
+                  style={{
+                    background: [
+                      "linear-gradient(to bottom right, #a78bfa, #8ab4f8)",
+                      "linear-gradient(to bottom right, #d8b4fe, #818cf8)",
+                      "linear-gradient(to bottom right, #c084fc, #60a5fa)",
+                      "linear-gradient(to bottom right, #a855f7, #3b82f6)",
+                      "linear-gradient(to bottom right, #9333ea, #22d3ee)",
+                      "linear-gradient(to bottom right, #8b5cf6, #14b8a6)",
+                    ][index % 6],
+                  }}
+                  initial={{ scale: 0 }}
+                  whileInView={{ scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 200,
+                    damping: 15,
+                    delay: 0.3 + index * 0.2,
+                  }}
+                >
+                  <div className="text-white text-sm md:text-base">{step.icon}</div>
+                </motion.div>
+              </div>
+            ))}
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
       {/* Enhanced Contact CTA */}
       <section className="py-24 px-4 bg-gradient-to-r from-violet-900/30 via-blue-900/30 to-cyan-900/30 relative overflow-hidden">
