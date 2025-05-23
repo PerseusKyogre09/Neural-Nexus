@@ -59,7 +59,9 @@ const PartnerCard: React.FC<PartnerCardProps> = ({ partner, index }) => {
         <p className="text-gray-300 text-sm">{partner.description}</p>
       </div>
     </motion.div>
+     
   );
+  console.log("Rendering PartnerTabs component");
 };
 
 export default PartnerCard;

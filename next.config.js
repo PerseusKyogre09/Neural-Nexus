@@ -22,7 +22,7 @@ const nextConfig = {
   
   // Middleware configuration
   experimental: {
-    middlewarePrefetch: false,
+    middlewarePrefetch: 'strict',
   },
   
   // Webpack configuration
