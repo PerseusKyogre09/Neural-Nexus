@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -8,7 +8,8 @@ import { motion } from "framer-motion";
 import { Upload, Check, AlertCircle, X, ArrowRight, BrainCircuit, Server, Cpu } from "lucide-react";
 import Link from "next/link";
 
-export default function UploadPage() {
+// Create a client component for the parts that need useSearchParams
+function UploadForm() {
   const searchParams = useSearchParams();
   const uploadType = searchParams.get('type');
   const editModelId = searchParams.get('edit');
@@ -155,234 +156,241 @@ export default function UploadPage() {
   };
 
   return (
+    <>
+      <div className="mb-6">
+        <Link href="/your-models" className="inline-flex items-center text-gray-400 hover:text-purple-400 transition-colors">
+          <ArrowRight className="h-4 w-4 rotate-180 mr-2" />
+          Back to Your Models
+        </Link>
+      </div>
+      
+      <motion.div 
+        className="text-center mb-10"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500">
+          {editModelId ? "Edit Your Model" : 
+           uploadType === 'zip' ? "Upload ML Model Package" :
+           uploadType === 'markdown' ? "Upload Documentation-Based Model" :
+           uploadType === 'lfs' ? "Upload Large Model (LFS)" :
+           uploadType === 'github' ? "Connect GitHub Model Repository" :
+           uploadType === 'huggingface' ? "Import from Hugging Face" :
+           uploadType === 'api' ? "Configure API-Based Model" :
+           "Upload Your Model"}
+        </h1>
+        <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+          {uploadType === 'github' ? "Link your open source model repository for seamless integration" :
+           uploadType === 'huggingface' ? "Import models directly from Hugging Face's model hub" :
+           uploadType === 'api' ? "Connect your model through a custom API endpoint" :
+           "Share your AI creations with the world on Neural Nexus"}
+        </p>
+      </motion.div>
+      
+      {/* Content area */}
+      <div className="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-gray-700/50">
+        {uploadStatus === 'success' ? (
+          <SuccessScreen modelName={modelName} />
+        ) : (
+          <div className="space-y-8">
+            {/* Step 1: Model details */}
+            <div>
+              <h2 className="text-2xl font-bold mb-4 flex items-center">
+                <span className="inline-flex items-center justify-center w-8 h-8 bg-purple-600 rounded-full mr-3 text-sm">1</span>
+                Model Details
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-gray-300 mb-2">Model Name *</label>
+                  <input 
+                    type="text" 
+                    className="w-full bg-gray-900/70 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="Give your model a vibe name"
+                    value={modelName}
+                    onChange={(e) => setModelName(e.target.value)}
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-gray-300 mb-2">Model Type *</label>
+                  <select 
+                    className="w-full bg-gray-900/70 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 appearance-none"
+                    value={modelType}
+                    onChange={(e) => setModelType(e.target.value)}
+                    aria-label="Model Type"
+                  >
+                    {modelTypeOptions.map(option => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="md:col-span-2">
+                  <label className="block text-gray-300 mb-2">Description</label>
+                  <textarea 
+                    className="w-full bg-gray-900/70 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[120px]"
+                    placeholder="Spill the tea on what your model can do..."
+                    value={modelDescription}
+                    onChange={(e) => setModelDescription(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+            
+            {/* Step 2: Upload files */}
+            <div>
+              <h2 className="text-2xl font-bold mb-4 flex items-center">
+                <span className="inline-flex items-center justify-center w-8 h-8 bg-purple-600 rounded-full mr-3 text-sm">2</span>
+                Upload Files
+              </h2>
+              
+              <div 
+                className={`border-2 border-dashed ${
+                  selectedFiles.length > 0 ? 'border-purple-500/50' : 'border-gray-700'
+                } rounded-xl p-8 text-center hover:border-purple-500/50 transition-colors`}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={handleFileDrop}
+              >
+                {selectedFiles.length === 0 ? (
+                  <div>
+                    <div className="mb-4 flex justify-center">
+                      <Upload className="h-12 w-12 text-gray-400" />
+                    </div>
+                    <h3 className="text-xl font-medium mb-2">Drag and drop your files here</h3>
+                    <p className="text-gray-400 mb-4">or click to browse files</p>
+                    <button 
+                      className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      Browse Files
+                    </button>
+                    <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      className="hidden" 
+                      multiple 
+                      onChange={handleFileSelect}
+                      aria-label="File upload"
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-xl font-medium">Selected Files</h3>
+                      <button 
+                        className="px-4 py-1.5 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors flex items-center text-sm"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        Add More Files
+                      </button>
+                      <input 
+                        type="file" 
+                        ref={fileInputRef} 
+                        className="hidden" 
+                        multiple 
+                        onChange={handleFileSelect}
+                        aria-label="Add more files"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      {selectedFiles.map((file, index) => (
+                        <div key={index} className="flex justify-between items-center bg-gray-800/50 rounded-lg p-3">
+                          <div className="flex items-center">
+                            <div className="w-8 h-8 bg-purple-600/20 rounded-md flex items-center justify-center mr-3">
+                              <BrainCircuit className="h-4 w-4 text-purple-400" />
+                            </div>
+                            <div className="overflow-hidden">
+                              <div className="text-sm font-medium truncate">{file.name}</div>
+                              <div className="text-xs text-gray-400">{(file.size / (1024 * 1024)).toFixed(2)} MB</div>
+                            </div>
+                          </div>
+                          <button 
+                            className="p-1.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded-md transition-colors"
+                            onClick={() => yeetFile(file)}
+                            aria-label="Remove file"
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* Error messages */}
+            {vibeCheck.length > 0 && (
+              <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4">
+                <h3 className="flex items-center text-red-400 font-medium mb-2">
+                  <AlertCircle className="h-5 w-5 mr-2" />
+                  Oops! Got some issues
+                </h3>
+                <ul className="list-disc list-inside text-red-200">
+                  {vibeCheck.map((error, index) => (
+                    <li key={index}>{error}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            
+            {/* Upload button */}
+            <div className="flex justify-end">
+              <button
+                onClick={sendItUp}
+                disabled={uploadStatus === 'uploading'}
+                className={`px-6 py-3 rounded-lg font-medium flex items-center ${
+                  uploadStatus === 'uploading'
+                    ? 'bg-purple-700/50 text-purple-300 cursor-not-allowed'
+                    : 'bg-purple-600 hover:bg-purple-500 text-white'
+                } transition-colors`}
+              >
+                {uploadStatus === 'uploading' ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Uploading ({Math.round(uploadProgress)}%)
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-5 w-5 mr-2" />
+                    Upload Model
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+// Loading fallback component
+function LoadingUpload() {
+  return (
+    <div className="flex justify-center items-center py-20">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+    </div>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function UploadPage() {
+  return (
     <main className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
       <Navbar />
 
       <section className="pt-28 pb-20 px-4">
         <div className="container mx-auto max-w-5xl">
-          <div className="mb-6">
-            <Link href="/your-models" className="inline-flex items-center text-gray-400 hover:text-purple-400 transition-colors">
-              <ArrowRight className="h-4 w-4 rotate-180 mr-2" />
-              Back to Your Models
-            </Link>
-          </div>
-          
-          <motion.div 
-            className="text-center mb-10"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500">
-              {editModelId ? "Edit Your Model" : 
-               uploadType === 'zip' ? "Upload ML Model Package" :
-               uploadType === 'markdown' ? "Upload Documentation-Based Model" :
-               uploadType === 'lfs' ? "Upload Large Model (LFS)" :
-               uploadType === 'github' ? "Connect GitHub Model Repository" :
-               uploadType === 'huggingface' ? "Import from Hugging Face" :
-               uploadType === 'api' ? "Configure API-Based Model" :
-               "Upload Your Model"}
-            </h1>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              {uploadType === 'github' ? "Link your open source model repository for seamless integration" :
-               uploadType === 'huggingface' ? "Import models directly from Hugging Face's model hub" :
-               uploadType === 'api' ? "Connect your model through a custom API endpoint" :
-               "Share your AI creations with the world on Neural Nexus"}
-            </p>
-          </motion.div>
-          
-          {/* Content area */}
-          <div className="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-gray-700/50">
-            {uploadStatus === 'success' ? (
-              <SuccessScreen modelName={modelName} />
-            ) : (
-              <div className="space-y-8">
-                {/* Step 1: Model details */}
-                <div>
-                  <h2 className="text-2xl font-bold mb-4 flex items-center">
-                    <span className="inline-flex items-center justify-center w-8 h-8 bg-purple-600 rounded-full mr-3 text-sm">1</span>
-                    Model Details
-                  </h2>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-gray-300 mb-2">Model Name *</label>
-                      <input 
-                        type="text" 
-                        className="w-full bg-gray-900/70 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        placeholder="Give your model a vibe name"
-                        value={modelName}
-                        onChange={(e) => setModelName(e.target.value)}
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-gray-300 mb-2">Model Type *</label>
-                      <select 
-                        className="w-full bg-gray-900/70 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 appearance-none"
-                        value={modelType}
-                        onChange={(e) => setModelType(e.target.value)}
-                        aria-label="Model Type"
-                      >
-                        {modelTypeOptions.map(option => (
-                          <option key={option.value} value={option.value}>{option.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                    
-                    <div className="md:col-span-2">
-                      <label className="block text-gray-300 mb-2">Description</label>
-                      <textarea 
-                        className="w-full bg-gray-900/70 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[120px]"
-                        placeholder="Spill the tea on what your model can do..."
-                        value={modelDescription}
-                        onChange={(e) => setModelDescription(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Step 2: Upload files */}
-                <div>
-                  <h2 className="text-2xl font-bold mb-4 flex items-center">
-                    <span className="inline-flex items-center justify-center w-8 h-8 bg-purple-600 rounded-full mr-3 text-sm">2</span>
-                    Upload Files
-                  </h2>
-                  
-                  <div 
-                    className={`border-2 border-dashed ${
-                      selectedFiles.length > 0 ? 'border-purple-500/50' : 'border-gray-700'
-                    } rounded-xl p-8 text-center hover:border-purple-500/50 transition-colors`}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={handleFileDrop}
-                  >
-                    {selectedFiles.length === 0 ? (
-                      <div>
-                        <div className="mb-4 flex justify-center">
-                          <Upload className="h-12 w-12 text-gray-400" />
-                        </div>
-                        <h3 className="text-xl font-medium mb-2">Drag and drop your files here</h3>
-                        <p className="text-gray-400 mb-4">or click to browse files</p>
-                        <button 
-                          className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"
-                          onClick={() => fileInputRef.current?.click()}
-                        >
-                          Browse Files
-                        </button>
-                        <input 
-                          type="file" 
-                          ref={fileInputRef} 
-                          className="hidden" 
-                          multiple 
-                          onChange={handleFileSelect}
-                          aria-label="File upload"
-                        />
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-center">
-                          <h3 className="text-xl font-medium">Selected Files</h3>
-                          <button 
-                            className="px-4 py-1.5 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors flex items-center text-sm"
-                            onClick={() => fileInputRef.current?.click()}
-                          >
-                            Add More Files
-                          </button>
-                          <input 
-                            type="file" 
-                            ref={fileInputRef} 
-                            className="hidden" 
-                            multiple 
-                            onChange={handleFileSelect}
-                            aria-label="Add more files"
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          {selectedFiles.map((file, index) => (
-                            <div key={index} className="flex justify-between items-center bg-gray-800/50 rounded-lg p-3">
-                              <div className="flex items-center">
-                                <div className="w-8 h-8 bg-purple-600/20 rounded-md flex items-center justify-center mr-3">
-                                  <BrainCircuit className="h-4 w-4 text-purple-400" />
-                                </div>
-                                <div className="overflow-hidden">
-                                  <div className="text-sm font-medium truncate">{file.name}</div>
-                                  <div className="text-xs text-gray-400">{(file.size / (1024 * 1024)).toFixed(2)} MB</div>
-                                </div>
-                              </div>
-                              <button 
-                                className="p-1.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded-md transition-colors"
-                                onClick={() => yeetFile(file)}
-                                aria-label="Remove file"
-                              >
-                                <X size={16} />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Error messages */}
-                {vibeCheck.length > 0 && (
-                  <div className="bg-red-900/20 border border-red-800/50 rounded-lg p-4">
-                    {vibeCheck.map((error, index) => (
-                      <div key={index} className="flex items-start text-red-400 mb-1">
-                        <AlertCircle size={16} className="mr-2 mt-0.5 shrink-0" />
-                        <span>{error}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                
-                {/* Upload progress */}
-                {uploadStatus === 'uploading' && (
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Uploading...</span>
-                      <span>{Math.round(uploadProgress)}%</span>
-                    </div>
-                    <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-gradient-to-r from-purple-500 to-blue-500"
-                        style={{ width: `${uploadProgress}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Upload error */}
-                {uploadStatus === 'error' && (
-                  <div className="bg-red-900/20 border border-red-800/50 rounded-lg p-4 text-center">
-                    <AlertCircle size={24} className="mx-auto mb-2 text-red-400" />
-                    <h3 className="text-lg font-medium mb-1">Upload Failed</h3>
-                    <p className="text-gray-300 mb-4">Something went wrong with your upload.</p>
-                    <button 
-                      className="px-6 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
-                      onClick={() => setUploadStatus('idle')}
-                    >
-                      Try Again
-                    </button>
-                  </div>
-                )}
-                
-                {/* Submit button */}
-                {uploadStatus === 'idle' && (
-                  <div className="flex justify-end">
-                    <button 
-                      className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 rounded-lg transition-all flex items-center"
-                      onClick={sendItUp}
-                    >
-                      Upload Model
-                      <ArrowRight size={18} className="ml-2" />
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          <Suspense fallback={<LoadingUpload />}>
+            <UploadForm />
+          </Suspense>
         </div>
       </section>
 

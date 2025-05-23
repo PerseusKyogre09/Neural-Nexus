@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ModelCrawler } from '@/lib/ModelCrawler';
 
+// Add export config for dynamic route handling
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     // Extract query parameters
