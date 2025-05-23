@@ -1,15 +1,16 @@
-"use client";
+"use client"; // Keep this at the very top for Client Components
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import PartnerCard from '../../src/components/ui/PartnerCard';
-import { 
-  ArrowRight, 
-  X, 
-  CheckCircle, 
+import Navbar from "@/components/Navbar"; // Assuming this path is correct
+import Footer from "@/components/Footer"; // Assuming this path is correct
+import PartnerCard from '../../src/components/ui/PartnerCard'; // Adjust this path if PartnerCard is elsewhere, e.g., '@/components/ui/PartnerCard' or '../components/ui/PartnerCard'
+
+import {
+  ArrowRight,
+  X,
+  CheckCircle,
   ChevronLeft,
   Send,
   Sparkles,
@@ -30,6 +31,102 @@ import {
 import Image from 'next/image';
 
 export default function PartnersPage() {
+  console.log("--- Navigated to PartnersPage ---");
+
+  // Define partnerCategories directly within the component
+  const partnerCategories = [
+    {
+      name: "Technology Leaders",
+      id: "tech-leaders",
+      partners: [
+        { name: "Google", logo: "/partners/7123025_logo_google_g_icon.svg", description: "Strategic AI research partner..." },
+        { name: "Microsoft", logo: "/partners/microsoft.svg", description: "Infrastructure partner..." },
+        { name: "Meta", logo: "/partners/icons8-meta.svg", description: "Research partner specializing in multimodal AI models..." },
+        { name: "Intel", logo: "/partners/intel.svg", description: "Semiconductor and AI hardware innovation." },
+        { name: "AMD", logo: "/partners/amd.svg", description: "High-performance computing and graphics solutions." },
+        { name: "NVIDIA", logo: "partners/icons8-nvidia.svg", description: "Hardware acceleration partner..." },
+        { name: "IBM", logo: "/partners/icons8-ibm.svg", description: "Enterprise integration partner..." },
+        { name: "Qualcomm", logo: "/partners/qualcomm.svg", description: "Mobile and edge AI processing." },
+        { name: "Samsung", logo: "/partners/samsung.svg", description: "Global technology and electronics leader." },
+      ],
+    },
+    {
+      name: "Open Source",
+      id: "open-source",
+      partners: [
+        { name: "Hugging Face", logo: "/partners/huggingface.svg", description: "Open-source AI models and tools." },
+        { name: "Kaggle", logo: "/partners/kaggle.svg", description: "Data science and machine learning community." },
+        { name: "GitHub", logo: "/partners/github.svg", description: "Code hosting and version control." },
+        { name: "PyTorch", logo: "/partners/pytorch.svg", description: "Open-source machine learning framework." },
+        { name: "TensorFlow", logo: "/partners/tensorflow.svg", description: "Open-source machine learning library." },
+        { name: "Apache Foundation", logo: "/partners/apache.svg", description: "Supports open-source software projects." },
+        { name: "NumFOCUS", logo: "/partners/numfocus.svg", description: "Promotes open-source scientific computing." },
+        { name: "OpenAI", logo: "/partners/icons8-chatgpt.svg", description: "Research collaboration partner..." },
+      ],
+    },
+    {
+      name: "Content Partners",
+      id: "content-partners",
+      partners: [
+        { name: "Coursera", logo: "/partners/coursera.svg", description: "Online learning platform." },
+        { name: "Udacity", logo: "/partners/udacity.svg", description: "Online courses and nanodegrees." },
+        { name: "edX", logo: "/partners/edx.svg", description: "Online university courses." },
+        { name: "DataCamp", logo: "/partners/datacamp.svg", description: "Interactive data science education." },
+        { name: "O'Reilly", logo: "/partners/oreilly.svg", description: "Technical books and online training." },
+        { name: "IEEE", logo: "/partners/ieee.svg", description: "Professional organization for engineers." },
+        { name: "ACM", logo: "/partners/acm.svg", description: "World's largest computing society." },
+        { name: "arXiv", logo: "/partners/arxiv.svg", description: "Open-access archive for scientific papers." },
+      ],
+    },
+    {
+      name: "Developer Tools",
+      id: "developer-tools",
+      partners: [
+        { name: "Postman", logo: "/partners/postman.svg", description: "API development environment." },
+        { name: "MongoDB", logo: "/partners/mongodb.svg", description: "NoSQL database." },
+        { name: "Redis", logo: "/partners/redis.svg", description: "In-memory data structure store." },
+        { name: "Docker", logo: "/partners/docker.svg", description: "Containerization platform." },
+        { name: "Kubernetes", logo: "/partners/kubernetes.svg", description: "Container orchestration system." },
+        { name: "GitLab", logo: "/partners/gitlab.svg", description: "DevOps platform." },
+        { name: "CircleCI", logo: "/partners/circleci.svg", description: "Continuous integration and delivery." },
+        { name: "Atlassian", logo: "/partners/atlassian.svg", description: "Developer tools suite (Jira, Confluence)." },
+      ],
+    },
+    {
+      name: "Cloud/Infrastructure",
+      id: "cloud-infra",
+      partners: [
+        { name: "AWS", logo: "/partners/aws.svg", description: "Amazon Web Services." },
+        { name: "Azure", logo: "/partners/azure.svg", description: "Microsoft Azure cloud computing." },
+        { name: "GCP", logo: "/partners/gcp.svg", description: "Google Cloud Platform." },
+        { name: "DigitalOcean", logo: "/partners/digitalocean.svg", description: "Cloud computing for developers." },
+        { name: "Oracle Cloud", logo: "/partners/oracle.svg", description: "Oracle's cloud services." },
+        { name: "IBM Cloud", logo: "/partners/ibmcloud.svg", description: "IBM's suite of cloud services." },
+        { name: "Cloudflare", logo: "/partners/cloudflare.svg", description: "Web performance and security." },
+        { name: "Vercel", logo: "/partners/vercel.svg", description: "Platform for frontend developers." },
+      ],
+    },
+    {
+      name: "Research Institutions",
+      id: "research-institutions",
+      partners: [
+        { name: "MIT", logo: "/partners/mit.svg", description: "Massachusetts Institute of Technology." },
+        { name: "Stanford AI Lab", logo: "/partners/stanford.svg", description: "Stanford University AI research." },
+        { name: "Berkeley AI Research", logo: "/partners/berkeley.svg", description: "UC Berkeley AI research." },
+        { name: "DeepMind", logo: "/partners/deepmind.svg", description: "Google AI research company." },
+        { name: "Allen AI Institute", logo: "/partners/allenai.svg", description: "AI research for the common good." },
+        { name: "MILA", logo: "/partners/mila.svg", description: "Quebec AI Institute." },
+        { name: "FAIR", logo: "/partners/fair.svg", description: "Meta AI Research." },
+      ],
+    },
+  ];
+
+  // All state declarations should be directly inside PartnersPage
+  const [activeTab, setActiveTab] = useState(partnerCategories[0]?.id || ""); // Added optional chaining and fallback
+  const selectedCategory = partnerCategories.find(
+    (category) => category.id === activeTab
+  );
+
   const [showContactForm, setShowContactForm] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -48,12 +145,10 @@ export default function PartnersPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormStatus('submitting');
-    
-    // Simulate API call
+
     try {
       await new Promise(resolve => setTimeout(resolve, 1500));
       setFormStatus('success');
-      // Reset form after success
       setFormData({
         name: '',
         email: '',
@@ -66,51 +161,6 @@ export default function PartnersPage() {
     }
   };
 
-  // Major partners data with logos
-  const majorPartners = [
-    { 
-      name: "Google", 
-      logo: "/partners/7123025_logo_google_g_icon.svg", 
-      description: "Strategic AI research partner, collaborating on foundational models and ethical AI development frameworks." 
-    },
-    { 
-      name: "Microsoft", 
-      logo: "/partners/microsoft.svg", 
-      description: "Infrastructure partner providing cloud computing resources and integration with Azure AI services." 
-    },
-    { 
-      name: "NVIDIA", 
-      logo: "partners/icons8-nvidia.svg", 
-      description: "Hardware acceleration partner, optimizing models for NVIDIA GPUs and providing specialized training resources." 
-    },
-    { 
-      name: "OpenAI", 
-      logo: "/partners/icons8-chatgpt.svg", 
-      description: "Research collaboration partner focusing on responsible AI deployment and interoperability standards." 
-    },
-    { 
-      name: "IBM", 
-      logo: "/partners/icons8-ibm.svg", 
-      description: "Enterprise integration partner helping businesses adopt and implement AI solutions at scale." 
-    },
-    { 
-      name: "Meta", 
-      logo: "/partners/icons8-meta.svg", 
-      description: "Research partner specializing in multimodal AI models and social interaction understanding systems." 
-    }
-  ];
-
-  // Other partners list with logos
-  const otherPartners = [
-    { name: "GitHub", logo: "/partners/github.svg" },
-    { name: "Redis", logo: "/partners/redis.svg" },
-    { name: "AWS", logo: "/partners/aws.svg" },
-    { name: "Coinbase", logo: "/partners/coinbase.svg" },
-    { name: "MetaMask", logo: "/partners/metamask.svg" },
-    { name: "WalletConnect", logo: "/partners/walletconnect.svg" }
-  ];
-
-  // Partnership types
   const partnershipTypes = [
     {
       icon: <Globe className="h-6 w-6 text-blue-400" />,
@@ -207,177 +257,113 @@ export default function PartnersPage() {
     <main className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden">
-          <motion.div 
-            className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-500/20 rounded-full filter blur-3xl"
-            animate={{ 
-              scale: [1, 1.2, 1],
-              opacity: [0.2, 0.3, 0.2] 
-            }}
-            transition={{ 
-              duration: 8, 
-              repeat: Infinity,
-              repeatType: "reverse" 
-            }}
-          />
-          <motion.div 
-            className="absolute top-1/3 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full filter blur-3xl"
-            animate={{ 
-              scale: [1, 1.2, 1],
-              opacity: [0.2, 0.3, 0.2] 
-            }}
-            transition={{ 
-              duration: 10, 
-              repeat: Infinity,
-              repeatType: "reverse",
-              delay: 2 
-            }}
-          />
-          <motion.div 
-            className="absolute bottom-1/4 right-1/3 w-72 h-72 bg-teal-500/20 rounded-full filter blur-3xl"
-            animate={{ 
-              scale: [1, 1.2, 1],
-              opacity: [0.2, 0.3, 0.2] 
-            }}
-            transition={{ 
-              duration: 9, 
-              repeat: Infinity,
-              repeatType: "reverse",
-              delay: 4 
-            }}
-          />
-        </div>
+    <section className="py-24 px-4 relative bg-gray-950 text-white overflow-hidden">
+        
+        <div className="absolute inset-0 z-[-1] radial-gradient-partners"></div>
 
-        <div className="container mx-auto relative z-10">
-          <div className="text-center max-w-4xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Link 
-                href="/" 
-                className="inline-flex items-center text-sm text-gray-400 hover:text-white mb-6 transition-colors"
-              >
-                <ChevronLeft className="w-4 h-4 mr-1" /> Back to Home
-              </Link>
-            </motion.div>
-
-            <motion.h1 
-              className="text-4xl md:text-6xl font-bold mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <span className="block mt-2 bg-clip-text text-transparent bg-gradient-to-r from-violet-400 via-blue-500 to-cyan-400">
-                Our Partners
-              </span>
-            </motion.h1>
-
-            <motion.p 
-              className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              We collaborate with industry leaders to build the future of AI model distribution and deployment.
-              Join our growing ecosystem of technology partners and innovators.
-            </motion.p>
-          </div>
-        </div>
-      </section>
-
-        <section className="py-20 px-4 bg-black/50 text-white">
-        <div className="container mx-auto">
+        <div className="container mx-auto max-w-7xl relative z-10">
           <motion.h2
-            className="text-3xl font-bold mb-16 text-center"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: -50 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.6 }}
+            className="text-9xl font-extrabold text-center mt-10 mb-20
+                       bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-blue-500
+                       drop-shadow-lg leading-tight"
           >
-            Our Major Partners
+            Our Partners
+            <span className="block text-3xl font-medium text-gray-400 mt-2 mb-50">
+              Forging strong connections to drive innovation.
+            </span>
           </motion.h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {majorPartners.map((partner, index) => (
-              <PartnerCard key={partner.name} partner={partner} index={index} />
-            ))}
+          <div className="partner-tabs-container">
+          
+            <div className="flex flex-wrap gap-3 mb-12 w-full justify-center">
+              {partnerCategories.map((category) => (
+                <motion.button
+                  key={category.id}
+                  onClick={() => setActiveTab(category.id)}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.1 }}
+                  whileHover={{ scale: 1.05, boxShadow: "0 8px 20px rgba(0,0,0,0.4)" }}
+                  whileTap={{ scale: 0.98 }}
+                  className={`
+                    relative px-8 py-3 rounded-full text-lg font-semibold transition-all duration-300 ease-in-out
+                    focus:outline-none focus:ring-4 focus:ring-blue-500/50 w-30
+                    ${activeTab === category.id
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/40'
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700/70 hover:text-white border border-gray-700'
+                    }
+                  `}
+                >
+                  {category.name}
+                  {activeTab === category.id && (
+                    <motion.span
+                      layoutId="activeTabIndicator"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    />
+                  )}
+                </motion.button>
+              ))}
+            </div>
+
+          
+            <AnimatePresence mode="wait"> 
+              {selectedCategory && selectedCategory.partners.length > 0 ? (
+                <motion.div
+                  key={activeTab} 
+                  initial={{ opacity: 0, y: 40, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -40, scale: 0.98 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 200,
+                    damping: 25,
+                    duration: 0.7,
+                    ease: "easeOut"
+                  }}
+                  // Adjusted grid columns for wider cards:
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 p-4"
+                >
+                  {selectedCategory.partners.map((partner, index) => (
+                    <PartnerCard key={partner.name} partner={partner} index={index} />
+                  ))}
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="no-partners-message"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -30 }}
+                  transition={{ duration: 0.6 }}
+                  className="
+                    bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-lg
+                    rounded-2xl shadow-xl p-16 text-center mx-auto max-w-2xl mt-8 mb-4
+                    border border-gray-700 flex flex-col items-center justify-center
+                  "
+                >
+                  <p className="text-gray-300 text-6xl mb-6 animate-bounce-slow">✨</p>
+                  <p className="text-white text-3xl font-bold mb-4 leading-relaxed">
+                    No partners found for this category yet!
+                  </p>
+                  <p className="text-gray-400 text-lg leading-relaxed max-w-lg">
+                    We're constantly expanding our network. Check back soon for exciting new collaborations and updates!
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </section>
-      {/* END Major Partners Section */}
-   
-      
-
-
-
-   
-      {/* Additional Partners */}
-  <section className="py-16 px-4 bg-gradient-to-r from-gray-900 to-black">
-  <div className="container mx-auto">
-    <motion.h2
-      className="text-2xl font-bold mb-10 text-center"
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
-    >
-      Our Growing Partner Ecosystem
-    </motion.h2>
-
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 mb-10">
-      {otherPartners.map((partner, index) => (
-        <motion.div
-          key={partner.name}
-          // --- ANIMATION WITH SMALL SLIDING EFFECT ---
-          initial={{
-            opacity: 0,
-            scale: 0.8,
-            y: 50,
-            x: index % 2 === 0 ? -20 : 20 // Slide in from alternating left (-20px) and right (20px)
-          }}
-          whileInView={{
-            opacity: 1,
-            scale: 1,
-            y: 0,
-            x: 0 // Slide to their final horizontal position
-          }}
-          viewport={{ once: true, amount: 0.5 }}
-          transition={{
-            type: "spring",
-            stiffness: 150,
-            damping: 20,
-            delay: index * 0.08
-          }}
-          // --- HOVER ANIMATION ---
-          whileHover={{
-            scale: 1.15,
-            transition: { duration: 0.2 }
-          }}
-          className="flex justify-center"
-        >
-          <div className="w-32 h-20 flex items-center justify-center filter grayscale hover:grayscale-0 transition-all duration-300 hover:drop-shadow-glow">
-            <Image
-              src={partner.logo}
-              alt={partner.name}
-              width={100}
-              height={60}
-              className="object-contain"
-            />
-          </div>
-        </motion.div>
-      ))}
-    </div>
-  </div>
-</section>
 
       {/* Partnership Types */}
       <section className="py-20 px-4 bg-black/50">
         <div className="container mx-auto">
-          <motion.div 
+          <motion.div
             className="text-center mb-16"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -399,7 +385,7 @@ export default function PartnersPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ 
+                whileHover={{
                   scale: 1.02,
                   boxShadow: "0 10px 25px -5px rgba(123, 97, 255, 0.2)"
                 }}
@@ -414,16 +400,16 @@ export default function PartnersPage() {
                     <h3 className="text-xl font-semibold text-white">{type.name}</h3>
                   </div>
                   <p className="text-gray-300 mb-4">{type.description}</p>
-                  
+
                   <div className="mb-4 inline-block px-3 py-1 bg-black/30 rounded-full text-xs font-medium backdrop-blur-sm border border-white/10">
                     Ideal for: {type.idealFor}
                   </div>
-                  
+
                   <h4 className="text-sm uppercase text-gray-400 mb-2 mt-6 font-semibold">Key Benefits:</h4>
                   <ul className="space-y-2">
                     {type.benefits.map((benefit, i) => (
-                      <motion.li 
-                        key={i} 
+                      <motion.li
+                        key={i}
                         className="flex items-start"
                         initial={{ opacity: 0, x: -10 }}
                         whileInView={{ opacity: 1, x: 0 }}
@@ -435,7 +421,7 @@ export default function PartnersPage() {
                       </motion.li>
                     ))}
                   </ul>
-                  
+
                   <div className="mt-6">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
@@ -453,85 +439,86 @@ export default function PartnersPage() {
         </div>
       </section>
 
-    <section className="py-20 px-4 bg-gradient-to-b from-gray-900 to-black">
-      <div className="container mx-auto">
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          <h2 className="text-3xl font-bold mb-4 text-white">Partnership Journey</h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">
-            A straightforward process to establish a productive and valuable partnership
-          </p>
-        </motion.div>
-
-        <div className="relative py-10">
-          {/* Timeline Line with Gradient */}
+      {/* Partnership Journey */}
+      <section className="py-20 px-4 bg-gradient-to-b from-gray-900 to-black">
+        <div className="container mx-auto">
           <motion.div
-            className="absolute z-10 left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-gradient-to-b from-violet-500 via-blue-500 to-cyan-500 rounded-full"
-            initial={{ height: 0 }}
-            whileInView={{ height: "100%" }}
+            className="text-center mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 1.5, ease: "easeInOut" }}
-          />
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-3xl font-bold mb-4 text-white">Partnership Journey</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              A straightforward process to establish a productive and valuable partnership
+            </p>
+          </motion.div>
 
-          {/* Process Steps Container */}
-          <div className="space-y-24 md:space-y-28"> {/* Adjusted vertical spacing for better readability on larger screens */}
-            {partnershipProcess.map((step, index) => (
-              <div
-                key={step.title}
-                className="relative flex items-center w-full"
-              >
-                {/* Content Block */}
-                <motion.div
-                  className={`w-full md:w-1/2 ${index % 2 === 0 ? 'md:mr-auto md:text-right md:pr-16' : 'md:ml-auto md:text-left md:pl-16'}`}
-                  initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }} // Slide in from side
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, amount: 0.3 }} // Trigger when 30% in view
-                  transition={{ duration: 0.4, delay: index * 0.2 + 0.1, ease: "easeOut" }}
-                >
-                  <h3 className="text-xl font-semibold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-blue-400">
-                    {step.title}
-                  </h3>
-                  <p className="text-gray-400">
-                    {step.description}
-                  </p>
-                </motion.div>
+          <div className="relative py-10">
+            {/* Timeline Line with Gradient */}
+            <motion.div
+              className="absolute z-10 left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-gradient-to-b from-violet-500 via-blue-500 to-cyan-500 rounded-full"
+              initial={{ height: 0 }}
+              whileInView={{ height: "100%" }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.5, ease: "easeInOut" }}
+            />
 
-                {/* Timeline Circle */}
-                <motion.div
-                  className="absolute z-30 right-[641px] top-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br shadow-lg border border-white/10 "
-                  style={{
-                    background: [
-                      "linear-gradient(to bottom right, #a78bfa, #8ab4f8)",
-                      "linear-gradient(to bottom right, #d8b4fe, #818cf8)",
-                      "linear-gradient(to bottom right, #c084fc, #60a5fa)",
-                      "linear-gradient(to bottom right, #a855f7, #3b82f6)",
-                      "linear-gradient(to bottom right, #9333ea, #22d3ee)",
-                      "linear-gradient(to bottom right, #8b5cf6, #14b8a6)",
-                    ][index % 6],
-                  }}
-                  initial={{ scale: 0 }}
-                  whileInView={{ scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 200,
-                    damping: 15,
-                    delay: 0.3 + index * 0.2,
-                  }}
+            {/* Process Steps Container */}
+            <div className="space-y-24 md:space-y-28">
+              {partnershipProcess.map((step, index) => (
+                <div
+                  key={step.title}
+                  className="relative flex items-center w-full"
                 >
-                  <div className="text-white text-sm md:text-base">{step.icon}</div>
-                </motion.div>
-              </div>
-            ))}
+                  {/* Content Block */}
+                  <motion.div
+                    className={`w-full md:w-1/2 ${index % 2 === 0 ? 'md:mr-auto md:text-right md:pr-16' : 'md:ml-auto md:text-left md:pl-16'}`}
+                    initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, amount: 0.3 }}
+                    transition={{ duration: 0.4, delay: index * 0.2 + 0.1, ease: "easeOut" }}
+                  >
+                    <h3 className="text-xl font-semibold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-blue-400">
+                      {step.title}
+                    </h3>
+                    <p className="text-gray-400">
+                      {step.description}
+                    </p>
+                  </motion.div>
+
+                  {/* Timeline Circle */}
+                  <motion.div
+                    className="absolute z-30 right-[638px]  transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br shadow-lg border border-white/10"
+                    style={{
+                      background: [
+                        "linear-gradient(to bottom right, #a78bfa, #8ab4f8)",
+                        "linear-gradient(to bottom right, #d8b4fe, #818cf8)",
+                        "linear-gradient(to bottom right, #c084fc, #60a5fa)",
+                        "linear-gradient(to bottom right, #a855f7, #3b82f6)",
+                        "linear-gradient(to bottom right, #9333ea, #22d3ee)",
+                        "linear-gradient(to bottom right, #8b5cf6, #14b8a6)",
+                      ][index % 6],
+                    }}
+                    initial={{ scale: 0 }}
+                    whileInView={{ scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 200,
+                      damping: 15,
+                      delay: 0.3 + index * 0.2,
+                    }}
+                  >
+                    <div className="text-white text-sm md:text-base">{step.icon}</div>
+                  </motion.div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
       {/* Enhanced Contact CTA */}
       <section className="py-24 px-4 bg-gradient-to-r from-violet-900/30 via-blue-900/30 to-cyan-900/30 relative overflow-hidden">
@@ -560,17 +547,17 @@ export default function PartnersPage() {
             />
           ))}
         </div>
-        
+
         <div className="container mx-auto relative z-10">
           <div className="bg-black/30 backdrop-blur-md rounded-2xl border border-white/10 max-w-4xl mx-auto p-8 md:p-12 shadow-xl">
-            <motion.div 
+            <motion.div
               className="text-center max-w-2xl mx-auto"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              <motion.h2 
+              <motion.h2
                 className="text-3xl md:text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-blue-400 to-cyan-400"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -579,7 +566,7 @@ export default function PartnersPage() {
               >
                 Ready to Transform the Future of AI Together?
               </motion.h2>
-              
+
               <motion.p
                 className="text-xl text-gray-300 mb-8 leading-relaxed"
                 initial={{ opacity: 0, y: 20 }}
@@ -589,7 +576,7 @@ export default function PartnersPage() {
               >
                 Join our ecosystem of innovation partners who are shaping the next generation of AI technologies and applications.
               </motion.p>
-              
+
               <motion.div
                 className="flex flex-col sm:flex-row gap-4 justify-center items-center"
                 initial={{ opacity: 0, y: 20 }}
@@ -613,14 +600,14 @@ export default function PartnersPage() {
                     <ArrowRight className="ml-2 h-4 w-4 opacity-70 group-hover:opacity-100 transition-all" />
                   </motion.span>
                 </motion.button>
-                
+
                 <span className="text-gray-400">or</span>
-                
+
                 <Link href="/partners/success-stories" className="text-white underline-offset-4 decoration-blue-500 underline hover:decoration-2 transition-all flex items-center">
                   View Partner Success Stories <ExternalLink className="ml-1 h-4 w-4" />
                 </Link>
               </motion.div>
-              
+
               <motion.div
                 className="mt-10 flex flex-wrap justify-center gap-6 items-center"
                 initial={{ opacity: 0 }}
@@ -649,7 +636,7 @@ export default function PartnersPage() {
       {/* Contact Form Modal */}
       <AnimatePresence>
         {showContactForm && (
-          <motion.div 
+          <motion.div
             className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -664,7 +651,7 @@ export default function PartnersPage() {
               className="bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 border border-gray-700/50 rounded-xl p-8 max-w-xl w-full relative shadow-2xl overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
-              <button 
+              <button
                 onClick={() => formStatus !== 'submitting' && setShowContactForm(false)}
                 className="absolute top-4 right-4 text-gray-400 hover:text-white"
                 disabled={formStatus === 'submitting'}
@@ -675,14 +662,14 @@ export default function PartnersPage() {
               </button>
 
               <h3 className="text-2xl font-bold mb-4">Partnership Inquiry</h3>
-              
+
               {formStatus === 'success' ? (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="text-center py-8"
                 >
-                  <motion.div 
+                  <motion.div
                     className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/20 mb-4"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
@@ -723,7 +710,7 @@ export default function PartnersPage() {
                         aria-label="Your name"
                       />
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-400 mb-1">Email</label>
                       <input
@@ -738,93 +725,95 @@ export default function PartnersPage() {
                         aria-label="Your email"
                       />
                     </div>
-                    
+                    {/* The rest of your form fields */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-400 mb-1">Company</label>
+                      <label htmlFor="company" className="block text-sm font-medium text-gray-400 mb-1">Company (Optional)</label>
                       <input
                         type="text"
+                        id="company"
                         name="company"
                         value={formData.company}
                         onChange={handleChange}
-                        required
                         className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         disabled={formStatus === 'submitting'}
                         placeholder="Your company name"
                         aria-label="Your company"
                       />
                     </div>
-                    
+
                     <div>
-                      <label className="block text-sm font-medium text-gray-400 mb-1">Partnership Type</label>
+                      <label htmlFor="partnershipType" className="block text-sm font-medium text-gray-400 mb-1">Partnership Type</label>
                       <select
+                        id="partnershipType"
                         name="partnershipType"
                         value={formData.partnershipType}
                         onChange={handleChange}
                         className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         disabled={formStatus === 'submitting'}
-                        aria-label="Partnership type"
-                        title="Please select your preferred partnership type"
+                        aria-label="Select partnership type"
                       >
                         <option value="technology">Technology Partner</option>
                         <option value="research">Research Partner</option>
                         <option value="solution">Solution Partner</option>
-                        <option value="alliance">Strategic Alliance</option>
+                        <option value="strategic">Strategic Alliance</option>
+                        <option value="other">Other</option>
                       </select>
                     </div>
-                    
+
                     <div>
-                      <label className="block text-sm font-medium text-gray-400 mb-1">Message</label>
+                      <label htmlFor="message" className="block text-sm font-medium text-gray-400 mb-1">Message</label>
                       <textarea
+                        id="message"
                         name="message"
                         value={formData.message}
                         onChange={handleChange}
-                        required
                         rows={4}
-                        className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                        className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
                         disabled={formStatus === 'submitting'}
-                        placeholder="Please describe your partnership goals and how you think we could collaborate"
-                        aria-label="Partnership message"
+                        placeholder="Describe your proposed partnership and goals."
+                        aria-label="Your message"
                       ></textarea>
                     </div>
                   </div>
-                  
-                  <div className="flex justify-end">
-                    <motion.button
-                      type="button"
-                      onClick={() => formStatus !== 'submitting' && setShowContactForm(false)}
-                      className="px-4 py-2 mr-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-medium transition-colors"
-                      disabled={formStatus === 'submitting'}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      Cancel
-                    </motion.button>
-                    <motion.button
-                      type="submit"
-                      className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg font-medium hover:from-cyan-600 hover:to-blue-700 transition-all flex items-center"
-                      disabled={formStatus === 'submitting'}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      {formStatus === 'submitting' ? (
-                        <>
-                          <span className="relative flex h-3 w-3 mr-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
-                          </span>
-                          Submitting...
-                        </>
-                      ) : (
-                        <>Send Inquiry <Send className="ml-2 w-4 h-4" /></>
-                      )}
-                    </motion.button>
-                  </div>
-                  
+
                   {formStatus === 'error' && (
-                    <div className="mt-4 text-red-500 text-sm">
-                      There was an error submitting your inquiry. Please try again.
-                    </div>
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex items-center text-red-400 mb-4"
+                    >
+                      <AlertCircle className="h-5 w-5 mr-2" />
+                      Failed to send message. Please try again.
+                    </motion.div>
                   )}
+
+                  <motion.button
+                    type="submit"
+                    className={`w-full py-3 rounded-lg font-semibold text-white flex items-center justify-center transition-all
+                      ${formStatus === 'submitting'
+                        ? 'bg-gray-600 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 shadow-lg shadow-blue-500/25'
+                      }`}
+                    disabled={formStatus === 'submitting'}
+                    whileHover={formStatus !== 'submitting' ? { scale: 1.02 } : {}}
+                    whileTap={formStatus !== 'submitting' ? { scale: 0.98 } : {}}
+                  >
+                    {formStatus === 'submitting' ? (
+                      <>
+                        <svg className="animate-spin h-5 w-5 mr-3 text-white" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        Submit Inquiry
+                        <ArrowRight className="ml-2 h-5 w-5" />
+                      </>
+                    )}
+                  </motion.button>
                 </form>
               )}
             </motion.div>
@@ -835,4 +824,4 @@ export default function PartnersPage() {
       <Footer />
     </main>
   );
-} 
+}
