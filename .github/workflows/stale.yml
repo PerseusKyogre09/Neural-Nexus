@@ -11,7 +11,6 @@ on:
 
 jobs:
   stale:
-
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -21,7 +20,14 @@ jobs:
     - uses: actions/stale@v5
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-        stale-issue-message: 'Stale issue message'
-        stale-pr-message: 'Stale pull request message'
-        stale-issue-label: 'no-issue-activity'
-        stale-pr-label: 'no-pr-activity'
+        stale-issue-message: 'This issue has been automatically marked as stale because it has not had recent activity. It will be closed if no further activity occurs. Thank you for your contributions!'
+        stale-pr-message: 'This pull request has been automatically marked as stale because it has not had recent activity. It will be closed if no further activity occurs. Thank you for your contributions!'
+        close-issue-message: 'This issue has been automatically closed due to inactivity. Feel free to reopen if this issue is still relevant.'
+        close-pr-message: 'This pull request has been automatically closed due to inactivity. Feel free to reopen if you still want to contribute these changes.'
+        stale-issue-label: 'stale'
+        stale-pr-label: 'stale'
+        exempt-issue-labels: 'bug,security,enhancement,documentation,good first issue'
+        exempt-pr-labels: 'work-in-progress,waiting-for-review'
+        days-before-stale: 30
+        days-before-close: 7
+        remove-stale-when-updated: true

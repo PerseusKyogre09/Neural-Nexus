@@ -13,22 +13,23 @@ import { AnimatedCard } from "@/components/ui/animated-card";
 import Footer from "@/components/Footer";
 import NewsletterDialog from "@/components/NewsletterDialog";
 import QuoteDisplay from "@/components/QuoteDisplay";
-import UploadModal from "@/components/UploadModal";
 import { 
   Upload, Download, CreditCard, Wallet, Repeat, DollarSign, Gift, 
-  CheckCircle, ArrowRight, Zap, ChevronRight, Code, Search, Shield, Mail
+  CheckCircle, ArrowRight, Zap, ChevronRight, Code, Search, Shield, Mail, User
 } from 'lucide-react';
 import Brand from "@/components/Brand";
 import Image from 'next/image';
+import { useAppContext } from '@/providers/AppProvider';
+import { useSupabase } from '@/providers/SupabaseProvider';
 
 export default function HomePage() {
   const [showSplash, setShowSplash] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [showUpload, setShowUpload] = useState(false);
   const [showNewsletter, setShowNewsletter] = useState(false);
   const router = useRouter();
   const featureScrollRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
+  const { user } = useSupabase();
 
   // Hide splash screen after it completes
   useEffect(() => {
@@ -104,11 +105,6 @@ export default function HomePage() {
       {/* Newsletter Dialog */}
       <NewsletterDialog isOpen={showNewsletter} onClose={() => setShowNewsletter(false)} />
 
-      {/* Upload Modal */}
-      <AnimatePresence>
-        {showUpload && <UploadModal onClose={() => setShowUpload(false)} />}
-      </AnimatePresence>
-
       {/* Animated Background */}
       <SpaceBackground />
       
@@ -164,12 +160,22 @@ export default function HomePage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.5 }}
             >
-              <Link 
-                href="/signup" 
-                className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg font-medium hover:from-cyan-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg shadow-cyan-500/25"
-              >
-                Get Started Free
-              </Link>
+              {user ? (
+                <Link 
+                  href="/dashboard" 
+                  className="px-8 py-3 bg-gradient-to-r from-purple-500 to-blue-600 rounded-lg font-medium hover:from-purple-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg shadow-purple-500/25 flex items-center"
+                >
+                  <User className="mr-2 h-5 w-5" />
+                  Your Dashboard
+                </Link>
+              ) : (
+                <Link 
+                  href="/signup" 
+                  className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg font-medium hover:from-cyan-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg shadow-cyan-500/25"
+                >
+                  Get Started Free
+                </Link>
+              )}
               <Link 
                 href="/docs" 
                 className="px-8 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg font-medium transition-colors"
@@ -466,16 +472,17 @@ export default function HomePage() {
               Upload your first AI model in minutes and start earning. Or find the perfect model for your next project.
             </p>
             <div className="flex flex-wrap justify-center gap-4 mb-8">
-              <AnimatedButton 
-                variant="primary" 
-                size="lg"
-                onClick={() => setShowUpload(true)}
-              >
-                <span className="flex items-center">
-                  <Upload className="mr-2 h-5 w-5" />
-                  Upload a Model
-                </span>
-              </AnimatedButton>
+              <Link href="/your-models">
+                <AnimatedButton 
+                  variant="primary" 
+                  size="lg"
+                >
+                  <span className="flex items-center">
+                    <Upload className="mr-2 h-5 w-5" />
+                    Upload a Model
+                  </span>
+                </AnimatedButton>
+              </Link>
               <Link href="/marketplace">
               <AnimatedButton 
                 variant="outline" 

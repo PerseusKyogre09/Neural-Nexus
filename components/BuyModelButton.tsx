@@ -29,7 +29,9 @@ const BuyModelButton: React.FC<BuyModelButtonProps> = ({
     // Check if user is logged in
     if (!user || !appUser) {
       toast.error('Please sign in to purchase this model');
-      router.push('/signin?redirect=' + encodeURIComponent(`/models/${modelId}`));
+      // Get current origin and preserve the path to redirect back after sign in
+      const currentPath = `/models/${modelId}`;
+      router.push(`/signin?callback=${encodeURIComponent(currentPath)}`);
       return;
     }
     

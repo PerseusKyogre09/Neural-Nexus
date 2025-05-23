@@ -1,0 +1,27 @@
+# This is a CODEOWNERS file to define individuals or teams responsible for code in this repository
+# Each line is a file pattern followed by one or more owners
+# Order is important; the last matching pattern takes the most precedence
+
+# Default owners for everything in the repo
+* @Drago-03
+
+# Frontend code
+/app/ @Drago-03
+/src/ @Drago-03
+/components/ @Drago-03
+/public/ @Drago-03
+
+# Backend code
+/lib/ @Drago-03
+/api/ @Drago-03
+/providers/ @Drago-03
+
+# Authentication related code
+/app/auth/ @Drago-03
+/app/signin/ @Drago-03
+/app/signup/ @Drago-03
+/providers/AuthProvider.tsx @Drago-03
+/providers/SupabaseProvider.tsx @Drago-03
+
+# GitHub workflows and CI/CD
+/.github/ @Drago-03 

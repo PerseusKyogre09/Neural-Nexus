@@ -1,0 +1,86 @@
+# Configuration for the GitHub Labeler Action
+# https://github.com/actions/labeler
+
+# Frontend related changes
+frontend:
+- app/**/*
+- src/**/*
+- components/**/*
+- public/**/*
+- styles/**/*
+
+# Backend related changes
+backend:
+- lib/**/*
+- api/**/*
+- server/**/*
+- providers/**/*
+
+# Documentation changes
+documentation:
+- '**/*.md'
+- docs/**/*
+- '**/README.md'
+- '**/CONTRIBUTING.md'
+
+# Configuration changes
+config:
+- '**/*.json'
+- '**/*.config.js'
+- '**/*.config.ts'
+- .github/**/*
+- '**/tsconfig.json'
+- '**/package.json'
+- '**/next.config.js'
+
+# Dependencies changes
+dependencies:
+- package.json
+- package-lock.json
+- yarn.lock
+- '**/package.json'
+
+# Testing related changes
+testing:
+- '**/*.test.js'
+- '**/*.test.ts'
+- '**/*.test.tsx'
+- '**/*.spec.js'
+- '**/*.spec.ts'
+- '**/*.spec.tsx'
+- test/**/*
+- tests/**/*
+- '__tests__/**/*'
+
+# UI/UX changes
+ui:
+- '**/*.css'
+- '**/*.scss'
+- '**/tailwind.config.js'
+- components/**/*
+- public/images/**/*
+- public/icons/**/*
+
+# Authentication related changes
+auth:
+- '**/auth/**/*'
+- providers/AuthProvider.tsx
+- providers/SupabaseProvider.tsx
+- app/signin/**/*
+- app/signup/**/*
+- app/auth/**/*
+
+# Feature changes
+feature:
+- 'app/your-models/**/*'
+- 'app/upload/**/*'
+- 'app/dashboard/**/*'
+
+# Bug fixes (added to PRs manually)
+# bug:
+
+# Performance improvements (added to PRs manually)
+# performance:
+
+# Security fixes (added to PRs manually)
+# security: 

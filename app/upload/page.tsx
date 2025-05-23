@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { motion } from "framer-motion";
@@ -8,13 +9,25 @@ import { Upload, Check, AlertCircle, X, ArrowRight, BrainCircuit, Server, Cpu } 
 import Link from "next/link";
 
 export default function UploadPage() {
+  const searchParams = useSearchParams();
+  const uploadType = searchParams.get('type');
+  const editModelId = searchParams.get('edit');
+
   // Using Gen-Z style variable names
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [uploadProgress, setUploadProgress] = useState(0);
   const [vibeCheck, setVibeCheck] = useState<string[]>([]);
   const [modelName, setModelName] = useState('');
   const [modelDescription, setModelDescription] = useState('');
-  const [modelType, setModelType] = useState('text-generation');
+  const [modelType, setModelType] = useState(
+    uploadType === 'zip' ? 'text-generation' :
+    uploadType === 'markdown' ? 'documentation' :
+    uploadType === 'lfs' ? 'large-model' : 
+    uploadType === 'github' ? 'open-source' :
+    uploadType === 'huggingface' ? 'huggingface' :
+    uploadType === 'api' ? 'api-based' :
+    'text-generation'  // default if no type specified
+  );
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -26,6 +39,21 @@ export default function UploadPage() {
     { value: 'embedding', label: 'Embeddings' },
     { value: 'classification', label: 'Classification' }
   ];
+
+  // Set page title based on upload type
+  useEffect(() => {
+    if (editModelId) {
+      // Fetch model data for editing
+      // This would be implemented with a real API call
+      console.log(`Editing model with ID: ${editModelId}`);
+      // For demo, we'll just set a placeholder title
+      document.title = "Edit AI Model | Neural Nexus";
+    } else {
+      document.title = uploadType 
+        ? `Upload ${uploadType.toUpperCase()} Model | Neural Nexus`
+        : "Upload Model | Neural Nexus";
+    }
+  }, [uploadType, editModelId]);
 
   // Super dope event handler for file uploads
   const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -132,6 +160,13 @@ export default function UploadPage() {
 
       <section className="pt-28 pb-20 px-4">
         <div className="container mx-auto max-w-5xl">
+          <div className="mb-6">
+            <Link href="/your-models" className="inline-flex items-center text-gray-400 hover:text-purple-400 transition-colors">
+              <ArrowRight className="h-4 w-4 rotate-180 mr-2" />
+              Back to Your Models
+            </Link>
+          </div>
+          
           <motion.div 
             className="text-center mb-10"
             initial={{ opacity: 0, y: -20 }}
@@ -139,10 +174,20 @@ export default function UploadPage() {
             transition={{ duration: 0.5 }}
           >
             <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-purple-500 to-blue-500">
-              Upload Your Model
+              {editModelId ? "Edit Your Model" : 
+               uploadType === 'zip' ? "Upload ML Model Package" :
+               uploadType === 'markdown' ? "Upload Documentation-Based Model" :
+               uploadType === 'lfs' ? "Upload Large Model (LFS)" :
+               uploadType === 'github' ? "Connect GitHub Model Repository" :
+               uploadType === 'huggingface' ? "Import from Hugging Face" :
+               uploadType === 'api' ? "Configure API-Based Model" :
+               "Upload Your Model"}
             </h1>
             <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-              Share your AI creations with the world on Neural Nexus
+              {uploadType === 'github' ? "Link your open source model repository for seamless integration" :
+               uploadType === 'huggingface' ? "Import models directly from Hugging Face's model hub" :
+               uploadType === 'api' ? "Connect your model through a custom API endpoint" :
+               "Share your AI creations with the world on Neural Nexus"}
             </p>
           </motion.div>
           

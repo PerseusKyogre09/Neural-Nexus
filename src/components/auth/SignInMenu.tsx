@@ -1,13 +1,15 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { Github, Mail, Lock, X, AlertCircle, User } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 // Import Supabase auth functions
 import { signUpWithSupabase, signInWithSupabase } from '@/lib/supabase';
-import supabase from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { useSupabase } from '@/providers/SupabaseProvider';
+import { getBaseUrl } from '@/lib/utils';
 
 interface SignInMenuProps {
   isOpen: boolean;
@@ -188,10 +190,17 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
   const handleGithubLogin = async () => {
     setIsLoading(true);
     try {
+      const baseUrl = getBaseUrl();
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${baseUrl}/auth/callback`,
+          skipBrowserRedirect: false,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent'
+          }
         },
       });
       
@@ -216,10 +225,17 @@ export function SignInMenu({ isOpen, onClose, initialMode = 'signin' }: SignInMe
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     try {
+      const baseUrl = getBaseUrl();
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${baseUrl}/auth/callback`,
+          skipBrowserRedirect: false,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent'
+          }
         },
       });
       

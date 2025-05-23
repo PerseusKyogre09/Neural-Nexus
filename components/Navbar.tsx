@@ -7,6 +7,7 @@ import { Menu, X, User, Settings, LogOut, BarChart2, Key } from 'lucide-react';
 import Brand from './Brand';
 import dynamic from 'next/dynamic';
 import { useAppContext } from '@/providers/AppProvider';
+import { useSupabase } from '@/providers/SupabaseProvider';
 import { useRouter } from 'next/navigation';
 import { AIAssistantButton } from '@/components/ui/AIAssistantButton';
 
@@ -17,6 +18,8 @@ interface ExtendedUser {
   photoURL?: string;
   user_metadata?: {
     first_name?: string;
+    avatar_url?: string;
+    full_name?: string;
   };
 }
 
@@ -32,9 +35,12 @@ const Navbar = () => {
   const [isMounted, setIsMounted] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement>(null);
-  const { user, signOut } = useAppContext();
-  const typedUser = user as ExtendedUser;
+  const { user: appUser, signOut: appSignOut } = useAppContext();
+  const { user: supabaseUser, supabase } = useSupabase();
   const router = useRouter();
+  
+  // Use Supabase user if available, otherwise fall back to AppContext user
+  const user = supabaseUser || appUser as ExtendedUser;
 
   useEffect(() => {
     setIsMounted(true);
@@ -59,9 +65,23 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = async () => {
-    if (signOut) {
-      await signOut();
+    try {
+      // Try Supabase logout first
+      if (supabase) {
+        await supabase.auth.signOut();
+        console.log("✅ Logged out from Supabase");
+      }
+      
+      // Also try AppContext logout as fallback
+      if (appSignOut) {
+        await appSignOut();
+        console.log("✅ Logged out from AppContext");
+      }
+      
       router.push('/');
+      router.refresh();
+    } catch (error) {
+      console.error("Logout error:", error);
     }
   };
 
@@ -80,6 +100,31 @@ const Navbar = () => {
   // Helper to determine if link is external
   const isExternalLink = (href: string) => {
     return href.startsWith('http://') || href.startsWith('https://');
+  };
+
+  // Helper to get user display info from either provider
+  const getUserDisplayName = () => {
+    if (supabaseUser?.user_metadata?.full_name) {
+      return supabaseUser.user_metadata.full_name;
+    } else if (supabaseUser?.user_metadata?.first_name) {
+      return supabaseUser.user_metadata.first_name;
+    } else if (appUser?.displayName) {
+      return appUser.displayName;
+    }
+    return 'User';
+  };
+  
+  const getUserEmail = () => {
+    return supabaseUser?.email || appUser?.email || '';
+  };
+  
+  const getUserAvatar = () => {
+    return supabaseUser?.user_metadata?.avatar_url || appUser?.photoURL;
+  };
+  
+  const getInitial = () => {
+    const name = getUserDisplayName();
+    return name ? name.charAt(0).toUpperCase() : 'U';
   };
 
   return (
@@ -142,15 +187,15 @@ const Navbar = () => {
                   className="relative flex items-center focus:outline-none"
                   aria-label="Open user menu"
                 >
-                  {user.photoURL ? (
+                  {getUserAvatar() ? (
                     <img 
-                      src={user.photoURL} 
+                      src={getUserAvatar()} 
                       alt="Profile"
                       className="w-8 h-8 rounded-full object-cover border-2 border-purple-500"
                     />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white">
-                      {user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'}
+                      {getInitial()}
                     </div>
                   )}
                 </button>
@@ -166,9 +211,9 @@ const Navbar = () => {
                     >
                       <div className="border-b border-gray-700 p-3">
                         <p className="font-medium">
-                          {typedUser?.user_metadata?.first_name || user.displayName || 'User'}
+                          {getUserDisplayName()}
                         </p>
-                        <p className="text-sm text-gray-400 truncate">{user.email}</p>
+                        <p className="text-sm text-gray-400 truncate">{getUserEmail()}</p>
                       </div>
                       <div className="py-1">
                         <Link
@@ -281,22 +326,22 @@ const Navbar = () => {
               <>
                 <div className="px-3 py-2 border-t border-gray-700 mt-2 pt-2">
                   <div className="flex items-center mb-2">
-                    {user.photoURL ? (
+                    {getUserAvatar() ? (
                       <img 
-                        src={user.photoURL} 
+                        src={getUserAvatar()} 
                         alt="Profile"
                         className="w-8 h-8 rounded-full object-cover border-2 border-purple-500"
                       />
                     ) : (
                       <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white">
-                        {user.displayName ? user.displayName.charAt(0).toUpperCase() : 'U'}
+                        {getInitial()}
                       </div>
                     )}
                     <div className="ml-2">
                       <p className="font-medium text-sm">
-                        {typedUser?.user_metadata?.first_name || user.displayName || 'User'}
+                        {getUserDisplayName()}
                       </p>
-                      <p className="text-xs text-gray-400 truncate">{user.email}</p>
+                      <p className="text-xs text-gray-400 truncate">{getUserEmail()}</p>
                     </div>
                   </div>
                   

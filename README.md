@@ -442,3 +442,59 @@ Contributions are welcome! Please check out our [Contributing Guide](CONTRIBUTIN
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## GitHub Workflows and Automation
+
+This repository uses several GitHub Actions workflows to automate processes and improve collaboration:
+
+### Automatic PR Labeling
+
+Pull requests are automatically labeled based on the files changed:
+
+- **frontend**: Changes to app, src, components, or public directories
+- **backend**: Changes to lib, api, server, or providers directories
+- **documentation**: Changes to markdown files or docs directory
+- **config**: Changes to configuration files
+- **dependencies**: Changes to package.json or lock files
+- **testing**: Changes to test files
+- **ui**: Changes to CSS, styles, or UI components
+- **auth**: Changes to authentication-related code
+- **feature**: Changes to feature-specific directories
+
+PRs are also labeled by size:
+- **XS**: < 10 lines
+- **S**: 10-99 lines
+- **M**: 100-299 lines
+- **L**: 300-499 lines
+- **XL**: 500-999 lines
+- **XXL**: 1000+ lines
+
+### Issue Labeling
+
+Issues are automatically labeled based on their title and content:
+
+- **bug**: Issues reporting bugs or problems
+- **enhancement**: Feature requests and improvements
+- **documentation**: Documentation-related issues
+- **question**: Questions and help requests
+- **performance**: Performance-related issues
+- **security**: Security-related issues
+- **ui**: UI/UX-related issues
+- **auth**: Authentication-related issues
+- **good first issue**: Issues suitable for newcomers
+
+### Dependency Management
+
+Dependabot automatically creates PRs for dependency updates:
+
+- NPM dependencies are checked weekly
+- GitHub Actions are checked weekly
+- All updates require manual review and approval
+
+### Stale Issue Management
+
+Issues and PRs with no activity for 30 days are marked as stale and closed after 7 more days of inactivity. Issues labeled as bug, security, enhancement, documentation, or good first issue are exempt.
+
+### Code Ownership
+
+The CODEOWNERS file automatically assigns reviewers to PRs based on the files changed.

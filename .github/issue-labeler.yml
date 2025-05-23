@@ -1,0 +1,45 @@
+# Issue labeler configuration
+# Uses regex patterns to match issue titles and descriptions
+
+# Bug reports
+bug:
+  - '(?i).*\b(bug|broken|fix|issue|error|problem|crash|fails)\b.*'
+  - '(?i).*\b(doesn\'t|does not) work\b.*'
+
+# Feature requests
+enhancement:
+  - '(?i).*\b(feature request|enhancement|new feature|add|improve)\b.*'
+  - '(?i).*\b(would be nice|would like to see|would be great|suggestion)\b.*'
+
+# Documentation issues
+documentation:
+  - '(?i).*\b(docs|documentation|typo|example|tutorial)\b.*'
+  - '(?i).*\b(readme|wiki|guide|manual)\b.*'
+
+# Questions
+question:
+  - '(?i).*\b(how to|how do I|help with|question|wondering|curious)\b.*'
+  - '(?i).*\b(can I|is it possible|advice|guidance)\b.*'
+  - '\?{1,}$'
+
+# Performance issues
+performance:
+  - '(?i).*\b(slow|performance|optimize|optimization|speed|memory|cpu|lag|latency)\b.*'
+
+# Security issues
+security:
+  - '(?i).*\b(security|vulnerability|exploit|auth|authentication|authorization|permission|access|hack)\b.*'
+
+# UI/UX issues
+ui:
+  - '(?i).*\b(ui|ux|user interface|design|layout|style|css|visual|display|theme|dark mode|light mode)\b.*'
+  - '(?i).*\b(button|menu|modal|dialog|form|input|dropdown)\b.*'
+
+# Authentication issues
+auth:
+  - '(?i).*\b(login|logout|signin|signup|register|password|oauth|authentication)\b.*'
+  - '(?i).*\b(session|token|jwt|auth)\b.*'
+
+# Good first issues
+good first issue:
+  - '(?i).*\b(simple|easy|beginner|good first issue|help wanted|starter)\b.*' 

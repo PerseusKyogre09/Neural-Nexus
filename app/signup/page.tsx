@@ -14,6 +14,7 @@ import { Mail, Lock, Github, AlertCircle, User } from 'lucide-react';
 import Link from 'next/link';
 import { useSupabase } from '@/providers/SupabaseProvider';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { getBaseUrl } from '@/lib/utils';
 
 // Import toast dynamically to avoid SSR issues
 const importToast = () => import('react-hot-toast').then(mod => mod.toast);
@@ -157,6 +158,10 @@ export default function SignUpPage() {
     
     setIsLoading(true);
     try {
+      const baseUrl = getBaseUrl();
+      // Get callback URL if provided in the search params
+      const callbackUrl = searchParams?.get('callback') || searchParams?.get('redirect') || '/dashboard';
+      
       // Sign up with Supabase
       const { error } = await supabase.auth.signUp({
         email: formData.email,
@@ -169,7 +174,7 @@ export default function SignUpPage() {
             display_name: `${formData.firstName} ${formData.lastName || ''}`.trim(),
             profileComplete: false
           },
-          emailRedirectTo: `${window.location.origin}/auth/callback`
+          emailRedirectTo: `${baseUrl}/auth/callback?callbackUrl=${encodeURIComponent(callbackUrl)}`
         }
       });
       
@@ -180,7 +185,9 @@ export default function SignUpPage() {
         const { toast } = await import('react-hot-toast');
         toast.success("Account created! Please check your email to verify your account.");
       }
-      router.push('/signin');
+      
+      // Redirect to sign-in with the callback preserved
+      router.push(`/signin?callback=${encodeURIComponent(callbackUrl)}`);
       
     } catch (err: any) {
       console.error('Sign up error:', err);
@@ -196,10 +203,19 @@ export default function SignUpPage() {
   const handleGithubSignUp = async () => {
     setIsLoading(true);
     try {
+      const baseUrl = getBaseUrl();
+      // Get callback URL if provided in the search params
+      const callbackUrl = searchParams?.get('callback') || searchParams?.get('redirect') || '/dashboard';
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${baseUrl}/auth/callback?callbackUrl=${encodeURIComponent(callbackUrl)}`,
+          skipBrowserRedirect: false,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent'
+          }
         },
       });
       
@@ -217,10 +233,19 @@ export default function SignUpPage() {
   const handleGoogleSignUp = async () => {
     setIsLoading(true);
     try {
+      const baseUrl = getBaseUrl();
+      // Get callback URL if provided in the search params
+      const callbackUrl = searchParams?.get('callback') || searchParams?.get('redirect') || '/dashboard';
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${baseUrl}/auth/callback?callbackUrl=${encodeURIComponent(callbackUrl)}`,
+          skipBrowserRedirect: false,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent'
+          }
         },
       });
       

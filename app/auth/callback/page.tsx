@@ -12,6 +12,7 @@ import { toast } from "react-hot-toast";
 import nextDynamic from 'next/dynamic';
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
+import { getBaseUrl } from "@/lib/utils";
 
 // Dynamically import Confetti with ssr: false to prevent the 'document is not defined' error
 const Confetti = nextDynamic(() => import('react-confetti'), { ssr: false });
@@ -25,8 +26,21 @@ function AuthCallbackContent() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState("Processing your authentication...");
   const [countdown, setCountdown] = useState(5);
+  
+  // Get the callbackUrl from the URL
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
 
   useEffect(() => {
+    // Clear hash from URL to avoid token exposure
+    if (typeof window !== 'undefined' && window.location.hash) {
+      // This will remove the hash without triggering a navigation
+      window.history.replaceState(
+        {},
+        document.title,
+        window.location.pathname + window.location.search
+      );
+    }
+
     // Get error from URL if any
     const errorDescription = searchParams.get("error_description");
     if (errorDescription) {
@@ -38,7 +52,7 @@ function AuthCallbackContent() {
 
     const handleCallback = async () => {
       try {
-        // Check if we have a session
+        // First attempt to get the session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
@@ -58,7 +72,7 @@ function AuthCallbackContent() {
             setCountdown(count);
             if (count <= 0) {
               clearInterval(interval);
-              router.push("/dashboard");
+              router.push(callbackUrl);
             }
           }, 1000);
           
@@ -86,7 +100,7 @@ function AuthCallbackContent() {
             setCountdown(count);
             if (count <= 0) {
               clearInterval(interval);
-              router.push("/dashboard");
+              router.push(callbackUrl);
             }
           }, 1000);
         } else {
@@ -104,7 +118,7 @@ function AuthCallbackContent() {
     };
 
     handleCallback();
-  }, [supabase, router, searchParams]);
+  }, [supabase, router, searchParams, callbackUrl]);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-gray-900 to-black p-4">
@@ -135,13 +149,13 @@ function AuthCallbackContent() {
                 <h2 className="text-3xl font-bold text-white mb-4">Welcome! 🚀</h2>
                 <p className="text-xl text-purple-300 mb-6">{message}</p>
                 <p className="text-gray-400 mb-8">
-                  Redirecting to dashboard in <span className="text-white font-semibold">{countdown}</span> seconds...
+                  Redirecting in <span className="text-white font-semibold">{countdown}</span> seconds...
                 </p>
                 <button
-                  onClick={() => router.push("/dashboard")}
+                  onClick={() => router.push(callbackUrl)}
                   className="bg-gradient-to-r from-purple-500 to-blue-600 px-6 py-3 rounded-lg font-medium hover:opacity-90 transition-all"
                 >
-                  Go to Dashboard Now
+                  Continue Now
                 </button>
               </>
             ) : (

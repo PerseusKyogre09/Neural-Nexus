@@ -31,7 +31,9 @@ const SubscriptionButton: React.FC<SubscriptionButtonProps> = ({
     // Check if user is logged in
     if (!user || !appUser) {
       toast.error('Please sign in to purchase a subscription');
-      router.push('/signin?redirect=' + encodeURIComponent('/pricing'));
+      // Preserve the current path for redirect after sign-in
+      const currentPath = '/pricing';
+      router.push(`/signin?callback=${encodeURIComponent(currentPath)}`);
       return;
     }
     

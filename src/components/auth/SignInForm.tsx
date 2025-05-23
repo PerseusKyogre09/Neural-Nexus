@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Lock, Github, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Input } from '@/src/components/ui/Input';
 import { Button } from '@/src/components/ui/Button';
 import { useSupabase } from '@/providers/SupabaseProvider';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { getBaseUrl } from '@/lib/utils';
 
 export default function SignInForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,6 +17,10 @@ export default function SignInForm() {
   const [error, setError] = useState<string | null>(null);
   const { supabase } = useSupabase();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // Get callback/redirect URL if provided
+  const callbackUrl = searchParams?.get('callback') || searchParams?.get('redirect') || '/dashboard';
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +38,9 @@ export default function SignInForm() {
       // We're definitely on the client side here
       const { toast } = await import('react-hot-toast');
       toast.success("Successfully signed in!");
-      router.push('/dashboard');
+      
+      // Redirect to callback URL or dashboard
+      router.push(callbackUrl);
     } catch (err: any) {
       console.error('Sign in error:', err);
       setError(err.message || 'Failed to sign in');
@@ -45,10 +52,36 @@ export default function SignInForm() {
   const handleGithubSignIn = async () => {
     setIsLoading(true);
     try {
+      // Get base URL from our utility function
+      const baseUrl = getBaseUrl();
+      console.log("BaseURL from getBaseUrl():", baseUrl);
+      
+      // IMPORTANT OVERRIDE: Force localhost for development
+      // Check if we're in localhost but baseUrl doesn't reflect that
+      let redirectUrl;
+      if (typeof window !== 'undefined' && 
+          (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') &&
+          !baseUrl.includes('localhost')) {
+        // Force localhost URL for local development
+        const port = window.location.port ? `:${window.location.port}` : '';
+        redirectUrl = `http://${window.location.hostname}${port}/auth/callback?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+        console.log("⚠️ FORCING LOCALHOST REDIRECT:", redirectUrl);
+      } else {
+        // Use normal baseUrl for production
+        redirectUrl = `${baseUrl}/auth/callback?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+      }
+      
+      console.log("Final redirectTo URL:", redirectUrl);
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: redirectUrl,
+          skipBrowserRedirect: false,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         },
       });
       
@@ -63,10 +96,42 @@ export default function SignInForm() {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
+      // Get base URL from our utility function
+      const baseUrl = getBaseUrl();
+      console.log("BaseURL from getBaseUrl():", baseUrl);
+      
+      // IMPORTANT OVERRIDE: Force localhost for development
+      // Check if we're in localhost but baseUrl doesn't reflect that
+      let redirectUrl;
+      if (typeof window !== 'undefined' && 
+          (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') &&
+          !baseUrl.includes('localhost')) {
+        // Force localhost URL for local development
+        const port = window.location.port ? `:${window.location.port}` : '';
+        redirectUrl = `http://${window.location.hostname}${port}/auth/callback?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+        console.log("⚠️ FORCING LOCALHOST REDIRECT:", redirectUrl);
+      } else {
+        // Use normal baseUrl for production
+        redirectUrl = `${baseUrl}/auth/callback?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+      }
+      
+      console.log("Final redirectTo URL:", redirectUrl);
+      
+      // Show an alert to display the redirect URL
+      if (typeof window !== 'undefined') {
+        alert(`Using redirect URL: ${redirectUrl}\n\nMake sure this matches your Google OAuth Authorized redirect URIs exactly.`);
+      }
+      
+      // Use the redirectUrl in the OAuth call
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: redirectUrl,
+          skipBrowserRedirect: false,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         },
       });
       
