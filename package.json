@@ -33,6 +33,7 @@
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/typography": "^0.5.10",
     "@types/js-cookie": "^3.0.6",
+    "@types/react-google-recaptcha": "^2.1.9",
     "@vercel/analytics": "^1.5.0",
     "@vercel/edge-config": "^1.4.0",
     "@vercel/speed-insights": "^1.2.0",
@@ -63,6 +64,7 @@
     "react-confetti": "^6.4.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
+    "react-google-recaptcha": "^3.1.0",
     "react-hot-toast": "^2.5.2",
     "react-lottie-player": "^2.1.0",
     "recharts": "^2.15.3",
@@ -89,5 +91,8 @@
     "prettier-plugin-tailwindcss": "^0.5.11",
     "typescript": "^5.3.3",
     "typescript-eslint": "^8.32.1"
+  },
+  "env": {
+    "NEXT_PUBLIC_RECAPTCHA_SITE_KEY": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
   }
 }

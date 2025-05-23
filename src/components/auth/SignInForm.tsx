@@ -1,37 +1,162 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Github, AlertCircle } from 'lucide-react';
+import { Mail, Lock, Github, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Input } from '@/src/components/ui/Input';
 import { Button } from '@/src/components/ui/Button';
 import { useSupabase } from '@/providers/SupabaseProvider';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getBaseUrl } from '@/lib/utils';
+import { checkEmailVibe, debounce, RateLimitState, checkRateLimit } from '@/lib/validation';
+import ReCAPTCHA from 'react-google-recaptcha';
+
+// Field validation state interface
+interface FieldState {
+  value: string;
+  error?: string;
+  touched: boolean;
+  valid: boolean;
+  validating: boolean;
+}
 
 export default function SignInForm() {
+  // Form field states with validation
+  const [emailState, setEmailState] = useState<FieldState>({
+    value: '',
+    touched: false,
+    valid: false,
+    validating: false
+  });
+  
+  const [passwordState, setPasswordState] = useState<FieldState>({
+    value: '',
+    touched: false,
+    valid: false,
+    validating: false
+  });
+  
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [generalError, setGeneralError] = useState<string | null>(null);
+  const [showCaptcha, setShowCaptcha] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  
+  // Rate limiting state
+  const [rateLimitState, setRateLimitState] = useState<RateLimitState>({
+    attempts: 0,
+    lastAttempt: 0,
+    blocked: false,
+    blockExpiry: 0
+  });
+  
   const { supabase } = useSupabase();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   
   // Get callback/redirect URL if provided
   const callbackUrl = searchParams?.get('callback') || searchParams?.get('redirect') || '/dashboard';
 
+  // Debounced validation functions
+  const debouncedEmailValidation = useRef(
+    debounce((value: string) => {
+      const result = checkEmailVibe(value);
+      setEmailState(prev => ({
+        ...prev,
+        valid: result.valid,
+        error: result.message,
+        validating: false
+      }));
+    }, 500)
+  ).current;
+  
+  // Handle email input change with validation
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEmailState({
+      value,
+      touched: true,
+      valid: emailState.valid,
+      validating: true,
+      error: undefined
+    });
+    
+    debouncedEmailValidation(value);
+  };
+  
+  // Handle password input change with validation
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPasswordState({
+      value,
+      touched: true,
+      valid: value.length >= 1, // Simple presence check for login
+      validating: false,
+      error: value.length === 0 ? "Password can't be empty, bestie!" : undefined
+    });
+  };
+  
+  // Reset captcha when it's shown
+  useEffect(() => {
+    if (showCaptcha && recaptchaRef.current) {
+      recaptchaRef.current.reset();
+    }
+  }, [showCaptcha]);
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setGeneralError(null);
+    
+    // Validate form
+    if (!emailState.valid) {
+      setEmailState(prev => ({
+        ...prev,
+        touched: true,
+        error: prev.error || "Email doesn't look right, check it again!"
+      }));
+      return;
+    }
+    
+    if (!passwordState.valid) {
+      setPasswordState(prev => ({
+        ...prev,
+        touched: true,
+        error: "You need a password to sign in!"
+      }));
+      return;
+    }
+    
+    // Check rate limiting
+    const rateLimitCheck = checkRateLimit(rateLimitState);
+    if (!rateLimitCheck.allowed) {
+      setGeneralError(rateLimitCheck.message || "Too many sign-in attempts. Try again later.");
+      setRateLimitState(rateLimitCheck.newState);
+      
+      // Show CAPTCHA after multiple attempts
+      if (rateLimitCheck.newState.attempts >= 3) {
+        setShowCaptcha(true);
+      }
+      
+      return;
+    }
+    
+    // If CAPTCHA is shown but not completed
+    if (showCaptcha && !captchaToken) {
+      setGeneralError("Please complete the CAPTCHA verification");
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password
+        email: emailState.value,
+        password: passwordState.value
       });
+      
+      // Update rate limit state
+      setRateLimitState(rateLimitCheck.newState);
       
       if (error) throw error;
       
@@ -43,9 +168,45 @@ export default function SignInForm() {
       router.push(callbackUrl);
     } catch (err: any) {
       console.error('Sign in error:', err);
-      setError(err.message || 'Failed to sign in');
+      
+      // Handle specific error messages with user-friendly text
+      let errorMessage = "Failed to sign in";
+      
+      if (err.message.includes("Invalid login")) {
+        errorMessage = "Wrong email or password, try again!";
+      } else if (err.message.includes("Email not confirmed")) {
+        errorMessage = "You need to verify your email first. Check your inbox!";
+      } else if (err.message.includes("rate limit")) {
+        errorMessage = "Whoa, slow down! Too many attempts. Try again in a bit.";
+        // Force CAPTCHA after rate limit errors
+        setShowCaptcha(true);
+      }
+      
+      setGeneralError(errorMessage);
+      
+      // If login failed, increment attempts
+      const updatedRateLimitState = {
+        ...rateLimitState,
+        attempts: rateLimitState.attempts + 1,
+        lastAttempt: Date.now()
+      };
+      
+      // Show CAPTCHA after 3 failed attempts
+      if (updatedRateLimitState.attempts >= 3) {
+        setShowCaptcha(true);
+      }
+      
+      setRateLimitState(updatedRateLimitState);
     } finally {
       setIsLoading(false);
+    }
+  };
+  
+  const handleCaptchaChange = (token: string | null) => {
+    setCaptchaToken(token);
+    if (token) {
+      // Reset general error when CAPTCHA is completed
+      setGeneralError(null);
     }
   };
   
@@ -88,7 +249,7 @@ export default function SignInForm() {
       if (error) throw error;
     } catch (err: any) {
       console.error('GitHub sign in error:', err);
-      setError(err.message || 'Failed to sign in with GitHub');
+      setGeneralError(err.message || 'Failed to sign in with GitHub');
       setIsLoading(false);
     }
   };
@@ -138,21 +299,31 @@ export default function SignInForm() {
       if (error) throw error;
     } catch (err: any) {
       console.error('Google sign in error:', err);
-      setError(err.message || 'Failed to sign in with Google');
+      setGeneralError(err.message || 'Failed to sign in with Google');
       setIsLoading(false);
     }
   };
 
+  // Get validation status icon for email field
+  const getEmailStatusIcon = () => {
+    if (!emailState.touched) return null;
+    if (emailState.validating) return null;
+    
+    return emailState.valid ? 
+      <CheckCircle className="h-5 w-5 text-green-500" /> : 
+      <XCircle className="h-5 w-5 text-red-500" />;
+  };
+
   return (
     <div className="bg-white/5 backdrop-blur-md rounded-xl border border-purple-500/10 p-6 md:p-8 shadow-xl">
-      {error && (
+      {generalError && (
         <motion.div 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex items-start"
         >
           <AlertCircle className="h-5 w-5 text-red-500 mr-3 mt-0.5 flex-shrink-0" />
-          <p className="text-red-300 text-sm">{error}</p>
+          <p className="text-red-300 text-sm">{generalError}</p>
         </motion.div>
       )}
       
@@ -161,24 +332,27 @@ export default function SignInForm() {
           label="Email"
           type="email"
           name="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={emailState.value}
+          onChange={handleEmailChange}
           leftIcon={<Mail className="h-5 w-5" />}
+          rightIcon={getEmailStatusIcon()}
           placeholder="Enter your email"
           required
           autoComplete="email"
+          error={emailState.touched ? emailState.error : undefined}
         />
         
         <Input
           label="Password"
           type="password"
           name="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={passwordState.value}
+          onChange={handlePasswordChange}
           leftIcon={<Lock className="h-5 w-5" />}
           placeholder="Enter your password"
           required
           autoComplete="current-password"
+          error={passwordState.touched ? passwordState.error : undefined}
         />
         
         <div className="flex items-center justify-between">
@@ -199,11 +373,23 @@ export default function SignInForm() {
           </Link>
         </div>
         
+        {showCaptcha && (
+          <div className="flex justify-center my-4">
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'} // Default is Google's test key
+              onChange={handleCaptchaChange}
+              theme="dark"
+            />
+          </div>
+        )}
+        
         <Button
           type="submit"
           variant="primary"
           className="w-full"
           isLoading={isLoading}
+          disabled={isLoading || (showCaptcha && !captchaToken) || rateLimitState.blocked}
         >
           Sign in
         </Button>
@@ -226,7 +412,7 @@ export default function SignInForm() {
           className="w-full bg-gray-800 hover:bg-gray-700 text-white"
           leftIcon={<Github className="h-5 w-5" />}
           onClick={handleGithubSignIn}
-          disabled={isLoading}
+          disabled={isLoading || rateLimitState.blocked}
         >
           Continue with GitHub
         </Button>
@@ -235,7 +421,7 @@ export default function SignInForm() {
           variant="secondary"
           className="w-full bg-gray-800 hover:bg-gray-700 text-white"
           onClick={handleGoogleSignIn}
-          disabled={isLoading}
+          disabled={isLoading || rateLimitState.blocked}
           leftIcon={
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
