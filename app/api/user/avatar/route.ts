@@ -3,6 +3,9 @@ import { UserService } from '@/lib/models/user';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
+// Force Node.js runtime for this route
+export const runtime = 'nodejs';
+
 // POST /api/user/avatar - Upload user avatar
 export async function POST(req: NextRequest) {
   try {

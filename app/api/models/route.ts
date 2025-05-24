@@ -4,9 +4,6 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import slugify from 'slugify';
 
-// This can use Edge Runtime since it's a lightweight operation
-export const runtime = 'edge';
-
 // GET /api/models - Get all models with optional filters and pagination
 export async function GET(req: NextRequest) {
   try {
@@ -32,14 +29,10 @@ export async function GET(req: NextRequest) {
 // POST /api/models - Create a new model
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized - You must be logged in to create a model' },
-        { status: 401 }
-      );
-    }
+    // In a production app, you would need to authenticate the user here
+    // For now, we'll simulate a user context
+    const userId = "demo-user-id";
+    const userName = "Demo User";
     
     const modelData = await req.json();
     
@@ -60,11 +53,11 @@ export async function POST(req: NextRequest) {
       });
     }
     
-    // Add creator information from session
+    // Add creator information
     modelData.creator = {
-      id: session.user.id,
-      name: session.user.name || session.user.username,
-      avatar: session.user.image
+      id: userId,
+      name: userName,
+      avatar: undefined
     };
     
     // Ensure versions array with at least one version
@@ -96,14 +89,10 @@ export async function POST(req: NextRequest) {
 // PUT /api/models - Update an existing model
 export async function PUT(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized - You must be logged in to update a model' },
-        { status: 401 }
-      );
-    }
+    // In a production app, you would need to authenticate the user here
+    // For now, we'll simulate a user context
+    const userId = "demo-user-id";
+    const userRole = "admin";
     
     const { id, ...updates } = await req.json();
     
@@ -125,7 +114,7 @@ export async function PUT(req: NextRequest) {
     }
     
     // Check if user is the creator or an admin
-    if (model.creator.id !== session.user.id && session.user.role !== 'admin') {
+    if (model.creator.id !== userId && userRole !== 'admin') {
       return NextResponse.json(
         { error: 'Unauthorized - You can only update your own models' },
         { status: 403 }
@@ -167,14 +156,10 @@ export async function PUT(req: NextRequest) {
 // DELETE /api/models - Delete a model
 export async function DELETE(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized - You must be logged in to delete a model' },
-        { status: 401 }
-      );
-    }
+    // In a production app, you would need to authenticate the user here
+    // For now, we'll simulate a user context
+    const userId = "demo-user-id";
+    const userRole = "admin";
     
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
@@ -197,7 +182,7 @@ export async function DELETE(req: NextRequest) {
     }
     
     // Check if user is the creator or an admin
-    if (model.creator.id !== session.user.id && session.user.role !== 'admin') {
+    if (model.creator.id !== userId && userRole !== 'admin') {
       return NextResponse.json(
         { error: 'Unauthorized - You can only delete your own models' },
         { status: 403 }

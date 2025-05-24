@@ -3,6 +3,9 @@ import { UserService } from '@/lib/models/user';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
+// Force Node.js runtime for this route
+export const runtime = 'nodejs';
+
 // GET /api/user/profile - Get user profile status
 export async function GET(req: NextRequest) {
   try {

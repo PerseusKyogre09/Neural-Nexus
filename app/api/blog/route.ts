@@ -4,6 +4,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import slugify from 'slugify';
 
+// Force Node.js runtime for this route
+export const runtime = 'nodejs';
+
 // GET /api/blog - Get all blogs with pagination
 export async function GET(req: NextRequest) {
   try {

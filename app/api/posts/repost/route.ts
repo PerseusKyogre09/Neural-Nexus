@@ -3,6 +3,9 @@ import { PostService } from '@/lib/models/post';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
+// Force Node.js runtime for this route
+export const runtime = 'nodejs';
+
 // POST /api/posts/repost - Repost a post
 export async function POST(req: NextRequest) {
   try {

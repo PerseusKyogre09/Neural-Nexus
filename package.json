@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "prebuild": "node ./scripts/prepare-build.js",
-    "build": "NEXT_RUNTIME=edge NEXT_DISABLE_REACT_IN_MIDDLEWARE=true next build",
+    "build": "next build",
     "postbuild": "node ./scripts/patch-build.js",
     "custom-build": "./build-with-cleanup.sh",
     "custom-vercel-build": "node ./scripts/vercel-build.js",

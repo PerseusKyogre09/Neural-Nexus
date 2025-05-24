@@ -4,6 +4,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { ObjectId } from 'mongodb';
 
+// Force Node.js runtime for this route
+export const runtime = 'nodejs';
+
 // POST /api/posts/comment - Add a comment to a post
 export async function POST(req: NextRequest) {
   try {
