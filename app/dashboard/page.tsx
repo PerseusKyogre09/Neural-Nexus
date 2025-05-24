@@ -21,6 +21,20 @@ import CustomerManagement from '@/components/dashboard/CustomerManagement';
 import ProfileCompleteModal from '@/components/ProfileCompleteModal';
 import { useSession } from 'next-auth/react';
 import { useSupabase } from '@/providers/SupabaseProvider';
+import { User } from '@supabase/supabase-js';
+
+interface SessionUser {
+  id: string;
+  username?: string;
+  role?: string;
+  email?: string;
+  name?: string | null;
+  image?: string | null;
+  user_metadata?: {
+    first_name?: string;
+    [key: string]: any;
+  };
+}
 
 interface StatCard {
   label: string;
@@ -30,147 +44,132 @@ interface StatCard {
   color: string;
 }
 
+// Create helper functions to safely access properties with type guards
+const getUserName = (userData: any, session: any): string => {
+  if (userData?.name) return userData.name;
+  if (session?.user_metadata?.first_name) return session.user_metadata.first_name;
+  if (session?.name) return session.name;
+  return 'Creator';
+};
+
+const getUserEmail = (userData: any, session: any): string => {
+  if (userData?.email) return userData.email;
+  if (session?.email) return session.email;
+  return 'Not set';
+};
+
+const getUserAvatar = (userData: any, session: any): string => {
+  if (userData?.avatar) return userData.avatar;
+  if (session?.image) return session.image;
+  return '';
+};
+
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
   const [chartHovered, setChartHovered] = useState<number | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [hasCompletedProfile, setHasCompletedProfile] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
+  const [stats, setStats] = useState<StatCard[]>([]);
+  const [myModels, setMyModels] = useState<any[]>([]);
+  const [revenueData, setRevenueData] = useState<any[]>([]);
+  const [activities, setActivities] = useState<any[]>([]);
+  
   const router = useRouter();
   const { user: appUser } = useAppContext();
-  const { data: sessionData } = useSession();
+  const { data: sessionData, status } = useSession();
   const { user: supabaseUser } = useSupabase();
   
   // Get the user from either NextAuth or Supabase
-  const user = supabaseUser || sessionData?.user;
-  
-  // Determine if this is an anonymous user or a demo view
-  const isAnonymousOrDemo = !user || !user.email?.includes('@');
-  
-  // Empty/starter data for real authenticated users
-  const emptyModels: any[] = [];
-  const emptyRevenueData = [
-    { month: "Jan", amount: 0 },
-    { month: "Feb", amount: 0 },
-    { month: "Mar", amount: 0 },
-    { month: "Apr", amount: 0 },
-    { month: "May", amount: 0 },
-    { month: "Jun", amount: 0 },
-    { month: "Jul", amount: 0 }
-  ];
-  const emptyStats = [
-    { label: "Total Models", value: 0, icon: <Layers className="h-5 w-5" />, color: "from-blue-500 to-cyan-400", change: undefined },
-    { label: "Total Sales", value: 0, icon: <TrendingUp className="h-5 w-5" />, color: "from-green-500 to-emerald-400", change: undefined },
-    { label: "Revenue", value: "$0", icon: <DollarSign className="h-5 w-5" />, color: "from-purple-500 to-violet-400", change: undefined },
-    { label: "Model Views", value: "0", icon: <Eye className="h-5 w-5" />, color: "from-pink-500 to-rose-400", change: undefined }
-  ];
-  const emptyActivities: any[] = [];
-  
-  // Demo data for anonymous users
-  const demoModels = [
-    {
-      id: "model1",
-      name: "ImageGen Pro",
-      description: "Advanced image generation with unmatched detail and prompt accuracy",
-      category: "Computer Vision",
-      sales: 128,
-      rating: 4.8,
-      status: "active",
-      coverImage: "https://images.unsplash.com/photo-1686191482311-cb3fa868a543"
-    },
-    {
-      id: "model2",
-      name: "NLP Transformer X",
-      description: "State-of-the-art language model for text generation and analysis",
-      category: "NLP",
-      sales: 87,
-      rating: 4.7,
-      status: "pending",
-      coverImage: "https://images.unsplash.com/photo-1655635949212-1d8f4f103ea1"
-    },
-    {
-      id: "model3",
-      name: "VoiceClone Ultra",
-      description: "Ultra-realistic voice cloning with minimal training data",
-      category: "Audio",
-      sales: 42,
-      rating: 4.5,
-      status: "active",
-      coverImage: "https://images.unsplash.com/photo-1511379938547-c1f69419868d"
-    }
-  ];
-  
-  // Demo revenue data for chart
-  const demoRevenueData = [
-    { month: "Jan", amount: 1250 },
-    { month: "Feb", amount: 1800 },
-    { month: "Mar", amount: 1400 },
-    { month: "Apr", amount: 2100 },
-    { month: "May", amount: 1700 },
-    { month: "Jun", amount: 2400 },
-    { month: "Jul", amount: 3100 }
-  ];
-  
-  // Demo stats cards
-  const demoStats: StatCard[] = [
-    { label: "Total Models", value: 3, icon: <Layers className="h-5 w-5" />, color: "from-blue-500 to-cyan-400" },
-    { label: "Total Sales", value: 257, icon: <TrendingUp className="h-5 w-5" />, change: 12, color: "from-green-500 to-emerald-400" },
-    { label: "Revenue", value: "$7,840", icon: <DollarSign className="h-5 w-5" />, change: 18, color: "from-purple-500 to-violet-400" },
-    { label: "Model Views", value: "12.4K", icon: <Eye className="h-5 w-5" />, change: 5, color: "from-pink-500 to-rose-400" }
-  ];
-  
-  // Demo recent activities
-  const demoActivities = [
-    { text: "Your model 'ImageGen Pro' was purchased", time: "2 hours ago", icon: <DollarSign className="h-4 w-4 text-green-400" /> },
-    { text: "New 5-star review on 'NLP Transformer X'", time: "Yesterday", icon: <Award className="h-4 w-4 text-yellow-400" /> },
-    { text: "Your model was featured on the homepage", time: "3 days ago", icon: <Bookmark className="h-4 w-4 text-blue-400" /> },
-    { text: "Your account reached Gold tier status", time: "1 week ago", icon: <Diamond className="h-4 w-4 text-amber-400" /> }
-  ];
-  
-  // Use the appropriate data based on whether this is a demo/anonymous user
-  const myModels = isAnonymousOrDemo ? demoModels : emptyModels;
-  const revenueData = isAnonymousOrDemo ? demoRevenueData : emptyRevenueData;
-  const stats = isAnonymousOrDemo ? demoStats : emptyStats;
-  const activities = isAnonymousOrDemo ? demoActivities : emptyActivities;
+  const session = supabaseUser || sessionData?.user as unknown as SessionUser;
   
   // Find the highest value for chart scaling (minimum of 1 to avoid division by zero)
-  const maxRevenue = Math.max(...revenueData.map(item => item.amount), 1);
-
+  const maxRevenue = Math.max(...(revenueData?.map(item => item.amount) || []), 1);
+  
+  // Check if user profile is complete and fetch user data
   useEffect(() => {
-    // Check if user exists and profile is complete
-    if (user) {
-      // If using Supabase, check metadata
-      if (supabaseUser) {
-        const hasCompleteProfile = supabaseUser.user_metadata?.profileComplete === true;
-        setHasCompletedProfile(hasCompleteProfile);
-        setIsProfileModalOpen(!hasCompleteProfile);
-      } 
-      // If using NextAuth, check profile completion status from session
-      else if (sessionData?.user) {
-        // Assuming NextAuth session includes profileComplete in user object
-        const hasCompleteProfile = sessionData.user.profileComplete === true;
-        setHasCompletedProfile(hasCompleteProfile);
-        setIsProfileModalOpen(!hasCompleteProfile);
+    const fetchProfileStatus = async () => {
+      if (!session?.id) {
+        setLoading(false);
+        return;
       }
-      setLoading(false);
-    }
-  }, [user, supabaseUser, sessionData]);
 
-  // Show profile completion modal if needed
-  useEffect(() => {
-    if (user && !hasCompletedProfile && !loading) {
-      setIsProfileModalOpen(true);
+      try {
+        // Fetch profile status
+        const profileResponse = await fetch('/api/user/profile');
+        const profileData = await profileResponse.json();
+        
+        // Set profile completion status
+        setHasCompletedProfile(profileData.isComplete);
+        setIsProfileModalOpen(!profileData.isComplete);
+        
+        // Fetch user data
+        const userResponse = await fetch('/api/user');
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          setUserData(userData);
+        }
+        
+        // Initialize empty stats
+        setStats([
+          { label: "Total Models", value: 0, icon: <Layers className="h-5 w-5" />, color: "from-blue-500 to-cyan-400" },
+          { label: "Total Sales", value: 0, icon: <TrendingUp className="h-5 w-5" />, color: "from-green-500 to-emerald-400" },
+          { label: "Revenue", value: "$0", icon: <DollarSign className="h-5 w-5" />, color: "from-purple-500 to-violet-400" },
+          { label: "Model Views", value: "0", icon: <Eye className="h-5 w-5" />, color: "from-pink-500 to-rose-400" }
+        ]);
+        
+        // Initialize empty revenue data
+        setRevenueData([
+          { month: "Jan", amount: 0 },
+          { month: "Feb", amount: 0 },
+          { month: "Mar", amount: 0 },
+          { month: "Apr", amount: 0 },
+          { month: "May", amount: 0 },
+          { month: "Jun", amount: 0 },
+          { month: "Jul", amount: 0 }
+        ]);
+        
+        // Fetch user's models
+        // This would be a real API call to get the user's models
+        // For now, we'll just set an empty array
+        setMyModels([]);
+        
+        // Set empty activities
+        setActivities([]);
+        
+      } catch (error) {
+        console.error("Error fetching profile status:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (status !== 'loading') {
+      fetchProfileStatus();
     }
-  }, [user, hasCompletedProfile, loading]);
+  }, [session, status]);
 
   // Handle profile completion
-  const handleProfileComplete = (profileData: any) => {
-    console.log("Profile data:", profileData);
-    // In a real app, save this data to the database
-    // For now, just save to localStorage to avoid showing the modal again
-    localStorage.setItem('profileCompleted', 'true');
-    setHasCompletedProfile(true);
-    setIsProfileModalOpen(false);
+  const handleProfileComplete = async (profileData: any) => {
+    try {
+      // Update user data with the profile data
+      setUserData({
+        ...userData,
+        ...profileData,
+        profileComplete: true
+      });
+      
+      setHasCompletedProfile(true);
+      setIsProfileModalOpen(false);
+      
+      // Reload the page to reflect the changes
+      // This is optional but helps ensure all data is fresh
+      router.refresh();
+      
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
   };
   
   // Tab data
@@ -212,11 +211,8 @@ export default function DashboardPage() {
             className="flex items-center gap-2 mb-1"
           >
             <h1 className="text-3xl font-bold">
-              Yo, {user?.user_metadata?.first_name || user?.displayName || 'Creator'}! 👋
+              Yo, {getUserName(userData, session)}!
             </h1>
-            <span className="bg-gradient-to-r from-green-400 to-emerald-500 text-xs px-2 py-1 rounded-full text-white font-medium">
-              GOLD TIER
-            </span>
           </motion.div>
           <motion.p
             initial={{ opacity: 0, y: -10 }}
@@ -239,15 +235,6 @@ export default function DashboardPage() {
             <AnimatedCard 
               key={stat.label}
               className={`bg-gradient-to-r ${stat.color} p-5 rounded-xl flex flex-col justify-between h-full`}
-              whileHover={{ y: -5, transition: { duration: 0.2 } }}
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                show: { 
-                  opacity: 1, 
-                  y: 0,
-                  transition: { delay: 0.05 * index }
-                }
-              }}
             >
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-sm font-medium opacity-90">{stat.label}</h3>
@@ -713,11 +700,11 @@ export default function DashboardPage() {
                   <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <p className="text-sm text-gray-400 mb-1">Display Name</p>
-                      <p className="font-medium">{user?.displayName || 'Not set'}</p>
+                      <p className="font-medium">{getUserName(userData, session)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-400 mb-1">Email</p>
-                      <p className="font-medium">{user?.email || 'Not set'}</p>
+                      <p className="font-medium">{getUserEmail(userData, session)}</p>
                     </div>
                   </div>
                 </AnimatedCard>
@@ -774,15 +761,16 @@ export default function DashboardPage() {
       <Footer />
       
       {/* Profile Completion Modal */}
-      {user && (
+      {session && (
         <ProfileCompleteModal
           isOpen={isProfileModalOpen}
           onClose={() => setIsProfileModalOpen(false)}
           onComplete={handleProfileComplete}
           userData={{
-            displayName: user.displayName || '',
-            email: user.email || '',
-            photoURL: user.photoURL || '',
+            displayName: getUserName(userData, session),
+            email: getUserEmail(userData, session),
+            photoURL: getUserAvatar(userData, session),
+            username: userData?.username || '',
           }}
         />
       )}
