@@ -19,8 +19,20 @@ export async function POST(req: NextRequest) {
       );
     }
     
+    console.log("Avatar upload request received for user:", session.user.id);
+    
     // Get the form data
-    const formData = await req.formData();
+    let formData;
+    try {
+      formData = await req.formData();
+    } catch (error) {
+      console.error("Error parsing form data:", error);
+      return NextResponse.json(
+        { error: 'Invalid form data format' },
+        { status: 400 }
+      );
+    }
+    
     const avatarFile = formData.get('avatar') as File;
     
     if (!avatarFile) {
@@ -29,6 +41,8 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    
+    console.log("Avatar file received:", avatarFile.name, "Type:", avatarFile.type, "Size:", avatarFile.size);
     
     // Validate file type
     if (!avatarFile.type.startsWith('image/')) {
@@ -48,36 +62,59 @@ export async function POST(req: NextRequest) {
     }
     
     // Read file as buffer
-    const bytes = await avatarFile.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    let buffer;
+    try {
+      const bytes = await avatarFile.arrayBuffer();
+      buffer = Buffer.from(bytes);
+      console.log("File successfully read as buffer, size:", buffer.length);
+    } catch (error) {
+      console.error("Error reading file buffer:", error);
+      return NextResponse.json(
+        { error: 'Failed to process image file' },
+        { status: 500 }
+      );
+    }
     
     // Generate a unique filename
     const timestamp = Date.now();
-    const filename = `avatar-${session.user.id}-${timestamp}.${avatarFile.name.split('.').pop()}`;
+    const fileExtension = avatarFile.name.split('.').pop() || 'jpg';
+    const filename = `avatar-${session.user.id}-${timestamp}.${fileExtension}`;
     
     // In a real app, you would upload to cloud storage here
     // For this example, we'll simulate a successful upload and return a fake URL
     // This would normally be where you'd use Supabase Storage, AWS S3, etc.
     
     // Fake URL for demo purposes - in production replace with actual upload code
-    const avatarUrl = `https://yourdomain.com/uploads/${filename}`;
+    const avatarUrl = `https://via.placeholder.com/150?text=${encodeURIComponent(session.user.name || 'User')}`;
+    
+    console.log("Generated avatar URL:", avatarUrl);
     
     // Update user profile with new avatar URL
-    const success = await UserService.updateUser(session.user.id, {
-      avatar: avatarUrl
-    });
-    
-    if (!success) {
+    try {
+      const success = await UserService.updateUser(session.user.id, {
+        avatar: avatarUrl
+      });
+      
+      if (!success) {
+        return NextResponse.json(
+          { error: 'Failed to update user avatar' },
+          { status: 500 }
+        );
+      }
+      
+      console.log("Avatar URL successfully updated for user:", session.user.id);
+      
+      return NextResponse.json({
+        success: true,
+        avatar: avatarUrl
+      });
+    } catch (updateError) {
+      console.error("Error updating user avatar:", updateError);
       return NextResponse.json(
-        { error: 'Failed to update user avatar' },
+        { error: 'Failed to update user profile with avatar' },
         { status: 500 }
       );
     }
-    
-    return NextResponse.json({
-      success: true,
-      avatar: avatarUrl
-    });
   } catch (error) {
     console.error('Error uploading avatar:', error);
     return NextResponse.json(

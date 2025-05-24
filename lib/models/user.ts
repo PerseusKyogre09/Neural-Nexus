@@ -235,24 +235,29 @@ export class UserService {
     const collection = await getCollection(this.COLLECTION_NAME);
     
     try {
+      // Create a sanitized update object with only defined values
+      const updateFields: any = {
+        name: profileData.displayName || '',
+        bio: profileData.bio || '',
+        profileComplete: true,
+        updatedAt: new Date()
+      };
+      
+      // Only add optional fields if they're defined
+      if (profileData.avatar) updateFields.avatar = profileData.avatar;
+      if (profileData.organization) updateFields.organization = profileData.organization;
+      if (profileData.jobTitle) updateFields.jobTitle = profileData.jobTitle;
+      if (profileData.location) updateFields.location = profileData.location;
+      if (profileData.website) updateFields.website = profileData.website;
+      
+      // Handle arrays properly
+      if (Array.isArray(profileData.skills)) updateFields.skills = profileData.skills;
+      if (Array.isArray(profileData.interests)) updateFields.interests = profileData.interests;
+      
       // Update user profile with provided data
       const result = await collection.updateOne(
         { _id: new ObjectId(id) },
-        { 
-          $set: { 
-            name: profileData.displayName || '',
-            bio: profileData.bio || '',
-            avatar: profileData.avatar || '',
-            organization: profileData.organization || '',
-            jobTitle: profileData.jobTitle || '',
-            location: profileData.location || '',
-            website: profileData.website || '',
-            skills: profileData.skills || [],
-            interests: profileData.interests || [],
-            profileComplete: true,
-            updatedAt: new Date()
-          } 
-        }
+        { $set: updateFields }
       );
       
       return result.modifiedCount > 0;

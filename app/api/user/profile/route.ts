@@ -56,10 +56,23 @@ export async function POST(req: NextRequest) {
       );
     }
     
+    // Sanitize the data to handle undefined values properly
+    const sanitizedData = {
+      displayName: profileData.displayName,
+      bio: profileData.bio || '',
+      // Optional fields - only include if provided
+      organization: profileData.organization || undefined,
+      jobTitle: profileData.jobTitle || undefined,
+      location: profileData.location || undefined,
+      website: profileData.website || undefined,
+      skills: Array.isArray(profileData.skills) ? profileData.skills : [],
+      interests: Array.isArray(profileData.interests) ? profileData.interests : []
+    };
+    
     // Complete the user profile
     const success = await UserService.completeProfile(
       session.user.id,
-      profileData
+      sanitizedData
     );
     
     if (!success) {

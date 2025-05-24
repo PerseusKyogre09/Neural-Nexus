@@ -10,7 +10,7 @@ import {
   Plus, Upload, Zap, Users, DollarSign, 
   BarChart2, TrendingUp, Clock, Diamond, Settings,
   Layers, Database, Award, Bookmark, Eye, AlertTriangle,
-  Key, Copy, RefreshCw, Trash2, Code, Lock
+  Key, Copy, RefreshCw, Trash2, Code, Lock, Download
 } from 'lucide-react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
@@ -22,6 +22,7 @@ import ProfileCompleteModal from '@/components/ProfileCompleteModal';
 import { useSession } from 'next-auth/react';
 import { useSupabase } from '@/providers/SupabaseProvider';
 import { User } from '@supabase/supabase-js';
+import { toast } from 'react-hot-toast';
 
 interface SessionUser {
   id: string;
@@ -44,24 +45,65 @@ interface StatCard {
   color: string;
 }
 
-// Create helper functions to safely access properties with type guards
+/**
+ * Type guard to check if a value is not null or undefined
+ */
+function isDefined<T>(value: T | null | undefined): value is T {
+  return value !== null && value !== undefined;
+}
+
+/**
+ * Safe accessor for user name
+ */
 const getUserName = (userData: any, session: any): string => {
-  if (userData?.name) return userData.name;
-  if (session?.user_metadata?.first_name) return session.user_metadata.first_name;
-  if (session?.name) return session.name;
-  return 'Creator';
+  // Try different paths to get user name
+  if (isDefined(userData?.name)) return userData.name;
+  if (isDefined(session?.user?.name)) return session.user.name;
+  if (isDefined(session?.user?.username)) return session.user.username;
+  if (isDefined(userData?.username)) return userData.username;
+  if (isDefined(userData?.user_metadata?.first_name)) {
+    return userData.user_metadata.first_name;
+  }
+  
+  // Default fallback
+  return "User";
 };
 
+/**
+ * Safe accessor for user email
+ */
 const getUserEmail = (userData: any, session: any): string => {
-  if (userData?.email) return userData.email;
-  if (session?.email) return session.email;
-  return 'Not set';
+  if (isDefined(userData?.email)) return userData.email;
+  if (isDefined(session?.user?.email)) return session.user.email;
+  
+  // Default fallback
+  return "";
 };
 
+/**
+ * Safe accessor for user avatar
+ */
 const getUserAvatar = (userData: any, session: any): string => {
-  if (userData?.avatar) return userData.avatar;
-  if (session?.image) return session.image;
-  return '';
+  if (isDefined(userData?.avatar)) return userData.avatar;
+  if (isDefined(session?.user?.image)) return session.user.image;
+  
+  // Default fallback
+  return "";
+};
+
+// Safely access user properties with proper type checking
+const getUserProperty = (session: SessionUser | User | null, property: string, fallback: any = '') => {
+  if (!session) return fallback;
+  
+  // Handle NextAuth session
+  if ('user' in session && session.user) {
+    // @ts-ignore - Using dynamic property access
+    return session.user[property] || fallback;
+  }
+  
+  // Handle Supabase user
+  // @ts-ignore - Using dynamic property access
+  return session[property] || fallback;
 };
 
 export default function DashboardPage() {
@@ -90,54 +132,52 @@ export default function DashboardPage() {
   // Check if user profile is complete and fetch user data
   useEffect(() => {
     const fetchProfileStatus = async () => {
-      if (!session?.id) {
-        setLoading(false);
-        return;
-      }
-
       try {
-        // Fetch profile status
-        const profileResponse = await fetch('/api/user/profile');
-        const profileData = await profileResponse.json();
-        
-        // Set profile completion status
-        setHasCompletedProfile(profileData.isComplete);
-        setIsProfileModalOpen(!profileData.isComplete);
-        
-        // Fetch user data
-        const userResponse = await fetch('/api/user');
-        if (userResponse.ok) {
-          const userData = await userResponse.json();
-          setUserData(userData);
+        if (!session) {
+          setLoading(false);
+          return;
         }
         
-        // Initialize empty stats
-        setStats([
-          { label: "Total Models", value: 0, icon: <Layers className="h-5 w-5" />, color: "from-blue-500 to-cyan-400" },
-          { label: "Total Sales", value: 0, icon: <TrendingUp className="h-5 w-5" />, color: "from-green-500 to-emerald-400" },
-          { label: "Revenue", value: "$0", icon: <DollarSign className="h-5 w-5" />, color: "from-purple-500 to-violet-400" },
-          { label: "Model Views", value: "0", icon: <Eye className="h-5 w-5" />, color: "from-pink-500 to-rose-400" }
-        ]);
-        
-        // Initialize empty revenue data
-        setRevenueData([
-          { month: "Jan", amount: 0 },
-          { month: "Feb", amount: 0 },
-          { month: "Mar", amount: 0 },
-          { month: "Apr", amount: 0 },
-          { month: "May", amount: 0 },
-          { month: "Jun", amount: 0 },
-          { month: "Jul", amount: 0 }
-        ]);
-        
-        // Fetch user's models
-        // This would be a real API call to get the user's models
-        // For now, we'll just set an empty array
-        setMyModels([]);
-        
-        // Set empty activities
-        setActivities([]);
-        
+        const userId = getUserProperty(session, 'id');
+        if (!userId) {
+          setLoading(false);
+          return;
+        }
+
+        // Fetch user profile from MongoDB through our API
+        const response = await fetch('/api/user', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        if (response.ok) {
+          const userData = await response.json();
+          console.log("Loaded user data from database:", userData);
+          
+          setUserData(userData);
+          setHasCompletedProfile(userData.profileComplete || false);
+          
+          // Show profile modal if profile is not complete
+          if (!userData.profileComplete) {
+            setIsProfileModalOpen(true);
+          }
+          
+          // Once we have user data, fetch other dashboard data
+          fetchUserDashboardData();
+        } else {
+          console.error("Failed to fetch user data");
+          // If we can't load user data, still initialize with session data
+          const email = getUserProperty(session, 'email');
+          
+          setUserData({
+            id: userId,
+            name: getUserProperty(session, 'name', email?.split('@')[0]),
+            email: email,
+            avatar: getUserProperty(session, 'image'),
+            profileComplete: false
+          });
+          setIsProfileModalOpen(true);
+        }
       } catch (error) {
         console.error("Error fetching profile status:", error);
       } finally {
@@ -153,22 +193,94 @@ export default function DashboardPage() {
   // Handle profile completion
   const handleProfileComplete = async (profileData: any) => {
     try {
-      // Update user data with the profile data
-      setUserData({
-        ...userData,
-        ...profileData,
-        profileComplete: true
-      });
+      console.log("Profile completed with data:", profileData);
       
-      setHasCompletedProfile(true);
+      // Update local user data
+      if (profileData) {
+        setUserData((prev: any) => ({
+          ...prev,
+          ...profileData,
+          profileComplete: true
+        }));
+        
+        setHasCompletedProfile(true);
+      }
+      
+      // Close modal
       setIsProfileModalOpen(false);
       
-      // Reload the page to reflect the changes
-      // This is optional but helps ensure all data is fresh
-      router.refresh();
+      // Show success notification
+      toast.success("Profile completed successfully!");
       
+      // Fetch updated dashboard data - reuse the existing function
+      fetchUserDashboardData();
     } catch (error) {
-      console.error("Error updating profile:", error);
+      console.error("Error handling profile completion:", error);
+      toast.error("There was an error updating your profile. Please try again.");
+    }
+  };
+  
+  // Declare fetchUserDashboardData in the component scope so it can be reused
+  const fetchUserDashboardData = async () => {
+    try {
+      // For demo, populate with placeholder data
+      // In a real app, fetch this data from your API
+      setStats([
+        {
+          label: "Models Created",
+          value: 12,
+          icon: <Database className="h-5 w-5" />,
+          change: 8.2,
+          color: "from-blue-500 to-indigo-600"
+        },
+        {
+          label: "Total Downloads",
+          value: "2.4k",
+          icon: <Download className="h-5 w-5" />,
+          change: 23.1,
+          color: "from-purple-500 to-pink-600"
+        },
+        {
+          label: "Revenue",
+          value: "$1,240",
+          icon: <DollarSign className="h-5 w-5" />,
+          change: -4.3,
+          color: "from-green-500 to-emerald-600"
+        },
+        {
+          label: "API Calls",
+          value: "890k",
+          icon: <Zap className="h-5 w-5" />,
+          change: 12.2,
+          color: "from-orange-500 to-red-600"
+        }
+      ]);
+      
+      // Placeholder models data
+      setMyModels([
+        { id: 1, name: "GPT Transformer", status: "active", downloads: 423, rating: 4.8 },
+        { id: 2, name: "Image Classifier", status: "draft", downloads: 0, rating: 0 },
+        { id: 3, name: "Speech Recognizer", status: "active", downloads: 89, rating: 4.2 }
+      ]);
+      
+      // Placeholder revenue data
+      setRevenueData([
+        { month: "Jan", amount: 340 },
+        { month: "Feb", amount: 580 },
+        { month: "Mar", amount: 420 },
+        { month: "Apr", amount: 780 },
+        { month: "May", amount: 590 },
+        { month: "Jun", amount: 980 }
+      ]);
+      
+      // Placeholder activity data
+      setActivities([
+        { type: "download", model: "GPT Transformer", user: "john@example.com", time: "3 hours ago" },
+        { type: "review", model: "GPT Transformer", user: "alice@example.com", time: "6 hours ago" },
+        { type: "payment", amount: "$25.00", user: "bob@example.com", time: "1 day ago" },
+      ]);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
     }
   };
   

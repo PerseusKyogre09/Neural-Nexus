@@ -98,13 +98,26 @@ export default function ProfileCompleteModal({
   
   const saveProfileData = async (data: any) => {
     try {
+      // Make a copy of the data to avoid modifying the original state
+      const sanitizedData = {
+        displayName: data.displayName,
+        bio: data.bio,
+        organization: data.organization || undefined,
+        location: data.location || undefined,
+        jobTitle: data.jobTitle || undefined,
+        website: data.website || undefined,
+        skills: data.skills.length > 0 ? data.skills : undefined,
+        interests: data.interests.length > 0 ? data.interests : undefined,
+        // Don't include the avatar here - it's uploaded separately
+      };
+
       // Call the API to save profile data
       const response = await fetch('/api/user/profile', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(sanitizedData),
       });
       
       if (!response.ok) {
@@ -141,6 +154,13 @@ export default function ProfileCompleteModal({
       return;
     }
     
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      alert('Image size must be less than 5MB');
+      return;
+    }
+    
     try {
       setIsUploading(true);
       
@@ -155,7 +175,8 @@ export default function ProfileCompleteModal({
       });
       
       if (!response.ok) {
-        throw new Error('Failed to upload image');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to upload image');
       }
       
       const result = await response.json();
