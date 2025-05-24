@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { CheckCircle, Loader, ArrowRight } from 'lucide-react';
@@ -10,7 +10,32 @@ import { toast } from 'react-hot-toast';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
-export default function CheckoutSuccessPage() {
+// Loading component for Suspense fallback
+function SuccessPageLoading() {
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <main className="flex-grow flex items-center justify-center p-6">
+        <motion.div 
+          className="w-full max-w-md bg-gradient-to-b from-gray-900 to-black border border-gray-800 rounded-xl p-8 shadow-xl"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="text-center py-10">
+            <Loader className="h-12 w-12 text-blue-500 mx-auto mb-4 animate-spin" />
+            <h2 className="text-2xl font-bold mb-2">Loading</h2>
+            <p className="text-gray-400">Please wait while we load the page...</p>
+          </div>
+        </motion.div>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+// Main component content
+function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [verifying, setVerifying] = useState(true);
@@ -93,7 +118,7 @@ export default function CheckoutSuccessPage() {
         });
         toast.success('Payment successful!');
       } else {
-        toast.warning('Payment is still being processed. You will receive a confirmation soon.');
+        toast('Payment is still being processed. You will receive a confirmation soon.');
       }
     } catch (error) {
       console.error('Error verifying Coinbase payment:', error);
@@ -256,5 +281,14 @@ export default function CheckoutSuccessPage() {
       
       <Footer />
     </div>
+  );
+}
+
+// Export the page component with Suspense
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={<SuccessPageLoading />}>
+      <CheckoutSuccessContent />
+    </Suspense>
   );
 } 

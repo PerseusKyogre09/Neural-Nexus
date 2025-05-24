@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 
 export function createClient(cookieStore = cookies()) {
@@ -9,15 +9,22 @@ export function createClient(cookieStore = cookies()) {
     throw new Error('Missing Supabase environment variables');
   }
 
-  return createClient(supabaseUrl, supabaseKey, {
+  // Get the auth token from cookies, if it exists
+  const authToken = cookieStore.get('supabase-auth-token')?.value;
+  
+  // Headers object with conditional auth token
+  const headers: Record<string, string> = {};
+  if (authToken) {
+    headers['x-supabase-auth-token'] = authToken;
+  }
+
+  return createSupabaseClient(supabaseUrl, supabaseKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
     },
     global: {
-      headers: {
-        'x-supabase-auth-token': cookieStore.get('supabase-auth-token')?.value,
-      },
+      headers
     },
   });
 } 
