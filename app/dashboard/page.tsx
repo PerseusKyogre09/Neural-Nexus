@@ -106,6 +106,69 @@ const getUserProperty = (session: SessionUser | User | null, property: string, f
   return session[property] || fallback;
 };
 
+async function fetchUserDashboardData(userId: string) {
+  // Placeholder data for user dashboard
+  try {
+    // Fetch user models
+    const modelsResponse = await fetch(`/api/models?creatorId=${userId}&limit=5`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!modelsResponse.ok) {
+      throw new Error('Failed to fetch user models');
+    }
+
+    const modelsData = await modelsResponse.json();
+    const userModels = modelsData.models || [];
+
+    // Fetch user revenue data
+    const revenueResponse = await fetch(`/api/user/revenue`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!revenueResponse.ok) {
+      throw new Error('Failed to fetch user revenue data');
+    }
+
+    const revenueData = await revenueResponse.json();
+
+    // Fetch user activity data
+    const activityResponse = await fetch(`/api/user/activity`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!activityResponse.ok) {
+      throw new Error('Failed to fetch user activity data');
+    }
+
+    const activityData = await activityResponse.json();
+
+    return {
+      models: userModels,
+      revenue: revenueData.revenue || [],
+      activities: activityData.activities || []
+    };
+  } catch (error) {
+    console.error('Error fetching user dashboard data:', error);
+    
+    // Return fallback data in case of errors
+    return {
+      models: [],
+      revenue: [],
+      activities: []
+    };
+  }
+}
+
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState(true);
@@ -162,8 +225,57 @@ export default function DashboardPage() {
             setIsProfileModalOpen(true);
           }
           
-          // Once we have user data, fetch other dashboard data
-          fetchUserDashboardData();
+          // Once we have user data, fetch dashboard data using the new function
+          const dashboardData = await fetchUserDashboardData(userId);
+          
+          // Update state with dashboard data
+          setMyModels(dashboardData.models || []);
+          setRevenueData(dashboardData.revenue || []);
+          setActivities(dashboardData.activities || []);
+          
+          // Create stats based on real model data
+          let totalDownloads = 0;
+          let totalReviews = 0;
+          
+          dashboardData.models.forEach((model: any) => {
+            totalDownloads += model.downloads || 0;
+            totalReviews += model.reviews?.length || 0;
+          });
+          
+          // Update stats with real data
+          setStats([
+            {
+              label: "Models Created",
+              value: dashboardData.models.length || 0,
+              icon: <Database className="h-5 w-5" />,
+              change: 0, // Calculate change from previous period if available
+              color: "from-blue-500 to-indigo-600"
+            },
+            {
+              label: "Total Downloads",
+              value: totalDownloads > 999 ? (totalDownloads/1000).toFixed(1) + 'k' : totalDownloads,
+              icon: <Download className="h-5 w-5" />,
+              change: 0,
+              color: "from-purple-500 to-pink-600"
+            },
+            {
+              label: "Revenue",
+              value: dashboardData.revenue.reduce((sum: number, item: any) => sum + (item.amount || 0), 0).toLocaleString('en-US', {
+                style: 'currency',
+                currency: 'USD'
+              }),
+              icon: <DollarSign className="h-5 w-5" />,
+              change: 0,
+              color: "from-green-500 to-emerald-600"
+            },
+            {
+              label: "API Calls",
+              value: dashboardData.activities.filter((a: any) => a.type === 'api_call').length.toString(),
+              icon: <Zap className="h-5 w-5" />,
+              change: 0,
+              color: "from-orange-500 to-red-600"
+            }
+          ]);
         } else {
           console.error("Failed to fetch user data");
           // If we can't load user data, still initialize with session data
@@ -177,9 +289,56 @@ export default function DashboardPage() {
             profileComplete: false
           });
           setIsProfileModalOpen(true);
+          
+          // Still try to fetch dashboard data with the user ID
+          const dashboardData = await fetchUserDashboardData(userId);
+          setMyModels(dashboardData.models || []);
+          setRevenueData(dashboardData.revenue || []);
+          setActivities(dashboardData.activities || []);
+          
+          // Set default stats
+          setStats([
+            {
+              label: "Models Created",
+              value: dashboardData.models.length || 0,
+              icon: <Database className="h-5 w-5" />,
+              change: 0,
+              color: "from-blue-500 to-indigo-600"
+            },
+            {
+              label: "Total Downloads",
+              value: 0,
+              icon: <Download className="h-5 w-5" />,
+              change: 0,
+              color: "from-purple-500 to-pink-600"
+            },
+            {
+              label: "Revenue",
+              value: "$0",
+              icon: <DollarSign className="h-5 w-5" />,
+              change: 0,
+              color: "from-green-500 to-emerald-600"
+            },
+            {
+              label: "API Calls",
+              value: "0",
+              icon: <Zap className="h-5 w-5" />,
+              change: 0,
+              color: "from-orange-500 to-red-600"
+            }
+          ]);
         }
       } catch (error) {
         console.error("Error fetching profile status:", error);
+        
+        // Handle error case
+        const userId = getUserProperty(session, 'id');
+        if (userId) {
+          const dashboardData = await fetchUserDashboardData(userId);
+          setMyModels(dashboardData.models || []);
+          setRevenueData(dashboardData.revenue || []);
+          setActivities(dashboardData.activities || []);
+        }
       } finally {
         setLoading(false);
       }
@@ -212,75 +371,58 @@ export default function DashboardPage() {
       // Show success notification
       toast.success("Profile completed successfully!");
       
-      // Fetch updated dashboard data - reuse the existing function
-      fetchUserDashboardData();
+      // Fetch updated dashboard data - use the new function and update all state
+      if (userData?.id) {
+        const dashboardData = await fetchUserDashboardData(userData.id);
+        
+        // Update dashboard state with fetched data
+        setMyModels(dashboardData.models || []);
+        setRevenueData(dashboardData.revenue || []);
+        setActivities(dashboardData.activities || []);
+        
+        // Update stats with real data
+        let totalDownloads = 0;
+        dashboardData.models.forEach((model: any) => {
+          totalDownloads += model.downloads || 0;
+        });
+        
+        setStats([
+          {
+            label: "Models Created",
+            value: dashboardData.models.length || 0,
+            icon: <Database className="h-5 w-5" />,
+            change: 0,
+            color: "from-blue-500 to-indigo-600"
+          },
+          {
+            label: "Total Downloads",
+            value: totalDownloads > 999 ? (totalDownloads/1000).toFixed(1) + 'k' : totalDownloads,
+            icon: <Download className="h-5 w-5" />,
+            change: 0,
+            color: "from-purple-500 to-pink-600"
+          },
+          {
+            label: "Revenue",
+            value: dashboardData.revenue.reduce((sum: number, item: any) => sum + (item.amount || 0), 0).toLocaleString('en-US', {
+              style: 'currency',
+              currency: 'USD'
+            }),
+            icon: <DollarSign className="h-5 w-5" />,
+            change: 0,
+            color: "from-green-500 to-emerald-600"
+          },
+          {
+            label: "API Calls",
+            value: dashboardData.activities.filter((a: any) => a.type === 'api_call').length.toString(),
+            icon: <Zap className="h-5 w-5" />,
+            change: 0,
+            color: "from-orange-500 to-red-600"
+          }
+        ]);
+      }
     } catch (error) {
       console.error("Error handling profile completion:", error);
       toast.error("There was an error updating your profile. Please try again.");
-    }
-  };
-  
-  // Declare fetchUserDashboardData in the component scope so it can be reused
-  const fetchUserDashboardData = async () => {
-    try {
-      // For demo, populate with placeholder data
-      // In a real app, fetch this data from your API
-      setStats([
-        {
-          label: "Models Created",
-          value: 12,
-          icon: <Database className="h-5 w-5" />,
-          change: 8.2,
-          color: "from-blue-500 to-indigo-600"
-        },
-        {
-          label: "Total Downloads",
-          value: "2.4k",
-          icon: <Download className="h-5 w-5" />,
-          change: 23.1,
-          color: "from-purple-500 to-pink-600"
-        },
-        {
-          label: "Revenue",
-          value: "$1,240",
-          icon: <DollarSign className="h-5 w-5" />,
-          change: -4.3,
-          color: "from-green-500 to-emerald-600"
-        },
-        {
-          label: "API Calls",
-          value: "890k",
-          icon: <Zap className="h-5 w-5" />,
-          change: 12.2,
-          color: "from-orange-500 to-red-600"
-        }
-      ]);
-      
-      // Placeholder models data
-      setMyModels([
-        { id: 1, name: "GPT Transformer", status: "active", downloads: 423, rating: 4.8 },
-        { id: 2, name: "Image Classifier", status: "draft", downloads: 0, rating: 0 },
-        { id: 3, name: "Speech Recognizer", status: "active", downloads: 89, rating: 4.2 }
-      ]);
-      
-      // Placeholder revenue data
-      setRevenueData([
-        { month: "Jan", amount: 340 },
-        { month: "Feb", amount: 580 },
-        { month: "Mar", amount: 420 },
-        { month: "Apr", amount: 780 },
-        { month: "May", amount: 590 },
-        { month: "Jun", amount: 980 }
-      ]);
-      
-      // Placeholder activity data
-      setActivities([
-        { type: "download", model: "GPT Transformer", user: "john@example.com", time: "3 hours ago" },
-        { type: "review", model: "GPT Transformer", user: "alice@example.com", time: "6 hours ago" },
-        { type: "payment", amount: "$25.00", user: "bob@example.com", time: "1 day ago" },
-      ]);
-    } catch (error) {
-      console.error("Error fetching dashboard data:", error);
     }
   };
   

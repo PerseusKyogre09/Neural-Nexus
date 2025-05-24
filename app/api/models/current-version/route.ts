@@ -1,13 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ModelService } from '@/lib/models/model';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+
+// Force Node.js runtime for this route
+export const runtime = 'nodejs';
 
 // PATCH /api/models/current-version - Set the current version of a model
 export async function PATCH(req: NextRequest) {
   try {
-    // In a production app, you would need to authenticate the user here
-    // For now, we'll simulate a user context
-    const userId = "demo-user-id";
-    const userRole = "admin";
+    // Get authenticated user from session
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized - You must be logged in to update model version' },
+        { status: 401 }
+      );
+    }
+    
+    const userId = session.user.id;
+    const userRole = session.user.role || 'user';
     
     const { modelId, version } = await req.json();
     

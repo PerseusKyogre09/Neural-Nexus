@@ -3,24 +3,126 @@ import { ModelService, ModelCategory, ModelFramework } from '@/lib/models/model'
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import slugify from 'slugify';
+import { getCollection } from '@/lib/mongodb';
 
 // GET /api/models - Get all models with optional filters and pagination
 export async function GET(req: NextRequest) {
   try {
+    console.log("🔍 Models API: Processing request");
+    const startTime = Date.now();
+    
+    // Parse query parameters
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const category = searchParams.get('category') as ModelCategory | undefined;
     const framework = searchParams.get('framework') as ModelFramework | undefined;
     const sortBy = searchParams.get('sortBy') as 'newest' | 'popular' | 'downloads' | 'stars' | 'rating' || 'newest';
+    const creatorId = searchParams.get('creatorId');
     
-    const result = await ModelService.getAllModels(page, limit, category, framework, sortBy);
+    console.log(`📊 Models API: Request with filters - ${category ? `category=${category}, ` : ''}${framework ? `framework=${framework}, ` : ''}${creatorId ? `creatorId=${creatorId}, ` : ''}sortBy=${sortBy}, page=${page}, limit=${limit}`);
     
-    return NextResponse.json(result);
+    // Create query object for database
+    let query: any = {};
+    
+    // Add filters to query
+    if (category) {
+      query.category = category;
+    }
+    if (framework) {
+      query.framework = framework;
+    }
+    if (creatorId) {
+      query['creator.id'] = creatorId;
+      console.log(`👤 Models API: Filtering by creator ID ${creatorId}`);
+    }
+    
+    try {
+      // Get models from database with filters - real-time data
+      const collection = await getCollection('models');
+      
+      // Get total count for pagination
+      const totalCount = await collection.countDocuments(query);
+      const totalPages = Math.ceil(totalCount / limit);
+      
+      console.log(`📈 Models API: Found ${totalCount} total matching models`);
+      
+      // Get models with pagination
+      let sort: Record<string, number> = {};
+      switch (sortBy) {
+        case 'newest':
+          sort.created_at = -1;
+          break;
+        case 'popular':
+          sort.downloads = -1;
+          break;
+        case 'downloads':
+          sort.downloads = -1;
+          break;
+        case 'stars':
+          sort.stars = -1;
+          break;
+        case 'rating':
+          sort.averageRating = -1;
+          break;
+      }
+      
+      const models = await collection
+        .find(query)
+        .sort(sort)
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .toArray();
+      
+      console.log(`✅ Models API: Retrieved ${models.length} models for page ${page}`);
+      
+      // Process model data to include additional metrics
+      const processedModels = models.map((model: any) => {
+        // Extract reviews if they exist
+        const reviews = model.reviews || [];
+        
+        // Calculate average rating if reviews exist
+        let avgRating = 0;
+        if (reviews.length > 0) {
+          const totalRating = reviews.reduce((sum: number, review: any) => {
+            return sum + (review.rating || 0);
+          }, 0);
+          avgRating = totalRating / reviews.length;
+        }
+        
+        return {
+          ...model,
+          avgRating: parseFloat(avgRating.toFixed(1)),
+          reviewCount: reviews.length,
+          latestVersion: model.versions?.length ? model.versions[model.versions.length - 1].version : '1.0.0',
+          lastUpdated: model.updated_at || model.created_at
+        };
+      });
+      
+      const responseTime = Date.now() - startTime;
+      console.log(`⏱️ Models API: Request completed in ${responseTime}ms`);
+      
+      return NextResponse.json({
+        success: true,
+        models: processedModels,
+        totalCount,
+        totalPages,
+        currentPage: page,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+        lastUpdated: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error("❌ Models API: Database error:", error);
+      throw error; // Re-throw to be caught by outer try/catch
+    }
   } catch (error) {
-    console.error('Error getting models:', error);
+    console.error('❌ Models API: Error getting models:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch models' },
+      { 
+        error: 'Failed to fetch models',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
@@ -29,10 +131,18 @@ export async function GET(req: NextRequest) {
 // POST /api/models - Create a new model
 export async function POST(req: NextRequest) {
   try {
-    // In a production app, you would need to authenticate the user here
-    // For now, we'll simulate a user context
-    const userId = "demo-user-id";
-    const userName = "Demo User";
+    // Get authenticated user from session
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized - You must be logged in to create a model' },
+        { status: 401 }
+      );
+    }
+    
+    const userId = session.user.id;
+    const userName = session.user.name || session.user.username || 'Unknown User';
     
     const modelData = await req.json();
     
@@ -53,11 +163,11 @@ export async function POST(req: NextRequest) {
       });
     }
     
-    // Add creator information
+    // Add creator information from session
     modelData.creator = {
       id: userId,
       name: userName,
-      avatar: undefined
+      avatar: session.user.image || undefined
     };
     
     // Ensure versions array with at least one version
@@ -89,10 +199,18 @@ export async function POST(req: NextRequest) {
 // PUT /api/models - Update an existing model
 export async function PUT(req: NextRequest) {
   try {
-    // In a production app, you would need to authenticate the user here
-    // For now, we'll simulate a user context
-    const userId = "demo-user-id";
-    const userRole = "admin";
+    // Get authenticated user from session
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized - You must be logged in to update a model' },
+        { status: 401 }
+      );
+    }
+    
+    const userId = session.user.id;
+    const userRole = session.user.role || 'user';
     
     const { id, ...updates } = await req.json();
     
@@ -156,10 +274,18 @@ export async function PUT(req: NextRequest) {
 // DELETE /api/models - Delete a model
 export async function DELETE(req: NextRequest) {
   try {
-    // In a production app, you would need to authenticate the user here
-    // For now, we'll simulate a user context
-    const userId = "demo-user-id";
-    const userRole = "admin";
+    // Get authenticated user from session
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized - You must be logged in to delete a model' },
+        { status: 401 }
+      );
+    }
+    
+    const userId = session.user.id;
+    const userRole = session.user.role || 'user';
     
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
